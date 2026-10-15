@@ -881,7 +881,7 @@ function bldImg(k) { const im = IMG.bld[k] || lazyImg('bld', k); return im && !i
 // [x0, y0, x1, y1] 은 원본 대비 비율, mirror 는 잘라 낸 정면 오른쪽에 좌우반전본을 이어 붙여 대칭 정면을 만든다
 const BLD_FRONT = {
   school: [0.10, 0.08, 1, 1],
-  center: [0.03, 0.13, 0.97, 1],
+  center: [0.03, 0.13, 0.97, 1, 'ownDoor'], // 그림에 큰 출입구가 있으므로 유리문을 덧그리지 않는다
   shop: [0.18, 0, 1, 1, 'mirror'],
   house: [0, 0.19, 0.62, 1],
   champion: [0, 0.19, 0.62, 1],
@@ -920,7 +920,7 @@ function silhouette(im) {
 }
 // 테마별 건물 기단(바닥과 닿는 판) 색
 const FOUNDATION = { town: ['#cfc6b4', '#a89f8c'], route: ['#b9b3a6', '#8f897c'], forest: ['#a79a83', '#7d715d'], coast: ['#d7c79e', '#a99a72'], snow: ['#e9eef3', '#b9c4ce'], factory: ['#9a9fa6', '#6c7178'], resort: ['#f1e6d2', '#c9b897'], nest: ['#4a3c50', '#2c2232'] };
-function drawBuildingArt(b, im) {
+function drawBuildingArt(b, im, ownDoor) {
   const w = b.w * TILE, base = (b.y + b.h) * TILE + 6;
   let dw = w * 1.1, dh = im.height * dw / im.width;
   // 너무 높은 건물은 맵 위쪽으로 잘리지 않도록 줄인다
@@ -932,7 +932,8 @@ function drawBuildingArt(b, im) {
   const sil = silhouette(im);
   if (sil) {
     // 밑변을 축으로 높이를 0.32배로 눕히고 오른쪽으로 기울인다 (건물 뒤 오른편으로 그림자가 드리운다)
-    ctx.save(); ctx.globalAlpha = 0.24; ctx.translate(x, base); ctx.transform(1, 0, -0.55, 0.32, 0, 0);
+    // 눈밭처럼 밝은 바닥에서는 그림자를 옅게
+    ctx.save(); ctx.globalAlpha = World.def && World.def.theme === 'snow' ? 0.13 : 0.24; ctx.translate(x, base); ctx.transform(1, 0, -0.55, 0.32, 0, 0);
     const px = dw * sil._pad, py = dh * sil._pad * (sil.width / sil.height);
     ctx.drawImage(sil, -px, -dh - py, dw + px * 2, dh + py * 2); ctx.restore();
   }
@@ -952,11 +953,13 @@ function drawBuildingArt(b, im) {
     const dx = b.door * TILE, by = base - 6;
     const lg = ctx.createRadialGradient(dx + 24, by + 10, 4, dx + 24, by + 10, 46); lg.addColorStop(0, 'rgba(255,226,160,0.38)'); lg.addColorStop(1, 'rgba(255,226,160,0)');
     ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = lg; ctx.fillRect(dx - 24, by - 30, 96, 70); ctx.restore();
-    ctx.fillStyle = '#2b2f36'; rrect(dx + 5, by - 54, 38, 50, 4); ctx.fill();
-    const gl = ctx.createLinearGradient(0, by - 50, 0, by - 6); gl.addColorStop(0, '#9fd8ec'); gl.addColorStop(1, '#ffe2a6');
-    ctx.fillStyle = gl; ctx.fillRect(dx + 9, by - 50, 30, 44);
-    ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.beginPath(); ctx.moveTo(dx + 11, by - 48); ctx.lineTo(dx + 19, by - 48); ctx.lineTo(dx + 11, by - 36); ctx.closePath(); ctx.fill();
-    ctx.fillStyle = '#2b2f36'; ctx.fillRect(dx + 23, by - 50, 2, 44);
+    if (!ownDoor) {
+      ctx.fillStyle = '#2b2f36'; rrect(dx + 5, by - 54, 38, 50, 4); ctx.fill();
+      const gl = ctx.createLinearGradient(0, by - 50, 0, by - 6); gl.addColorStop(0, '#9fd8ec'); gl.addColorStop(1, '#ffe2a6');
+      ctx.fillStyle = gl; ctx.fillRect(dx + 9, by - 50, 30, 44);
+      ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.beginPath(); ctx.moveTo(dx + 11, by - 48); ctx.lineTo(dx + 19, by - 48); ctx.lineTo(dx + 11, by - 36); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#2b2f36'; ctx.fillRect(dx + 23, by - 50, 2, 44);
+    }
     ctx.fillStyle = fc[0]; rrect(dx + 1, by - 6, 46, 10, 3); ctx.fill(); ctx.fillStyle = fc[1]; ctx.fillRect(dx + 1, by + 2, 46, 3);
     ctx.fillStyle = 'rgba(40,34,28,0.85)'; ctx.fillRect(dx + 9, by + 6, 30, 8); ctx.fillStyle = '#e8c547'; ctx.fillRect(dx + 9, by + 6, 30, 2);
   }
@@ -972,7 +975,7 @@ function drawBuildingArt(b, im) {
   ctx.restore();
 }
 function drawBuilding(b) {
-  { const art = b.art || BLD_ART[b.style], im = art && bldImg(art); if (im && im.width) { drawBuildingArt(b, frontImg(art, im)); return; } }
+  { const art = b.art || BLD_ART[b.style], im = art && bldImg(art); if (im && im.width) { drawBuildingArt(b, frontImg(art, im), (BLD_FRONT[art] || [])[4] === 'ownDoor'); return; } }
   const spr = cachedSprite('bld_' + b.style + b.w + 'x' + b.h + b.label, b.w * TILE, b.h * TILE + 30, g => {
     const w = b.w * TILE, h = b.h * TILE, top = 30;
     const st = {
