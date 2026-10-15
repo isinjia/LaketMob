@@ -1,0 +1,66 @@
+﻿<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>라켓몬스터 - RACKET MONSTER v0.1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  html, body { margin: 0; height: 100%; background: #02040a; overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none; }
+  body { display: flex; align-items: center; justify-content: center; font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif; }
+  canvas { display: block; image-rendering: auto; box-shadow: 0 0 60px rgba(56, 225, 255, 0.12); outline: none; }
+  #touchpad { display: none; position: fixed; inset: 0; pointer-events: none; }
+  #touchpad .btn { position: absolute; pointer-events: auto; width: 64px; height: 64px; border-radius: 50%; background: rgba(15, 30, 55, 0.55);
+    border: 2px solid rgba(56, 225, 255, 0.6); color: #cff6ff; font: 800 20px 'Noto Sans KR', sans-serif; display: flex; align-items: center; justify-content: center; }
+  #touchpad .btn.on { background: rgba(56, 225, 255, 0.45); }
+  #touchpad .dpad { position: absolute; left: 18px; bottom: 18px; width: 192px; height: 192px; }
+  #touchpad .dpad .btn { border-radius: 12px; }
+  #touchpad [data-act=up] { left: 64px; top: 0; } #touchpad [data-act=down] { left: 64px; top: 128px; }
+  #touchpad [data-act=left] { left: 0; top: 64px; } #touchpad [data-act=right] { left: 128px; top: 64px; }
+  #touchpad .ab { position: absolute; right: 18px; bottom: 30px; width: 170px; height: 150px; }
+  #touchpad [data-act=a] { right: 0; top: 0; width: 76px; height: 76px; border-color: #ffb22e; }
+  #touchpad [data-act=b] { right: 92px; top: 60px; }
+  #touchpad [data-act=run] { right: 24px; top: 90px; width: 52px; height: 52px; font-size: 13px; }
+  #touchpad [data-act=menu] { position: absolute; right: 18px; top: 18px; width: 70px; height: 40px; border-radius: 10px; font-size: 14px; }
+</style>
+</head>
+<body>
+<canvas id="game" tabindex="0"></canvas>
+<div id="touchpad">
+  <div class="dpad">
+    <div class="btn" data-act="up">▲</div><div class="btn" data-act="down">▼</div>
+    <div class="btn" data-act="left">◀</div><div class="btn" data-act="right">▶</div>
+  </div>
+  <div class="ab">
+    <div class="btn" data-act="a">A</div><div class="btn" data-act="b">B</div><div class="btn" data-act="run">RUN</div>
+  </div>
+  <div class="btn" data-act="menu">MENU</div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" crossorigin="anonymous"></script>
+<script src="js/sd.js?v=80"></script>
+<script src="js/sd/index.js?v=80"></script>
+<script src="js/assetsizes.js?v=80"></script>
+<script src="js/facing.js?v=80"></script>
+<script src="js/forms.js?v=80"></script>
+<script src="js/skinnames.js?v=80"></script>
+<script src="js/data.js?v=80"></script>
+<script src="js/fximg.js?v=80"></script>
+<script src="js/fx.js?v=80"></script>
+<script src="js/core.js?v=80"></script>
+<script src="js/ui.js?v=80"></script>
+<script src="js/battle.js?v=80"></script>
+<script src="js/battleui.js?v=80"></script>
+<script src="js/fx/_meta.js?v=80"></script>
+<script src="js/fxbake.js?v=80"></script>
+<script src="js/battlefx.js?v=80"></script>
+<script src="js/maps.js?v=80"></script>
+<script src="js/sdfield.js?v=80"></script>
+<script src="js/commander.js?v=80"></script>
+<script src="js/world.js?v=80"></script>
+<script src="js/terrain.js?v=80"></script>
+<script src="js/game.js?v=80"></script>
+<script src="js/league.js?v=80"></script>
+<script src="js/quests.js?v=80"></script>
+</body>
+</html>
