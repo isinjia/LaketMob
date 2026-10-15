@@ -875,7 +875,34 @@ function drawTallTile(c, x, y, th) {
 // ---- 건물 ----
 // 원작 배경 에셋의 건물 외관 (스타일 기본값, 건물별 b.art로 덮어쓰기)
 const BLD_ART = { lab: 'gym_gamma', center: 'center', shop: 'shop', house: 'house', gym: 'gym_gamma', champion: 'champion', factory: 'gym_epsilon' };
-function bldImg(k) { return IMG.bld[k] || lazyImg('bld', k); }
+// 못 불러온 이미지(_bad, 크기 0)는 없는 것으로 취급해 절차적 그림으로 대신 그린다
+function bldImg(k) { const im = IMG.bld[k] || lazyImg('bld', k); return im && !im._bad && im.width ? im : null; }
+// 원작 건물 그림은 3/4 시점이라 옆면·지붕이 보여 탑다운 필드와 원근이 어긋난다 → 정면만 잘라 쓴다.
+// [x0, y0, x1, y1] 은 원본 대비 비율, mirror 는 잘라 낸 정면 오른쪽에 좌우반전본을 이어 붙여 대칭 정면을 만든다
+const BLD_FRONT = {
+  school: [0.10, 0.08, 1, 1],
+  center: [0.03, 0.13, 0.97, 1],
+  shop: [0.18, 0, 1, 1, 'mirror'],
+  house: [0, 0.19, 0.62, 1],
+  champion: [0, 0.19, 0.62, 1],
+  gym_gamma: [0.15, 0.07, 1, 1],
+  gym_beta: [0, 0, 1, 0.70],
+  gym_delta: [0.08, 0.06, 1, 1],
+  gym_alpha: [0.08, 0.03, 0.52, 1, 'mirror'],
+};
+function frontImg(k, im) {
+  const cr = BLD_FRONT[k]; if (!cr) return im;
+  if (im._front) return im._front;
+  const sx = Math.round(im.width * cr[0]), sy = Math.round(im.height * cr[1]), sw = Math.round(im.width * (cr[2] - cr[0])), sh = Math.round(im.height * (cr[3] - cr[1]));
+  const mir = cr[4] === 'mirror';
+  const c = document.createElement('canvas'); c.width = sw * (mir ? 2 : 1); c.height = sh;
+  const g = c.getContext('2d');
+  g.drawImage(im, sx, sy, sw, sh, 0, 0, sw, sh);
+  // 반전본은 잘린 오른쪽 끝끼리 맞닿도록 붙인다 (1px 겹쳐 이음매를 없앤다)
+  if (mir) { g.save(); g.translate(sw * 2 - 1, 0); g.scale(-1, 1); g.drawImage(im, sx, sy, sw, sh, 0, 0, sw, sh); g.restore(); }
+  im._front = c;
+  return c;
+}
 // 건물 실루엣 (그림자 투영용, 이미지마다 한 번 만든다)
 function silhouette(im) {
   if (im._sil !== undefined) return im._sil;
@@ -945,7 +972,7 @@ function drawBuildingArt(b, im) {
   ctx.restore();
 }
 function drawBuilding(b) {
-  { const art = b.art || BLD_ART[b.style], im = art && bldImg(art); if (im) { drawBuildingArt(b, im); return; } }
+  { const art = b.art || BLD_ART[b.style], im = art && bldImg(art); if (im && im.width) { drawBuildingArt(b, frontImg(art, im)); return; } }
   const spr = cachedSprite('bld_' + b.style + b.w + 'x' + b.h + b.label, b.w * TILE, b.h * TILE + 30, g => {
     const w = b.w * TILE, h = b.h * TILE, top = 30;
     const st = {
@@ -1099,11 +1126,28 @@ function drawDeco(d, world) {
       break;
     }
     case 'boat': {
-      const bob = Math.sin(t * 1.5) * 3;
-      ctx.translate(0, bob);
-      ctx.fillStyle = '#8a5a3a'; ctx.beginPath(); ctx.moveTo(X, Y + 40); ctx.lineTo(X + w, Y + 40); ctx.lineTo(X + w - 20, Y + 70); ctx.lineTo(X + 20, Y + 70); ctx.closePath(); ctx.fill();
-      ctx.fillStyle = '#eee'; ctx.fillRect(X + w / 2 - 2, Y - 10, 4, 52);
-      ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.moveTo(X + w / 2 + 2, Y - 8); ctx.lineTo(X + w / 2 + 40, Y + 34); ctx.lineTo(X + w / 2 + 2, Y + 34); ctx.closePath(); ctx.fill();
+      // 물 위에 뜬 작은 범선 (3/4 시점: 갑판이 보이는 선체 + 돛 두 장 + 물결)
+      const bob = Math.sin(t * 1.5) * 3, roll = Math.sin(t * 1.1) * 0.03;
+      ctx.fillStyle = 'rgba(10,40,70,0.35)'; ctx.beginPath(); ctx.ellipse(X + w / 2, Y + 70, w / 2 + 6, 9, 0, 0, 7); ctx.fill();
+      ctx.strokeStyle = 'rgba(255,255,255,' + (0.35 + 0.2 * Math.sin(t * 2)) + ')'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.ellipse(X + w / 2, Y + 68, w / 2 + 2, 7, 0, 0.1, Math.PI - 0.1); ctx.stroke();
+      ctx.translate(X + w / 2, Y + 60 + bob); ctx.rotate(roll); ctx.translate(-(X + w / 2), -(Y + 60));
+      const hullL = X + 4, hullR = X + w - 4;
+      // 선체 옆면
+      const hg = ctx.createLinearGradient(0, Y + 44, 0, Y + 70); hg.addColorStop(0, '#9a6a44'); hg.addColorStop(1, '#5a3a24');
+      ctx.fillStyle = hg; ctx.beginPath(); ctx.moveTo(hullL - 6, Y + 44); ctx.lineTo(hullR + 10, Y + 42); ctx.quadraticCurveTo(hullR + 2, Y + 66, hullR - 14, Y + 70); ctx.lineTo(hullL + 12, Y + 70); ctx.quadraticCurveTo(hullL - 2, Y + 60, hullL - 6, Y + 44); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#e8e2d0'; ctx.fillRect(hullL, Y + 52, hullR - hullL, 3);
+      // 갑판 (위에서 비스듬히 보이는 면)
+      ctx.fillStyle = '#c8a070'; ctx.beginPath(); ctx.moveTo(hullL - 6, Y + 44); ctx.lineTo(hullR + 10, Y + 42); ctx.lineTo(hullR - 2, Y + 36); ctx.lineTo(hullL + 4, Y + 37); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = 'rgba(90,60,30,0.45)'; ctx.lineWidth = 1; for (let i = 1; i < 4; i++) { ctx.beginPath(); ctx.moveTo(hullL + i * (w / 4), Y + 37); ctx.lineTo(hullL - 4 + i * (w / 4), Y + 44); ctx.stroke(); }
+      // 돛대와 돛
+      const mx = X + w / 2 - 2;
+      ctx.fillStyle = '#6a4a2e'; ctx.fillRect(mx, Y - 22, 4, 62);
+      const sg = ctx.createLinearGradient(mx, 0, mx + 44, 0); sg.addColorStop(0, '#ffffff'); sg.addColorStop(1, '#dfe6ee');
+      ctx.fillStyle = sg; ctx.beginPath(); ctx.moveTo(mx + 5, Y - 18); ctx.quadraticCurveTo(mx + 48, Y + 6, mx + 40, Y + 32); ctx.lineTo(mx + 5, Y + 32); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#eef2f6'; ctx.beginPath(); ctx.moveTo(mx - 1, Y - 12); ctx.quadraticCurveTo(mx - 26, Y + 10, mx - 22, Y + 32); ctx.lineTo(mx - 1, Y + 32); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = 'rgba(0,0,0,0.15)'; ctx.beginPath(); ctx.moveTo(mx + 5, Y + 8); ctx.lineTo(mx + 42, Y + 10); ctx.stroke();
+      ctx.fillStyle = '#ff4d6a'; ctx.beginPath(); ctx.moveTo(mx + 4, Y - 22); ctx.lineTo(mx + 18, Y - 18); ctx.lineTo(mx + 4, Y - 14); ctx.closePath(); ctx.fill();
       break;
     }
     case 'lighthouse': {

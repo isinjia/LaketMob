@@ -456,10 +456,15 @@
       if (Settings.questTracker === false) return;
       const act = this.trackList().slice(0, 3); if (!act.length) return;
       const w = 330, x = W - w - 14; let y = 14;
+      // 사령관이 추적 창 아래(화면 오른쪽 위)에 있으면 창을 흐리게 해 가려진 지형·NPC가 보이게 한다
+      const Z = World.def && World.def.indoor ? 1.25 : 1, p = World.player;
+      const psx = (p.px + 24 - World.cam.x) * Z, psy = (p.py + 24 - World.cam.y) * Z;
+      const under = psx > x - 40 && psy < 14 + act.length * 76 + 40;
+      const A = under ? 0.28 : 1;
       ctx.save();
       for (const q of act) {
         const goal = this.goalText(q), gl = wrapText(goal, w - 40, 13, 600).slice(0, 2), h = 30 + gl.length * 17;
-        ctx.globalAlpha = 0.86; ctx.fillStyle = 'rgba(6,12,24,0.72)'; chamfer(x, y, w, h, 8); ctx.fill(); ctx.globalAlpha = 1;
+        ctx.globalAlpha = 0.86 * A; ctx.fillStyle = 'rgba(6,12,24,0.72)'; chamfer(x, y, w, h, 8); ctx.fill(); ctx.globalAlpha = A;
         const col = q.type === 'main' ? COL.main : COL.side;
         ctx.fillStyle = col; ctx.fillRect(x, y, 3, h);
         const ready = this.stepReady(q) && this.step(q).at;

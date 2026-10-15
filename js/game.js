@@ -771,7 +771,8 @@ function frame(ts) {
   lastT = ts;
   try { step(dt); } catch (e) { console.error(e); Input.endFrame(); }
 }
-function rafLoop() { frame(performance.now()); requestAnimationFrame(rafLoop); }
+// 다음 프레임을 먼저 예약해 두어, 한 프레임에서 예외가 나도 루프가 끊기지 않게 한다
+function rafLoop() { requestAnimationFrame(rafLoop); frame(performance.now()); }
 // rAF가 멈추는 환경(비활성 미리보기 등) 대비 백업 타이머
 setInterval(() => { if (performance.now() - lastT > 90) frame(performance.now()); }, 33);
 let FRAME_DT = 1 / 60;
@@ -804,7 +805,9 @@ function loadThree(timeout = 4000) {
     const s = document.createElement('script');
     let done = false; const fin = ok => { if (!done) { done = true; res(ok && typeof THREE !== 'undefined'); } };
     s.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'; s.crossOrigin = 'anonymous'; s.async = true;
-    s.onload = () => fin(true); s.onerror = () => fin(false);
+    // 타임아웃 뒤에 늦게 도착해도 그때 3D 연출을 켠다 (느린 연결에서도 이펙트를 잃지 않게)
+    s.onload = () => { if (done) { try { if (window.__initFX) __initFX(); if (window.SDF && !SDF.ok) SDF.init(); if (window.BFX && !BFX.ok) BFX.init(); } catch (e) { console.warn(e); } } fin(true); };
+    s.onerror = () => fin(false);
     document.head.appendChild(s);
     setTimeout(() => fin(false), timeout);
   });
