@@ -243,7 +243,15 @@
   // ---------------------------------------------------------------
   const byId = {}; QUESTS.forEach(q => byId[q.id] = q);
   // 데이터 규칙: 모든 퀘스트는 NPC에게 보고하며 끝난다 (보상 대화가 필드 자동 진행 중에 끼어들지 않도록)
-  QUESTS.forEach(q => { if (!q.steps.length || !q.steps[q.steps.length - 1].at) console.warn('퀘스트 데이터 오류: 마지막 단계에 보고 대상(at)이 없음', q.id); });
+  // 의뢰인·보고 대상이 실제 맵에 있는지도 확인하고, 문제가 있는 퀘스트는 목록에서 뺀다 (진행 불가 퀘스트가 노출되지 않도록)
+  const npcExists = ref => Array.isArray(ref) && MAPS[ref[0]] && MAPS[ref[0]].objects.some(o => o.id === ref[1] && (o.t === 'npc' || o.t === 'trainer'));
+  for (let i = QUESTS.length - 1; i >= 0; i--) {
+    const q = QUESTS[i], errs = [];
+    if (!q.steps.length || !q.steps[q.steps.length - 1].at) errs.push('마지막 단계에 보고 대상(at)이 없음');
+    if (q.giver && !npcExists(q.giver)) errs.push('의뢰인 없음 ' + q.giver);
+    q.steps.forEach((s, k) => { if (s.at && !npcExists(s.at)) errs.push('단계 ' + k + ' 보고 대상 없음 ' + s.at); });
+    if (errs.length) { console.error('퀘스트 데이터 오류', q.id, errs.join(' / ')); QUESTS.splice(i, 1); delete byId[q.id]; }
+  }
   const COL = { main: '#ffd23a', side: '#dfe7f0', grey: '#8d949c', mainDark: '#7a5200', sideDark: '#3b4654' };
   const Quests = {
     list: QUESTS, byId, COL, notes: [],

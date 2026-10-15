@@ -290,7 +290,8 @@ const World = {
           const top = Math.max(...Game.party.map(m => m.level));
           const foes = T.team.map(([k, lv]) => new Mon(k, Math.min(70, Math.max(lv + 18, top - 2 + Math.round(lv / 20))), { trainer: true }));
           await say('이번엔 지지 않을 거예요!', { speaker: T.name, portrait: T.portrait });
-          const res = await startBattle({ kind: 'trainer', foes, trainer: Object.assign({}, T, { prize: T.prize * 2, intro: '이번엔 지지 않을 거예요!' }), bg: this.def.bg, bgm: 'trainer', noRun: true });
+          // 재대결 상금은 원래 상금 그대로 (무한 반복으로 자원을 불리지 않도록)
+          const res = await startBattle({ kind: 'trainer', foes, trainer: Object.assign({}, T, { intro: '' }), bg: this.def.bg, bgm: 'trainer', noRun: true });
           if (res === 'win') await say(T.lose, { speaker: T.name, portrait: T.portrait });
         }
         return;
@@ -361,7 +362,8 @@ const World = {
       f.moves = src.moves.map(x => ({ id: x.id, pp: MOVES[x.id].pp }));
       f.recalc(); f.hp = f.maxHp;
     });
-    const res = await startBattle({ kind: 'trainer', foes, trainer: T, bg: o.id === 'mpzeta' ? 'nest' : this.def.bg, bgm: T.bgm || 'trainer', noRun: true });
+    // 첫 대사는 필드에서 이미 했으므로 전투 화면에서는 반복하지 않는다
+    const res = await startBattle({ kind: 'trainer', foes, trainer: Object.assign({}, T, { intro: '' }), bg: o.id === 'mpzeta' ? 'nest' : this.def.bg, bgm: T.bgm || 'trainer', noRun: true });
     if (res === 'win') {
       Game.flags['beat_' + o.id] = 1;
       if (Scripts['post_' + o.id]) await Scripts['post_' + o.id](e);

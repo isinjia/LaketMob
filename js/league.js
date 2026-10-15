@@ -423,8 +423,10 @@
     },
     // ----- 흑막: 융합체 제타 -----
     async pre_mpzeta() {
-      // 지금 싸울 수 있는 유닛 중 가장 강한 셋을 복제한다 (기술·진화 형태까지). 파티 순서로 약하게 만들 수 없다
-      const picks = Game.party.filter(m => m.hp > 0).sort((a, b) => b.level - a.level).slice(0, 3);
+      // 부대 전체(쓰러진 유닛 포함)에서 레벨과 랭크를 함께 따져 가장 강한 셋을 복제한다.
+      // 순서를 바꾸거나 강한 유닛을 일부러 쓰러뜨려도 복제를 약하게 만들 수 없다
+      const power = m => m.level + RANKS.indexOf(m.rank) * 3;
+      const picks = [...Game.party].sort((a, b) => power(b) - power(a)).slice(0, 3);
       TRAINERS.mpzeta.copyOf = picks;
       // 난이도: 복제는 내 레벨을 따르되 상한이 있다 (쉬움 -3·상한 38·랭크 못 베낌 / 보통 -1·상한 42 / 어려움 ±0·상한 48, 흑막 본체 37/40/44).
       // 상한 덕분에 그보다 더 육성하면 그만큼 확실히 유리해진다
