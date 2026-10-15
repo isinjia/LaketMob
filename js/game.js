@@ -258,7 +258,7 @@ let Scene = null;
 async function startBattle(o) {
   if (!Game.party.some(m => m.hp > 0)) { Game.healAll(); }
   // 난이도: 상대 레벨 보정 (쉬움 -3 / 보통 0 / 어려움 +3). 보정한 레벨에 맞는 기술을 다시 배운다.
-  // 흑막이 복제한 내 부대(copyOf)는 이미 내 레벨 기준이라 보정하지 않는다
+  // 흑막전(copyOf)은 league.js pre_mpzeta 에서 난이도를 따로 반영하므로 여기서는 건너뛴다
   const adj = [-3, 0, 3][Settings.difficulty] || 0;
   if (adj && o.foes && !(o.trainer && o.trainer.copyOf)) for (const f of o.foes) {
     f.level = clamp(f.level + adj, 1, 100); f.exp = expForLevel(f.level);

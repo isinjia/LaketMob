@@ -161,7 +161,7 @@ const World = {
     if (UI.busy() || this.locked || Trans.active) { if (p.moving) this.stepMove(dt); return; }
     this.updateNPCs(dt);
     this.questT = (this.questT || 0) + dt;
-    if (this.questT > 0.5 && window.Quests) { this.questT = 0; Quests.tick(); if (Quests.queue.length && !p.moving) { Quests.flush(); return; } }
+    if (this.questT > 0.5 && window.Quests) { this.questT = 0; Quests.tick(); }
     if (p.moving) { this.stepMove(dt); return; }
     this.encCool = Math.max(0, this.encCool - dt);
     if (Input.pressed.b || Input.pressed.menu) { Audio2.select(); UI.push(new PauseMenu()); return; }
@@ -289,6 +289,7 @@ const World = {
           // 재대결: 원래 레벨 +18, 그리고 내 부대 최고 레벨 근처까지 따라온다 (최대 70)
           const top = Math.max(...Game.party.map(m => m.level));
           const foes = T.team.map(([k, lv]) => new Mon(k, Math.min(70, Math.max(lv + 18, top - 2 + Math.round(lv / 20))), { trainer: true }));
+          await say('이번엔 지지 않을 거예요!', { speaker: T.name, portrait: T.portrait });
           const res = await startBattle({ kind: 'trainer', foes, trainer: Object.assign({}, T, { prize: T.prize * 2, intro: '이번엔 지지 않을 거예요!' }), bg: this.def.bg, bgm: 'trainer', noRun: true });
           if (res === 'win') await say(T.lose, { speaker: T.name, portrait: T.portrait });
         }
@@ -351,8 +352,15 @@ const World = {
     if (Scripts['pre_' + o.id]) await Scripts['pre_' + o.id](e);
     else await say(T.intro, { speaker: T.name, portrait: T.portrait });
     const foes = T.team.map(([k, lv]) => new Mon(k, lv, { trainer: true }));
-    // 흑막의 복제 부대: 원본의 기술과 진화 형태를 그대로 따른다
-    if (T.copyOf) T.copyOf.forEach((src, i) => { const f = foes[i]; if (!f || f.key !== src.key) return; f.form = src.form || 0; f.moves = src.moves.map(x => ({ id: x.id, pp: MOVES[x.id].pp })); });
+    // 흑막의 복제 부대: 원본의 랭크·개체값·기술·진화 형태까지 그대로 베낀다 (레벨만 난이도 보정)
+    if (T.copyOf) T.copyOf.forEach((src, i) => {
+      const f = foes[i]; if (!f || f.key !== src.key) return;
+      // 쉬움에서는 랭크·개체값은 베끼지 못한 불완전한 복제 (기본 랭크)
+      if (Settings.difficulty !== 0) { f.rank = src.rank; f.ivs = src.ivs.slice(); }
+      f.form = src.form || 0;
+      f.moves = src.moves.map(x => ({ id: x.id, pp: MOVES[x.id].pp }));
+      f.recalc(); f.hp = f.maxHp;
+    });
     const res = await startBattle({ kind: 'trainer', foes, trainer: T, bg: o.id === 'mpzeta' ? 'nest' : this.def.bg, bgm: T.bgm || 'trainer', noRun: true });
     if (res === 'win') {
       Game.flags['beat_' + o.id] = 1;

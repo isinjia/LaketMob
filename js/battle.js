@@ -604,7 +604,8 @@ class Battle {
         await tween(this.trV, { x: 0 }, 500, Ease.outCubic);
         await say(J(this.trainer.title + ' ' + this.trainer.name, '과') + '의 승부에서 이겼다!', { auto: 1100 });
         if (this.trainer.lose) await say(this.trainer.lose, { speaker: this.trainer.name });
-        if (this.trainer.prize) { Game.money += this.trainer.prize; Audio2.sfx('coin', 0.7); await say('사령관은 상금으로 ' + this.trainer.prize.toLocaleString() + ' P를 받았다!', { auto: 1200 }); }
+        const prize = Math.floor((this.trainer.prize || 0) * ([1.25, 1, 0.8][Settings.difficulty] || 1));
+        if (prize) { Game.money += prize; Audio2.sfx('coin', 0.7); await say('사령관은 상금으로 ' + prize.toLocaleString() + ' P를 받았다!', { auto: 1200 }); }
       } else {
         const money = Math.floor(this.foes.reduce((s, f) => s + f.level * 12, 0) * ([1.25, 1, 0.8][Settings.difficulty] || 1));
         if (money) { Game.money += money; Audio2.sfx('coin', 0.6); await say('폭주를 진압하고 보급품 ' + money + ' P를 회수했다!', { auto: 1000 }); }

@@ -242,16 +242,11 @@
   //  엔진
   // ---------------------------------------------------------------
   const byId = {}; QUESTS.forEach(q => byId[q.id] = q);
+  // 데이터 규칙: 모든 퀘스트는 NPC에게 보고하며 끝난다 (보상 대화가 필드 자동 진행 중에 끼어들지 않도록)
+  QUESTS.forEach(q => { if (!q.steps.length || !q.steps[q.steps.length - 1].at) console.warn('퀘스트 데이터 오류: 마지막 단계에 보고 대상(at)이 없음', q.id); });
   const COL = { main: '#ffd23a', side: '#dfe7f0', grey: '#8d949c', mainDark: '#7a5200', sideDark: '#3b4654' };
   const Quests = {
-    list: QUESTS, byId, COL, notes: [], queue: [],
-    // 자동 완료 대기 중인 퀘스트를 하나씩 끝낸다 (World.update 에서 필드가 한가할 때 호출)
-    async flush() {
-      if (this.flushing || !this.queue.length) return;
-      this.flushing = true; World.locked = true;
-      try { while (this.queue.length) { const q = this.queue.shift(); if (this.active(q.id)) await this.advance(q); } }
-      finally { World.locked = false; this.flushing = false; }
-    },
+    list: QUESTS, byId, COL, notes: [],
     state(id) { if (!Game.quests) Game.quests = {}; return Game.quests[id]; },
     active(id) { const s = this.state(id); return s && s.s === 'active'; },
     done(id) { const s = this.state(id); return s && s.s === 'done'; },
@@ -367,8 +362,6 @@
         while (this.active(q.id) && guard++ < 5) {
           const st = this.step(q);
           if (!st || st.at || !st.check || !st.check(this.state(q.id))) break;
-          // 마지막 단계가 자동 완료라면 보상 대화가 다른 대화와 겹치지 않게, 필드가 한가할 때 처리한다
-          if (this.state(q.id).step === q.steps.length - 1) { if (!this.queue.includes(q)) this.queue.push(q); break; }
           this.advance(q);
         }
       }

@@ -426,7 +426,10 @@
       // 지금 싸울 수 있는 유닛 중 가장 강한 셋을 복제한다 (기술·진화 형태까지). 파티 순서로 약하게 만들 수 없다
       const picks = Game.party.filter(m => m.hp > 0).sort((a, b) => b.level - a.level).slice(0, 3);
       TRAINERS.mpzeta.copyOf = picks;
-      TRAINERS.mpzeta.team = picks.map(m => [m.key, Math.min(100, m.level + 1)]).concat([['mpzeta', 40]]);
+      // 난이도: 복제는 내 레벨을 따르되 상한이 있다 (쉬움 -3·상한 38·랭크 못 베낌 / 보통 -1·상한 42 / 어려움 ±0·상한 48, 흑막 본체 37/40/44).
+      // 상한 덕분에 그보다 더 육성하면 그만큼 확실히 유리해진다
+      const D = Settings.difficulty, cap = [38, 42, 48][D] || 42, minus = [3, 1, 0][D], core = [37, 40, 44][D] || 40;
+      TRAINERS.mpzeta.team = picks.map(m => [m.key, clamp(Math.min(m.level - minus, cap), 1, 100)]).concat([['mpzeta', core]]);
       const Z = sp('융합체 제타', 'mpzeta'); Audio2.stopBgm(600); Audio2.voice('mpzeta', 'start');
       await lines(Z, ['관측 완료. 수집률 7/7.', '어서 와라, 사령관. 일곱 밤 동안의 링크 공명... 전부 이 둥지에 저장했다.', '공고문은 내가 붙였다. 알파의 서명으로. 너는 아주 효율적인 표본이었지.', '이 데이터로 \'그분\'께서 바이오로이드와 철충, 그리고 인간의 링크를 하나로 지휘하실 것이다. 모든 것은 \'그분\'의 뜻대로!!', '시험해 보지. 네 링크로 복제한 너의 부대를 상대로.']);
     },
