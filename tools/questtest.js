@@ -1,9 +1,9 @@
-// =====================================================================
+﻿// =====================================================================
 //  라켓몬스터 퀘스트 전수 테스트
 //  사용: 게임 페이지 콘솔에서 이 파일을 로드 → await QT.run()
 //  모든 퀘스트(메인 9 · 서브 10 · 전설 5)를 실제 대화(키 입력)와 실제 전설 전투로 끝까지 진행한다.
 //  목표 달성 조건(영입·배지 등)만 상태를 직접 맞춰 주고, 수락·보고·전투는 게임 흐름 그대로 거친다.
-//  저장 데이터는 테스트 전에 백업하고 끝나면 복원한다.
+//  테스트 중에는 저장을 꺼서 저장 데이터를 건드리지 않는다.
 // =====================================================================
 (function () {
   const sl = ms => new Promise(r => setTimeout(r, ms));
@@ -115,7 +115,9 @@
   }
 
   QT.run = async function () {
-    const backup = localStorage.getItem(SAVE_KEY);
+    // 테스트 중에는 저장을 막는다 (같은 포트의 다른 탭 저장 데이터를 건드리지 않도록 백업·복원 대신 저장 자체를 끈다)
+    const origSave = Game.save, origSetSave = Settings.save;
+    Game.save = () => true; Settings.save = () => { };
     const vol = [Settings.bgm, Settings.sfx, Settings.voice]; Settings.bgm = Settings.sfx = Settings.voice = 0;
     QT.log = []; QT.errors = []; QT.failed = null;
     try {
@@ -156,8 +158,8 @@
       QT.result = { failed: QT.failed, done: QUESTS.filter(q => Quests.done(q.id)).length, total: QUESTS.length, errors: QT.errors.slice() };
     } finally {
       [Settings.bgm, Settings.sfx, Settings.voice] = vol;
-      UI.stack.length = 0; Scene = new TitleScene(); // 페이지를 떠날 때 자동 저장이 테스트 상태를 덮어쓰지 않도록
-      try { if (backup) localStorage.setItem(SAVE_KEY, backup); else localStorage.removeItem(SAVE_KEY); } catch (e) { }
+      UI.stack.length = 0; Scene = new TitleScene(); // 페이지를 떠날 때 자동 저장이 테스트 상태를 저장하지 않도록
+      Game.save = origSave; Settings.save = origSetSave;
       QT.restored = true;
     }
     return QT.result;

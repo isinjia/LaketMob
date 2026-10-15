@@ -40,6 +40,21 @@ function drawRoomFloor(w) {
   for (let i = 0; i < 3; i++) { const lx = mw * (0.22 + i * 0.28), ly = y1 + (y2 - y1) * 0.35; const g = ctx.createRadialGradient(lx, ly, 10, lx, ly, mw * 0.2); g.addColorStop(0, 'rgba(255,255,240,0.13)'); g.addColorStop(1, 'rgba(255,255,240,0)'); ctx.fillStyle = g; ctx.fillRect(lx - mw * 0.2, ly - mw * 0.2, mw * 0.4, mw * 0.4); }
   ctx.restore();
   const sg = ctx.createLinearGradient(0, y1, 0, y1 + 60); sg.addColorStop(0, 'rgba(0,0,0,0.22)'); sg.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = sg; ctx.fillRect(TILE - 14, y1, mw - TILE * 2 + 28, 60);
+  // 원근 바닥 줄눈: 뒤쪽(벽)으로 갈수록 촘촘해지고 세로 줄은 소실점으로 모인다
+  const fx0 = TILE - 14, fx1 = mw - TILE + 14, vpx = mw / 2, vpy = y1 - (y2 - y1) * 1.6;
+  ctx.save(); ctx.beginPath(); ctx.rect(fx0, y1, fx1 - fx0, y2 - y1); ctx.clip();
+  ctx.strokeStyle = 'rgba(0,0,0,0.07)'; ctx.lineWidth = 1;
+  for (let i = 1; i < 9; i++) { const k = Math.pow(i / 9, 1.35), yy = y1 + (y2 - y1) * k; ctx.beginPath(); ctx.moveTo(fx0, yy); ctx.lineTo(fx1, yy); ctx.stroke(); }
+  for (let xx = fx0 - mw; xx <= fx1 + mw; xx += TILE * 1.25) { ctx.beginPath(); ctx.moveTo(vpx + (xx - vpx) * ((y1 - vpy) / (y2 - vpy)), y1); ctx.lineTo(xx, y2); ctx.stroke(); }
+  ctx.restore();
+  // 옆벽: 뒤쪽 모서리에서 앞으로 갈수록 넓어지는 쐐기 (방이 안쪽으로 깊어 보이게)
+  const wc = R.wall || ['#55606e', '#8a95a3'], sw = 30;
+  for (const side of [0, 1]) {
+    const ex = side ? fx1 : fx0, dir = side ? -1 : 1;
+    const wg = ctx.createLinearGradient(ex, 0, ex + dir * sw, 0); wg.addColorStop(0, shade(wc[0], -18)); wg.addColorStop(1, wc[0]);
+    ctx.fillStyle = wg; ctx.beginPath(); ctx.moveTo(ex, y1); ctx.lineTo(ex + dir * 4, y1); ctx.lineTo(ex + dir * sw, y2); ctx.lineTo(ex, y2); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,0.25)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(ex + dir * 4, y1); ctx.lineTo(ex + dir * sw, y2); ctx.stroke();
+  }
   return true;
 }
 // 방 뒷벽 (맵 위쪽 2줄 + 그 위 화면 여백)
@@ -292,7 +307,7 @@ const World = {
           await say('이번엔 지지 않을 거예요!', { speaker: T.name, portrait: T.portrait });
           // 재대결 상금은 원래 상금 그대로 (무한 반복으로 자원을 불리지 않도록)
           const res = await startBattle({ kind: 'trainer', foes, trainer: Object.assign({}, T, { intro: '' }), bg: this.def.bg, bgm: 'trainer', noRun: true });
-          if (res === 'win') await say(T.lose, { speaker: T.name, portrait: T.portrait });
+          if (res === 'win') await say(T.lose || T.after || '...다음엔 꼭 이길 거예요!', { speaker: T.name, portrait: T.portrait });
         }
         return;
       }
@@ -861,19 +876,62 @@ function drawTallTile(c, x, y, th) {
 // 원작 배경 에셋의 건물 외관 (스타일 기본값, 건물별 b.art로 덮어쓰기)
 const BLD_ART = { lab: 'gym_gamma', center: 'center', shop: 'shop', house: 'house', gym: 'gym_gamma', champion: 'champion', factory: 'gym_epsilon' };
 function bldImg(k) { return IMG.bld[k] || lazyImg('bld', k); }
+// 건물 실루엣 (그림자 투영용, 이미지마다 한 번 만든다)
+function silhouette(im) {
+  if (im._sil !== undefined) return im._sil;
+  try {
+    // 1/4 크기 실루엣을 만든 뒤 한 번 흐려 둔다 (부드러운 그림자 가장자리, 매 프레임 블러 비용 없음)
+    const sw = Math.max(1, Math.round(im.width / 4)), sh = Math.max(1, Math.round(im.height / 4)), pad = 6;
+    const a = document.createElement('canvas'); a.width = sw; a.height = sh;
+    const ga = a.getContext('2d'); ga.drawImage(im, 0, 0, sw, sh); ga.globalCompositeOperation = 'source-in'; ga.fillStyle = '#000'; ga.fillRect(0, 0, sw, sh);
+    const c = document.createElement('canvas'); c.width = sw + pad * 2; c.height = sh + pad * 2;
+    const g = c.getContext('2d'); g.filter = 'blur(2.5px)'; g.drawImage(a, pad, pad);
+    c._pad = pad / sw; // 여백 비율 (그릴 때 보정)
+    im._sil = c;
+  } catch (e) { im._sil = null; }
+  return im._sil;
+}
+// 테마별 건물 기단(바닥과 닿는 판) 색
+const FOUNDATION = { town: ['#cfc6b4', '#a89f8c'], route: ['#b9b3a6', '#8f897c'], forest: ['#a79a83', '#7d715d'], coast: ['#d7c79e', '#a99a72'], snow: ['#e9eef3', '#b9c4ce'], factory: ['#9a9fa6', '#6c7178'], resort: ['#f1e6d2', '#c9b897'], nest: ['#4a3c50', '#2c2232'] };
 function drawBuildingArt(b, im) {
   const w = b.w * TILE, base = (b.y + b.h) * TILE + 6;
   let dw = w * 1.1, dh = im.height * dw / im.width;
-  const maxH = (b.h + 2.6) * TILE; if (dh > maxH) { dw *= maxH / dh; dh = maxH; }
+  // 너무 높은 건물은 맵 위쪽으로 잘리지 않도록 줄인다
+  const maxH = Math.min((b.h + 2.6) * TILE, base - 4); if (dh > maxH) { dw *= maxH / dh; dh = maxH; }
   const x = b.x * TILE + w / 2 - dw / 2;
+  const fc = FOUNDATION[World.def && World.def.theme] || FOUNDATION.town;
   ctx.save();
-  ctx.fillStyle = 'rgba(0,0,0,0.28)'; ctx.beginPath(); ctx.ellipse(b.x * TILE + w / 2 + 10, base - 4, dw * 0.52, 14, 0, 0, 7); ctx.fill();
+  // 1) 왼쪽 위에서 비치는 해: 실루엣을 바닥에 눕혀 오른쪽 뒤로 드리운다
+  const sil = silhouette(im);
+  if (sil) {
+    // 밑변을 축으로 높이를 0.32배로 눕히고 오른쪽으로 기울인다 (건물 뒤 오른편으로 그림자가 드리운다)
+    ctx.save(); ctx.globalAlpha = 0.24; ctx.translate(x, base); ctx.transform(1, 0, -0.55, 0.32, 0, 0);
+    const px = dw * sil._pad, py = dh * sil._pad * (sil.width / sil.height);
+    ctx.drawImage(sil, -px, -dh - py, dw + px * 2, dh + py * 2); ctx.restore();
+  }
+  // 2) 기단: 건물이 땅에 놓인 판
+  const fx = x - 8, fw = dw + 16, fy = base - 12;
+  ctx.fillStyle = 'rgba(0,0,0,0.22)'; rrect(fx + 4, fy + 6, fw, 16, 6); ctx.fill();
+  ctx.fillStyle = fc[1]; rrect(fx, fy + 2, fw, 16, 6); ctx.fill();
+  ctx.fillStyle = fc[0]; rrect(fx, fy, fw, 12, 6); ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,0.25)'; ctx.fillRect(fx + 6, fy + 1, fw - 12, 2);
+  // 3) 건물
   ctx.drawImage(im, x, base - dh, dw, dh);
-  // 출입구 매트 + 간판
+  // 4) 밑동 접촉 음영 (건물과 기단이 붙어 보이게)
+  const ao = ctx.createLinearGradient(0, base - 22, 0, base - 4); ao.addColorStop(0, 'rgba(0,0,0,0)'); ao.addColorStop(1, 'rgba(0,0,0,0.28)');
+  ctx.fillStyle = ao; ctx.fillRect(x, base - 22, dw, 18);
+  // 5) 출입구: 문틀 + 유리문 + 안쪽 불빛 + 계단 디딤판 + 매트
   if (b.door >= 0) {
-    const dx = b.door * TILE, dy = (b.y + b.h - 1) * TILE;
-    ctx.fillStyle = 'rgba(30,26,22,0.85)'; ctx.fillRect(dx + 6, dy + TILE - 12, TILE - 12, 12);
-    ctx.fillStyle = '#e8c547'; ctx.fillRect(dx + 6, dy + TILE - 12, TILE - 12, 2);
+    const dx = b.door * TILE, by = base - 6;
+    const lg = ctx.createRadialGradient(dx + 24, by + 10, 4, dx + 24, by + 10, 46); lg.addColorStop(0, 'rgba(255,226,160,0.38)'); lg.addColorStop(1, 'rgba(255,226,160,0)');
+    ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = lg; ctx.fillRect(dx - 24, by - 30, 96, 70); ctx.restore();
+    ctx.fillStyle = '#2b2f36'; rrect(dx + 5, by - 54, 38, 50, 4); ctx.fill();
+    const gl = ctx.createLinearGradient(0, by - 50, 0, by - 6); gl.addColorStop(0, '#9fd8ec'); gl.addColorStop(1, '#ffe2a6');
+    ctx.fillStyle = gl; ctx.fillRect(dx + 9, by - 50, 30, 44);
+    ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.beginPath(); ctx.moveTo(dx + 11, by - 48); ctx.lineTo(dx + 19, by - 48); ctx.lineTo(dx + 11, by - 36); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#2b2f36'; ctx.fillRect(dx + 23, by - 50, 2, 44);
+    ctx.fillStyle = fc[0]; rrect(dx + 1, by - 6, 46, 10, 3); ctx.fill(); ctx.fillStyle = fc[1]; ctx.fillRect(dx + 1, by + 2, 46, 3);
+    ctx.fillStyle = 'rgba(40,34,28,0.85)'; ctx.fillRect(dx + 9, by + 6, 30, 8); ctx.fillStyle = '#e8c547'; ctx.fillRect(dx + 9, by + 6, 30, 2);
   }
   if (b.label) {
     ctx.font = '700 13px ' + (typeof UI_FONT !== 'undefined' ? UI_FONT : 'sans-serif');
@@ -904,9 +962,23 @@ function drawBuilding(b) {
     // 그림자
     g.fillStyle = 'rgba(0,0,0,0.25)'; g.fillRect(6, h - 8, w, 10);
     if (b.style === 'tent') {
-      g.fillStyle = st.roof[1]; g.beginPath(); g.moveTo(0, h - 4); g.lineTo(w / 2, -18); g.lineTo(w, h - 4); g.closePath(); g.fill();
-      g.fillStyle = st.roof[0]; g.beginPath(); g.moveTo(0, h - 4); g.lineTo(w / 2, -18); g.lineTo(w * 0.62, h - 4); g.closePath(); g.fill();
-      g.fillStyle = '#2a2a1a'; g.beginPath(); g.moveTo(w / 2 - 14, h - 4); g.lineTo(w / 2, h - 40); g.lineTo(w / 2 + 14, h - 4); g.fill();
+      // 3/4 시점 군용 천막: 앞 삼각면 + 오른쪽 뒤로 뻗은 지붕면 + 열린 입구 + 줄과 말뚝
+      const fx = w * 0.12, fw = w * 0.5, ridgeX = fx + fw / 2, ridgeY = -12, gnd = h - 6, back = w * 0.34;
+      g.fillStyle = 'rgba(0,0,0,0.28)'; g.beginPath(); g.moveTo(fx - 6, gnd + 4); g.lineTo(fx + fw + back + 10, gnd + 4); g.lineTo(fx + fw + back, gnd - 10); g.lineTo(fx + 4, gnd - 6); g.closePath(); g.fill();
+      // 지붕 옆면 (안쪽으로 이어지는 경사면)
+      const rg = g.createLinearGradient(ridgeX, ridgeY, fx + fw + back, gnd); rg.addColorStop(0, st.roof[0]); rg.addColorStop(1, st.roof[1]);
+      g.fillStyle = rg; g.beginPath(); g.moveTo(ridgeX, ridgeY); g.lineTo(ridgeX + back, ridgeY - 10); g.lineTo(fx + fw + back, gnd - 12); g.lineTo(fx + fw, gnd); g.closePath(); g.fill();
+      g.strokeStyle = 'rgba(0,0,0,0.18)'; g.lineWidth = 1; for (let i = 1; i < 4; i++) { const k = i / 4; g.beginPath(); g.moveTo(ridgeX + back * k, ridgeY - 10 * k); g.lineTo(fx + fw + back * k, gnd - 12 * k); g.stroke(); }
+      // 앞 삼각면
+      const fg = g.createLinearGradient(0, ridgeY, 0, gnd); fg.addColorStop(0, '#8c975c'); fg.addColorStop(1, '#5f6a3a');
+      g.fillStyle = fg; g.beginPath(); g.moveTo(fx, gnd); g.lineTo(ridgeX, ridgeY); g.lineTo(fx + fw, gnd); g.closePath(); g.fill();
+      g.strokeStyle = '#3f4724'; g.lineWidth = 2; g.stroke();
+      // 입구 (안쪽 그늘 + 젖혀진 덮개)
+      g.fillStyle = '#1f2414'; g.beginPath(); g.moveTo(ridgeX - 16, gnd); g.lineTo(ridgeX, gnd - 44); g.lineTo(ridgeX + 16, gnd); g.closePath(); g.fill();
+      g.fillStyle = '#a9b37a'; g.beginPath(); g.moveTo(ridgeX, gnd - 44); g.lineTo(ridgeX - 16, gnd); g.lineTo(ridgeX - 26, gnd - 6); g.closePath(); g.fill();
+      // 버팀줄과 말뚝
+      g.strokeStyle = 'rgba(230,220,190,0.7)'; g.lineWidth = 1; g.beginPath(); g.moveTo(ridgeX, ridgeY); g.lineTo(fx - 12, gnd + 2); g.moveTo(ridgeX + back, ridgeY - 10); g.lineTo(fx + fw + back + 14, gnd - 6); g.stroke();
+      g.fillStyle = '#5a4630'; g.fillRect(fx - 14, gnd - 2, 3, 7); g.fillRect(fx + fw + back + 12, gnd - 10, 3, 7);
       return;
     }
     const roofH = Math.min(h * 0.5, 74);
@@ -1138,8 +1210,27 @@ function drawObj(e) {
     ctx.fillStyle = 'rgba(93,255,156,' + (0.4 + 0.25 * Math.sin(t * 3)) + ')'; rrect(X + 13, Y - 8, 22, 34, 9); ctx.fill();
     ctx.fillStyle = '#ff4d6a'; ctx.fillRect(X + 21, Y + 30, 6, 8); ctx.fillRect(X + 18, Y + 33, 12, 3);
   } else if (k === 'bed') {
-    ctx.fillStyle = '#5a4632'; ctx.fillRect(X + 4, Y + 4, 88, 90); ctx.fillStyle = '#e8edf2'; ctx.fillRect(X + 8, Y + 8, 80, 82);
-    ctx.fillStyle = '#3b6fa0'; ctx.fillRect(X + 8, Y + 36, 80, 54); ctx.fillStyle = '#fff'; rrect(X + 18, Y + 12, 60, 20, 6); ctx.fill();
+    // 다른 소품(정면 3/4 시점)과 같은 시점: 벽에 붙은 헤드보드 + 위에서 비스듬히 보이는 상판 + 앞쪽 옆면
+    const L = X + 4, R = X + 92, top = Y + 8, front = Y + 70, foot = Y + 90;
+    ctx.fillStyle = 'rgba(0,0,0,0.28)'; ctx.beginPath(); ctx.ellipse(X + 50, foot + 4, 50, 9, 0, 0, 7); ctx.fill();
+    // 헤드보드
+    const hb = ctx.createLinearGradient(0, Y - 30, 0, top + 14); hb.addColorStop(0, '#7a5a3e'); hb.addColorStop(1, '#4e3826');
+    ctx.fillStyle = hb; rrect(L - 2, Y - 30, R - L + 4, top + 14 - (Y - 30), 6); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.12)'; ctx.fillRect(L + 4, Y - 26, R - L - 8, 3);
+    // 침대 틀 옆면과 다리
+    ctx.fillStyle = '#5a4230'; ctx.fillRect(L, front, R - L, foot - front - 6);
+    ctx.fillStyle = '#3e2c1e'; ctx.fillRect(L + 2, foot - 8, 8, 10); ctx.fillRect(R - 10, foot - 8, 8, 10);
+    // 매트리스 상판 (깊이 방향으로 납작하게)
+    ctx.fillStyle = '#eef2f6'; ctx.fillRect(L + 2, top, R - L - 4, front - top);
+    ctx.fillStyle = '#d6dde4'; ctx.fillRect(L + 2, front - 4, R - L - 4, 10);
+    // 베개
+    ctx.fillStyle = '#ffffff'; rrect(L + 12, top + 3, R - L - 24, 15, 7); ctx.fill();
+    ctx.fillStyle = 'rgba(0,0,0,0.08)'; ctx.fillRect(L + 14, top + 14, R - L - 28, 3);
+    // 이불: 상판 아래쪽을 덮고 앞면으로 흘러내린다
+    const bl = ctx.createLinearGradient(0, top + 24, 0, front + 12); bl.addColorStop(0, '#4a82b8'); bl.addColorStop(1, '#2e5d8e');
+    ctx.fillStyle = bl; ctx.beginPath(); ctx.moveTo(L + 2, top + 26); ctx.lineTo(R - 2, top + 26); ctx.lineTo(R - 2, front + 12); ctx.lineTo(L + 2, front + 12); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#e9f1f8'; ctx.fillRect(L + 2, top + 24, R - L - 4, 6);
+    ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(L + 20, top + 36); ctx.quadraticCurveTo(X + 48, top + 44, R - 20, top + 38); ctx.stroke();
   }
 }
 function drawStandee(X, Y, key, dir, walk, e, big) {

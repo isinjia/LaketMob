@@ -1,7 +1,9 @@
 // three.js effect system: pooled additive particles, ribbons (lightning/laser),
 // timed composite effects (meteor, pillars), screen shake and flashes.
-(function () {
-  if (typeof THREE === 'undefined') return; // three.js(CDN)를 못 불러오면 2D 연출만 쓴다
+// three.js는 game.js boot()에서 비동기로 불러온 뒤 이 초기화를 호출한다. 못 불러오면 2D 연출만 쓴다
+window.__initFX = function () {
+  if (typeof THREE === 'undefined' || window.__fxInited) return;
+  window.__fxInited = true;
   const L = { BG: 0, PATH: 1, CELL: 2, ENEMY: 10, UNIT: 20, PROJ: 30, FX: 40, TOP: 50 };
   let scene, tex = {}, sheets = {};
   const parts = [];   // live particles (drawn by instanced batches, see drawParticles)
@@ -583,4 +585,4 @@
     trail, muzzle, muzzleFlash, summonBurst, mergeFx, deathFx, goldPop, meteor, pillar, orbital, thunderBolt, freezeAll,
     shake, flash, later: setTimeout0, state, rnd,
   };
-})();
+};

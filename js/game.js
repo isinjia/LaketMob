@@ -797,18 +797,34 @@ function step(dt) {
   Input.endFrame();
 }
 function onResize() { if (World.def) World.buildLayer(); if (window.BFX) BFX.resize(); }
+// three.js(CDN)를 비동기로 불러온다. 네트워크가 막혀도 4초 뒤에는 2D 연출로 진행한다
+function loadThree(timeout = 4000) {
+  if (typeof THREE !== 'undefined') return Promise.resolve(true);
+  return new Promise(res => {
+    const s = document.createElement('script');
+    let done = false; const fin = ok => { if (!done) { done = true; res(ok && typeof THREE !== 'undefined'); } };
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'; s.crossOrigin = 'anonymous'; s.async = true;
+    s.onload = () => fin(true); s.onerror = () => fin(false);
+    document.head.appendChild(s);
+    setTimeout(() => fin(false), timeout);
+  });
+}
+const withTimeout = (p, ms) => Promise.race([p, new Promise(r => setTimeout(r, ms))]);
 async function boot() {
   resize();
   setupTouchPad();
-  if (window.SDF) SDF.init();
+  const threeReady = loadThree();
   ['school', 'center', 'shop', 'house', 'gym_gamma', 'gym_beta', 'gym_delta', 'gym_zeta', 'gym_epsilon', 'gym_alpha', 'champion', 'palm1', 'palm2', 'cherry', 'tree1', 'tree2', 'fountain', 'lamp', 'bench', 'barricade', 'ruin1', 'ruin2', 'stop', 'fairytree', 'rock', 'cafe'].forEach(k => lazyImg('bld', k));
   if (typeof ROOMS !== 'undefined') for (const r of Object.values(ROOMS)) { roomImg(r.img); Object.values(r.props).forEach(roomImg); (r.extra || []).forEach(e => roomImg(e[0])); }
-  if (window.BFX) BFX.init();
   const L = new LoadingScene();
   Scene = L;
   requestAnimationFrame(rafLoop);
-  try { await document.fonts.load('40px "Black Han Sans"'); } catch (e) { }
+  try { await withTimeout(document.fonts.load('40px "Black Han Sans"'), 3000); } catch (e) { }
   await loadAssets(p => L.p = p);
+  // 3D 연출(SD 리그·전투 이펙트)은 three.js가 준비됐을 때만 켠다
+  if (await threeReady && window.__initFX) window.__initFX();
+  if (window.SDF) SDF.init();
+  if (window.BFX) BFX.init();
   Scene = new TitleScene();
   // 디버그용 훅
   window.RM = { Game, World, Scripts, startBattle, Mon };

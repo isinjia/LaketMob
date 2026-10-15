@@ -425,13 +425,19 @@
     async pre_mpzeta() {
       // 부대 전체(쓰러진 유닛 포함)에서 레벨과 랭크를 함께 따져 가장 강한 셋을 복제한다.
       // 순서를 바꾸거나 강한 유닛을 일부러 쓰러뜨려도 복제를 약하게 만들 수 없다
+      // 부대가 셋보다 적어도 격납고까지 뒤져 셋을 채운다 (소수 정예로 들어가 복제를 줄일 수 없다)
       const power = m => m.level + RANKS.indexOf(m.rank) * 3;
-      const picks = [...Game.party].sort((a, b) => power(b) - power(a)).slice(0, 3);
+      const picks = [...Game.party, ...Game.box].sort((a, b) => power(b) - power(a)).slice(0, 3);
+      // 그래도 모자라면 철충화된 바이오로이드로 채운다 (최강 유닛 레벨 기준)
+      const topLv = picks.length ? picks[0].level : 40;
+      for (const k of ['valkyrie', 'leona', 'tyrant']) if (picks.length < 3) picks.push(new Mon(k, topLv, { trainer: true }));
       TRAINERS.mpzeta.copyOf = picks;
       // 난이도: 복제는 내 레벨을 따르되 상한이 있다 (쉬움 -3·상한 38·랭크 못 베낌 / 보통 -1·상한 42 / 어려움 ±0·상한 48, 흑막 본체 37/40/44).
       // 상한 덕분에 그보다 더 육성하면 그만큼 확실히 유리해진다
       const D = Settings.difficulty, cap = [38, 42, 48][D] || 42, minus = [3, 1, 0][D], core = [37, 40, 44][D] || 40;
-      TRAINERS.mpzeta.team = picks.map(m => [m.key, clamp(Math.min(m.level - minus, cap), 1, 100)]).concat([['mpzeta', core]]);
+      // 세 복제 모두 "가장 강한 유닛의 레벨"로 맞춘다 (약한 유닛을 데려가거나 격납고에 채워도 복제가 약해지지 않는다)
+      const copyLv = clamp(Math.min(Math.max(...picks.map(m => m.level)) - minus, cap), 1, 100);
+      TRAINERS.mpzeta.team = picks.map(m => [m.key, copyLv]).concat([['mpzeta', core]]);
       const Z = sp('융합체 제타', 'mpzeta'); Audio2.stopBgm(600); Audio2.voice('mpzeta', 'start');
       await lines(Z, ['관측 완료. 수집률 7/7.', '어서 와라, 사령관. 일곱 밤 동안의 링크 공명... 전부 이 둥지에 저장했다.', '공고문은 내가 붙였다. 알파의 서명으로. 너는 아주 효율적인 표본이었지.', '이 데이터로 \'그분\'께서 바이오로이드와 철충, 그리고 인간의 링크를 하나로 지휘하실 것이다. 모든 것은 \'그분\'의 뜻대로!!', '시험해 보지. 네 링크로 복제한 너의 부대를 상대로.']);
     },

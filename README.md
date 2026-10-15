@@ -1,4 +1,4 @@
-# 라켓몬스터 (RACKET MONSTER)
+﻿# 라켓몬스터 (RACKET MONSTER)
 
 라스트오리진 에셋(`E:\LAO\Google_QA\Assets`)으로 만든 포켓몬스터풍 RPG입니다. 주인공은 **사령관**입니다.
 
@@ -80,7 +80,7 @@ js/sdfield.js             필드에 SD를 합성하는 코드
 js/commander.js           사령관 그리기
 tools/sdpipe/             SD 리그 빌드 도구 (5_LAO_Defence 파이프라인)
 tools/playbot.js          새 게임부터 엔딩까지 자동 완주 테스트 봇 (콘솔에서 로드 → BOT.run())
-tools/questtest.js        퀘스트 24개(메인·서브·전설)를 실제 대화·전투로 끝까지 진행하는 테스트 (await QT.run(), 저장 데이터는 백업 후 복원)
+tools/questtest.js        퀘스트 24개(메인·서브·전설)를 실제 대화·전투로 끝까지 진행하는 테스트 (await QT.run(), 테스트 중 저장은 꺼 둔다)
 ```
 
 ### SD 리그 다시 빌드하기
