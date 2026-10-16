@@ -213,7 +213,9 @@ const World = {
     if (this.blocked(nx, ny)) {
       // 편의: 모서리·장애물 한 칸에 걸리면 멈추지 않고 옆으로 비켜 간다
       // (옆 칸이 비어 있고, 그 칸에서 원래 방향으로 나아갈 수 있을 때만. 워프·출구·트리거 칸으로는 비키지 않는다)
-      const sides = dx ? [[0, -1], [0, 1]] : [[-1, 0], [1, 0]];
+      // 사람(NPC·트레이너·전설 등 엔티티)에 막혔을 때는 비키지 않는다 (말을 걸려고 다가갈 때 미끄러지지 않게)
+      const blocker = this.entAt(nx, ny);
+      const sides = blocker ? [] : dx ? [[0, -1], [0, 1]] : [[-1, 0], [1, 0]];
       if (this.lastSide) sides.sort(a => (a[0] === this.lastSide[0] && a[1] === this.lastSide[1] ? -1 : 1));
       const safe = (x, y) => !this.blocked(x, y) && !this.objAt(x, y, 'warp') && !this.objAt(x, y, 'exit') && !this.objAt(x, y, 'trigger') && this.tile(x, y) !== 'H';
       for (const [sx, sy] of sides) {
