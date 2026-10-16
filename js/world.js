@@ -110,6 +110,17 @@ const World = {
         this.ents.push({ o, kind: o.t, x: o.x, y: o.y, px: o.x * TILE, py: o.y * TILE, dir: o.dir || 'down', ox: o.x, oy: o.y, moving: false, wanderT: rand(1, 4), bob: rand(0, 6), exclaim: 0, alpha: 1 });
       }
     }
+    // 폰: 이 맵에 나오지 않는 SD 리그는 GPU 텍스처째 해제한다 (맵을 돌수록 쌓여 메모리 초과로 탭이 꺼지던 문제)
+    if (LOW_MEM && window.SD && window.SDF && SDF.ok) {
+      const need = new Set(this.ents.map(e => e.o.sprite || e.o.species).filter(Boolean));
+      const lead = Game.party.find(m => m.hp > 0); if (lead) need.add(lead.key);
+      for (const rid of SD.loaded()) {
+        if (need.has(rid)) continue;
+        if (this.follower && this.follower._sd && this.follower._sd.tpl.id === rid) SDF.release(this.follower);
+        try { SD.evict(rid); } catch (e) { console.warn(e); }
+        delete SDF.status[rid];
+      }
+    }
     const p = this.player;
     // 시작 위치가 막혀 있으면 가장 가까운 보행 가능 타일로
     if (this.blocked(x, y)) {

@@ -23,8 +23,16 @@ const BFX = {
       this.P.init(this.scene, imgs);
       FXB.renderer = this.renderer;
       this.ok = true;
-      this.BAKED.forEach(n => FXB.prepare(n).catch(() => { }));
+      // 폰은 자주 쓰는 이펙트 몇 개만 미리 받고, 나머지는 처음 쓰일 때 받는다 (그 한 번은 2D 연출로 대신)
+      (LOW_MEM ? this.BAKED.slice(0, 4) : this.BAKED).forEach(n => FXB.prepare(n).catch(() => { }));
     } catch (e) { console.warn('전투 이펙트 레이어 비활성', e); this.ok = false; }
+  },
+  // 폰: 전투가 끝나면 최근에 쓴 이펙트 몇 개만 남기고 아틀라스를 해제한다
+  trim(keep = 6) {
+    if (!this.ok || !window.FXB) return;
+    this.clear();
+    const keepSet = new Set([...this.BAKED.slice(0, 4), ...(this.used || []).slice(0, keep)]);
+    for (const n of FXB.loaded()) if (!keepSet.has(n)) FXB.evict(n);
   },
   resize() { if (this.renderer) this.renderer.setSize(Math.round(W * Math.min(SCALE, 1.5)), Math.round(H * Math.min(SCALE, 1.5)), false); },
   wx(x) { return (x - W / 2) / this.U; },
@@ -32,7 +40,9 @@ const BFX = {
   col(c) { return typeof c === 'number' ? c : parseInt(String(c).replace('#', ''), 16); },
   // 원작 이펙트 재생 (x, y: 화면 픽셀)
   baked(name, x, y, k = 1, flip = false) {
-    if (!this.ok || !FXB.ready(name)) return false;
+    if (!this.ok) return false;
+    if (!FXB.ready(name)) { FXB.prepare(name).catch(() => { }); return false; }
+    this.used = this.used || []; this.used = [name, ...this.used.filter(n => n !== name)];
     const i = FXB.create(name); if (!i) return false;
     this.busy = 4;
     i.root.position.set(this.wx(x), this.wy(y), 0);

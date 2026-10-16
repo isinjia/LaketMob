@@ -279,6 +279,7 @@ async function startBattle(o) {
   catch (e) { console.error(e); crashed = true; res = Game.party.some(m => m.hp > 0) ? 'run' : 'lose'; UI.stack.length = 0; }
   await Trans.fade(1, 450);
   Particles.clear();
+  if (LOW_MEM && window.BFX) try { BFX.trim(); } catch (e) { console.warn(e); }
   Scene = World;
   if (res === 'lose') {
     Game.healAll();
@@ -292,6 +293,7 @@ async function startBattle(o) {
     Audio2.ambient(World.def.amb || null);
     await Trans.fade(0, 400);
   }
+  if (crashed) console.error('전투 중 오류로 전투를 중단함');
   if (crashed) await say('(전투 중 문제가 생겨 전투를 중단했습니다. 진행 상황은 그대로 유지됩니다.)');
   await runPromotions();
   World.locked = wasLocked;
@@ -825,6 +827,11 @@ async function boot() {
   try { await withTimeout(document.fonts.load('40px "Black Han Sans"'), 3000); } catch (e) { }
   await loadAssets(p => L.p = p);
   // 3D 연출(SD 리그·전투 이펙트)은 three.js가 준비됐을 때만 켠다
+  // GPU 메모리: 원본 해상도 이펙트 아틀라스는 16장에 약 270MB라 폰에서는 탭이 강제 종료된다.
+  // 폰은 미리 만든 절반 크기 아틀라스를 다시 줄여 쓰고(≈1/8), PC도 0.6배로 올린다. SD 아틀라스도 폰은 절반
+  if (window.FXB) FXB.texScale = LOW_MEM ? 0.35 : 0.6;
+  if (window.SD) SD.texScale = LOW_MEM ? 0.5 : 1;
+  if (window.SDF && LOW_MEM) SDF.R = 1;
   if (await threeReady && window.__initFX) window.__initFX();
   if (window.SDF) SDF.init();
   if (window.BFX) BFX.init();

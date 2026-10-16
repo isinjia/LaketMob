@@ -23,6 +23,18 @@
   #touchpad [data-act=b] { right: 92px; top: 60px; }
   #touchpad [data-act=run] { right: 24px; top: 90px; width: 52px; height: 52px; font-size: 13px; }
   #touchpad [data-act=menu] { position: absolute; right: 18px; top: 18px; width: 70px; height: 40px; border-radius: 10px; font-size: 14px; }
+  /* 좁은 폰 화면: 방향키와 A/B 버튼이 겹치지 않도록 작게 */
+  @media (max-width: 440px) {
+    #touchpad .btn { width: 50px; height: 50px; font-size: 17px; }
+    #touchpad .dpad { left: 12px; bottom: 16px; width: 150px; height: 150px; }
+    #touchpad [data-act=up] { left: 50px; top: 0; } #touchpad [data-act=down] { left: 50px; top: 100px; }
+    #touchpad [data-act=left] { left: 0; top: 50px; } #touchpad [data-act=right] { left: 100px; top: 50px; }
+    #touchpad .ab { right: 12px; bottom: 22px; width: 150px; height: 130px; }
+    #touchpad [data-act=a] { width: 64px; height: 64px; }
+    #touchpad [data-act=b] { right: 74px; top: 52px; }
+    #touchpad [data-act=run] { right: 14px; top: 76px; width: 44px; height: 44px; font-size: 12px; }
+    #touchpad [data-act=menu] { right: 12px; top: 12px; width: 64px; height: 36px; font-size: 13px; }
+  }
 </style>
 </head>
 <body>
@@ -37,29 +49,29 @@
   </div>
   <div class="btn" data-act="menu">MENU</div>
 </div>
-<script src="js/sd.js?v=92"></script>
-<script src="js/sd/index.js?v=92"></script>
-<script src="js/assetsizes.js?v=92"></script>
-<script src="js/facing.js?v=92"></script>
-<script src="js/forms.js?v=92"></script>
-<script src="js/skinnames.js?v=92"></script>
-<script src="js/data.js?v=92"></script>
-<script src="js/fximg.js?v=92"></script>
-<script src="js/fx.js?v=92"></script>
-<script src="js/core.js?v=92"></script>
-<script src="js/ui.js?v=92"></script>
-<script src="js/battle.js?v=92"></script>
-<script src="js/battleui.js?v=92"></script>
-<script src="js/fx/_meta.js?v=92"></script>
-<script src="js/fxbake.js?v=92"></script>
-<script src="js/battlefx.js?v=92"></script>
-<script src="js/maps.js?v=92"></script>
-<script src="js/sdfield.js?v=92"></script>
-<script src="js/commander.js?v=92"></script>
-<script src="js/world.js?v=92"></script>
-<script src="js/terrain.js?v=92"></script>
-<script src="js/game.js?v=92"></script>
-<script src="js/league.js?v=92"></script>
-<script src="js/quests.js?v=92"></script>
+<script src="js/sd.js?v=93"></script>
+<script src="js/sd/index.js?v=93"></script>
+<script src="js/assetsizes.js?v=93"></script>
+<script src="js/facing.js?v=93"></script>
+<script src="js/forms.js?v=93"></script>
+<script src="js/skinnames.js?v=93"></script>
+<script src="js/data.js?v=93"></script>
+<script src="js/fximg.js?v=93"></script>
+<script src="js/fx.js?v=93"></script>
+<script src="js/core.js?v=93"></script>
+<script src="js/ui.js?v=93"></script>
+<script src="js/battle.js?v=93"></script>
+<script src="js/battleui.js?v=93"></script>
+<script src="js/fx/_meta.js?v=93"></script>
+<script src="js/fxbake.js?v=93"></script>
+<script src="js/battlefx.js?v=93"></script>
+<script src="js/maps.js?v=93"></script>
+<script src="js/sdfield.js?v=93"></script>
+<script src="js/commander.js?v=93"></script>
+<script src="js/world.js?v=93"></script>
+<script src="js/terrain.js?v=93"></script>
+<script src="js/game.js?v=93"></script>
+<script src="js/league.js?v=93"></script>
+<script src="js/quests.js?v=93"></script>
 </body>
 </html>

@@ -5,6 +5,8 @@ const W = 960, H = 640, TILE = 48;
 const FONT = "'Pretendard','Noto Sans KR','Malgun Gothic','Apple SD Gothic Neo',sans-serif";
 const TITLE_FONT = "'Black Han Sans','Noto Sans KR','Malgun Gothic',sans-serif";
 
+// 폰·저사양 기기: 터치 위주이거나 메모리가 4GB 이하. GPU 텍스처를 줄이고 쓰지 않는 리소스를 바로 해제한다
+const LOW_MEM = !!((window.matchMedia && matchMedia('(pointer: coarse)').matches) || (navigator.deviceMemory && navigator.deviceMemory <= 4) || /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent));
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 let SCALE = 1;
