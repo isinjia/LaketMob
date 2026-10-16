@@ -781,6 +781,7 @@ let FRAME_DT = 1 / 60;
 // 테스트용 게임 속도 배율 (?speed=N, 기본 1)
 const GAME_SPEED = clamp(+(new URLSearchParams(location.search).get('speed') || 1), 1, 8);
 function step(dt) {
+  if (window.MobileField) MobileField.sync();
   // 히트스톱: 강한 타격 순간 잠깐 멈춘다
   if (window.HITSTOP > 0) { window.HITSTOP -= dt; dt = 0; }
   dt *= GAME_SPEED;
@@ -794,7 +795,7 @@ function step(dt) {
   ctx.save();
   if (Scene && Scene.draw) Scene.draw();
   if (Scene === World) Particles.draw();
-  UI.draw();
+  if (window.MobileField && MobileField.portrait) MobileField.drawUI(); else UI.draw();
   Trans.draw();
   ctx.restore();
   Input.endFrame();

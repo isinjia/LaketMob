@@ -36,6 +36,21 @@
     #touchpad [data-act=run] { right: 44px; top: 0; width: 56px; height: 30px; border-radius: 15px; font-size: 12px; }
     #touchpad [data-act=menu] { right: 12px; top: 12px; width: 64px; height: 36px; font-size: 13px; }
   }
+
+  #mobile-field { position:fixed; inset:0; pointer-events:none; z-index:10; }
+  #mobile-field [hidden] { display:none !important; }
+  #mobile-field button { position:absolute; pointer-events:auto; border:1px solid #ffffff38; color:#f1f7ff; background:#101f35df; border-radius:18px; padding:12px 18px; font:700 14px 'Noto Sans KR',sans-serif; box-shadow:0 4px 20px #0005; }
+  #move-zone { position:absolute; inset:90px 0 0; pointer-events:auto; touch-action:none; }
+  #floating-stick { position:fixed; width:100px; height:100px; transform:translate(-50%,-50%); border:1px solid #ffffff70; border-radius:50%; background:#10203955; pointer-events:none; }
+  #floating-stick i { position:absolute; left:50%; top:50%; width:42px; height:42px; border-radius:50%; background:#d9f6ff99; border:1px solid #fff9; }
+  #floating-stick.fast { border-color:#ffcd66; }
+  #field-menu { right:16px; top:max(14px,env(safe-area-inset-top)); }
+  #mobile-field #field-quest { left:14px; top:max(14px,env(safe-area-inset-top)); max-width:calc(100% - 94px); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:12px; padding:12px; text-align:left; }
+  #field-action { right:20px; bottom:max(32px,env(safe-area-inset-bottom)); border-color:#ffce6a !important; }
+  #field-confirm { right:20px; bottom:max(24px,env(safe-area-inset-bottom)); }
+  #field-back { left:16px; bottom:max(24px,env(safe-area-inset-bottom)); }
+  .modern-touch #touchpad .dpad, .modern-touch #touchpad .ab, .modern-touch #touchpad [data-act=menu] { display:none; }
+  .modern-touch:not(.modern-field):not(.portrait-field) #touchpad .dpad, .modern-touch:not(.modern-field):not(.portrait-field) #touchpad .ab { display:block; }
 </style>
 </head>
 <body>
@@ -50,29 +65,30 @@
   </div>
   <div class="btn" data-act="menu">MENU</div>
 </div>
-<script src="js/sd.js?v=97"></script>
-<script src="js/sd/index.js?v=97"></script>
-<script src="js/assetsizes.js?v=97"></script>
-<script src="js/facing.js?v=97"></script>
-<script src="js/forms.js?v=97"></script>
-<script src="js/skinnames.js?v=97"></script>
-<script src="js/data.js?v=97"></script>
-<script src="js/fximg.js?v=97"></script>
-<script src="js/fx.js?v=97"></script>
-<script src="js/core.js?v=97"></script>
-<script src="js/ui.js?v=97"></script>
-<script src="js/battle.js?v=97"></script>
-<script src="js/battleui.js?v=97"></script>
-<script src="js/fx/_meta.js?v=97"></script>
-<script src="js/fxbake.js?v=97"></script>
-<script src="js/battlefx.js?v=97"></script>
-<script src="js/maps.js?v=97"></script>
-<script src="js/sdfield.js?v=97"></script>
-<script src="js/commander.js?v=97"></script>
-<script src="js/world.js?v=97"></script>
-<script src="js/terrain.js?v=97"></script>
-<script src="js/game.js?v=97"></script>
-<script src="js/league.js?v=97"></script>
-<script src="js/quests.js?v=97"></script>
+<script src="js/sd.js?v=98"></script>
+<script src="js/sd/index.js?v=98"></script>
+<script src="js/assetsizes.js?v=98"></script>
+<script src="js/facing.js?v=98"></script>
+<script src="js/forms.js?v=98"></script>
+<script src="js/skinnames.js?v=98"></script>
+<script src="js/data.js?v=98"></script>
+<script src="js/fximg.js?v=98"></script>
+<script src="js/fx.js?v=98"></script>
+<script src="js/core.js?v=98"></script>
+<script src="js/ui.js?v=98"></script>
+<script src="js/battle.js?v=98"></script>
+<script src="js/battleui.js?v=98"></script>
+<script src="js/fx/_meta.js?v=98"></script>
+<script src="js/fxbake.js?v=98"></script>
+<script src="js/battlefx.js?v=98"></script>
+<script src="js/maps.js?v=98"></script>
+<script src="js/sdfield.js?v=98"></script>
+<script src="js/commander.js?v=98"></script>
+<script src="js/world.js?v=98"></script>
+<script src="js/terrain.js?v=98"></script>
+<script src="js/game.js?v=98"></script>
+<script src="js/league.js?v=98"></script>
+<script src="js/quests.js?v=98"></script>
+<script src="js/mobilefield.js?v=98"></script>
 </body>
 </html>

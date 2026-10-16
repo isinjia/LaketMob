@@ -500,16 +500,16 @@
       const n = this.notes[0]; if (!n) return;
       n.t += FRAME_DT;
       // 긴 알림(진행도 반영 등)은 여러 줄로 감싸고 더 오래 보여 준다. 오른쪽 위 추적 HUD를 피해 왼쪽 가운데에 둔다
-      if (!n.lines) n.lines = wrapText(n.q.title, 560, 18, 800).slice(0, 4);
+      if (!n.lines) n.lines = wrapText(n.q.title, Math.min(560, W - 52), 18, 800).slice(0, 4);
       const life = 2.6 + (n.lines.length - 1) * 1.2;
       if (n.t > life) { this.notes.shift(); return; }
       const a = n.t < 0.25 ? n.t / 0.25 : n.t > life - 0.4 ? (life - n.t) / 0.4 : 1;
       const col = n.q.type === 'main' ? COL.main : COL.side;
       ctx.save(); ctx.globalAlpha = a;
       // 지역 이름 배너(왼쪽 위, y 22~74)와 겹치지 않도록 그 아래에 둔다
-      const cx = (W - 350) / 2 + 10, y = 140 - (1 - Math.min(1, n.t / 0.25)) * 20;
+      const cx = W < 700 ? W / 2 : (W - 350) / 2 + 10, y = 140 - (1 - Math.min(1, n.t / 0.25)) * 20;
       // 건물 이름표 위에 겹쳐도 읽히도록 반투명 띠를 깐다
-      const bh = 46 + n.lines.length * 24, bw = 600;
+      const bh = 46 + n.lines.length * 24, bw = Math.min(600, W - 24);
       ctx.fillStyle = 'rgba(4,10,22,0.72)'; chamfer(cx - bw / 2, y - 36, bw, bh, 10); ctx.fill();
       ctx.fillStyle = col; ctx.fillRect(cx - bw / 2, y - 36, 4, bh);
       txt(n.head, cx, y, { size: 30, weight: 900, align: 'center', color: col, family: TITLE_FONT, stroke: 6, strokeColor: 'rgba(0,0,0,0.75)', shadow: false });

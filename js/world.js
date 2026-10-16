@@ -237,7 +237,7 @@ const World = {
     const fo = this.follower;
     if (fo) { fo.fx = fo.x; fo.fy = fo.y; fo.x = p.x; fo.y = p.y; fo.moving = !(fo.fx === fo.x && fo.fy === fo.y); fo.hidden = false; const dx = fo.x - fo.fx, dy = fo.y - fo.fy; if (dx || dy) fo.dir = dx > 0 ? 'right' : dx < 0 ? 'left' : dy > 0 ? 'down' : 'up'; }
     p.fx = p.x; p.fy = p.y; p.x = nx; p.y = ny; p.moving = true; p.prog = 0;
-    p.run = Settings.runDefault ? !Input.held.run : Input.held.run;
+    p.run = window.MobileField && MobileField.drag ? MobileField.fast : (Settings.runDefault ? !Input.held.run : Input.held.run);
     // 출발하는 프레임에도 그만큼 이동한다 (칸 사이에 한 프레임씩 쉬어 빠를수록 실제 속도가 깎이던 문제)
     p.prog = Math.min(0.95, Math.max(0, FRAME_DT) * this.moveSpeed());
     p.px = lerp(p.fx, p.x, p.prog) * TILE; p.py = lerp(p.fy, p.y, p.prog) * TILE;
@@ -555,8 +555,8 @@ const World = {
       ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
     }
     if (this.def.indoor) { const g = ctx.createRadialGradient(W / 2, H / 2, 200, W / 2, H / 2, 600); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,0.45)'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H); }
-    this.drawBanner();
-    if (window.Quests) { if (!UI.busy()) Quests.drawTracker(); Quests.drawNotes(); }
+    if (!(window.MobileField && MobileField.portrait)) this.drawBanner();
+    if (window.Quests) { if (!UI.busy() && !(window.MobileField && MobileField.portrait)) Quests.drawTracker(); Quests.drawNotes(); }
     if (this.toast && this.toast.t < 2) { this.toast.t += FRAME_DT; ctx.save(); ctx.globalAlpha = Math.min(1, (2 - this.toast.t) * 2); itemIcon('chip', W - 150, H - 26, 16); txt(this.toast.text, W - 18, H - 20, { size: 14, align: 'right', color: '#cfefff', stroke: 3, strokeColor: 'rgba(0,0,0,0.6)', shadow: false }); ctx.restore(); }
     if (!Game.flags.hintSeen && this.hintT < 30 && !UI.busy()) {
       ctx.save(); ctx.globalAlpha = 0.85;

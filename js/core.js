@@ -1,7 +1,8 @@
 // =====================================================================
 //  라켓몬스터 - 엔진 코어: 캔버스 / 입력 / 오디오 / 에셋 / 그리기 유틸
 // =====================================================================
-const W = 960, H = 640, TILE = 48;
+let W = 960, H = 640;
+const TILE = 48;
 const FONT = "'Pretendard','Noto Sans KR','Malgun Gothic','Apple SD Gothic Neo',sans-serif";
 const TITLE_FONT = "'Black Han Sans','Noto Sans KR','Malgun Gothic',sans-serif";
 
@@ -12,6 +13,7 @@ const ctx = canvas.getContext('2d');
 let SCALE = 1;
 function resize() {
   const vw = window.innerWidth, vh = window.innerHeight;
+  if (window.MobileField) MobileField.dimensions();
   const fit = Math.min(vw / W, vh / H);
   const dpr = window.devicePixelRatio || 1;
   SCALE = Math.max(1, Math.min(2.5, fit * dpr));
@@ -126,6 +128,7 @@ window.addEventListener('keyup', e => { const act = KEYMAP[e.code]; if (act) Inp
 window.addEventListener('blur', () => Input.clear());
 function toLogical(e) {
   const r = canvas.getBoundingClientRect();
+  if (window.MobileField && MobileField.portrait && UI.busy()) return MobileField.uiPoint(e, r);
   return { x: (e.clientX - r.left) / r.width * W, y: (e.clientY - r.top) / r.height * H };
 }
 canvas.addEventListener('mousemove', e => { const p = toLogical(e); Input.mouse.x = p.x; Input.mouse.y = p.y; Input.mouse.moved = true; Input.mouse.active = true; });
@@ -159,7 +162,7 @@ function setupTouchPad() {
 //  오디오 (HTMLAudio 기반: file:// 에서도 동작) + WebAudio 합성음
 // ---------------------------------------------------------------------
 const Settings = {
-  bgm: 0.55, sfx: 0.8, voice: 0.9, textSpeed: 2, runDefault: false, questTracker: true, difficulty: 1,
+  bgm: 0.55, sfx: 0.8, voice: 0.9, textSpeed: 2, runDefault: false, questTracker: true, difficulty: 1, touchStyle: 'modern',
   load() {
     let d = {};
     try { d = JSON.parse(localStorage.getItem('racketmon_settings') || '{}') || {}; } catch (e) { }
@@ -168,9 +171,10 @@ const Settings = {
     if (Number.isFinite(+d.textSpeed) && d.textSpeed !== null) this.textSpeed = clamp(Math.round(+d.textSpeed), 1, 4);
     if (typeof d.runDefault === 'boolean') this.runDefault = d.runDefault;
     if (typeof d.questTracker === 'boolean') this.questTracker = d.questTracker;
+    if (['modern', 'buttons'].includes(d.touchStyle)) this.touchStyle = d.touchStyle;
     if (Number.isInteger(d.difficulty)) this.difficulty = clamp(d.difficulty, 0, 2);
   },
-  save() { try { localStorage.setItem('racketmon_settings', JSON.stringify({ bgm: this.bgm, sfx: this.sfx, voice: this.voice, textSpeed: this.textSpeed, runDefault: this.runDefault, questTracker: this.questTracker, difficulty: this.difficulty })); } catch (e) { } },
+  save() { try { localStorage.setItem('racketmon_settings', JSON.stringify({ bgm: this.bgm, sfx: this.sfx, voice: this.voice, textSpeed: this.textSpeed, runDefault: this.runDefault, questTracker: this.questTracker, difficulty: this.difficulty, touchStyle: this.touchStyle })); } catch (e) { } },
 };
 Settings.load();
 

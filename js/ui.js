@@ -859,7 +859,7 @@ class ControlsScreen {
 //  설정
 // ---------------------------------------------------------------------
 class SettingsScreen {
-  constructor() { this.nav = new ListNav(8); }
+  constructor() { this.nav = new ListNav(9); }
   update(dt) {
     const r = this.nav.update(dt);
     const i = this.nav.i;
@@ -875,21 +875,23 @@ class SettingsScreen {
     }
     if (r === 'a' && (i === 4 || i === 5)) { flip(i === 4 ? 'runDefault' : 'questTracker'); Audio2.select(); Settings.save(); }
     if (r === 'a' && i === 6) { Settings.difficulty = (Settings.difficulty + 1) % 3; Audio2.select(); Settings.save(); }
-    if (r === 'b' || (r === 'a' && i === 7)) { Audio2.cancel(); Settings.save(); UI.close(this); }
+    if ((d || r === 'a') && i === 7) { Settings.touchStyle = Settings.touchStyle === 'buttons' ? 'modern' : 'buttons'; Settings.save(); Input.clear(); }
+    if (r === 'b' || (r === 'a' && i === 8)) { Audio2.cancel(); Settings.save(); UI.close(this); }
   }
   draw() {
     screenBG('설정');
-    panel(160, 92, 640, 466);
-    const labels = ['배경음 (BGM)', '효과음', '음성', '텍스트 속도', '기본 달리기', '퀘스트 추적 표시', '난이도', '돌아가기'];
+    panel(160, 76, 640, 512);
+    const labels = ['배경음 (BGM)', '효과음', '음성', '텍스트 속도', '기본 달리기', '퀘스트 추적 표시', '난이도', '터치 조작', '돌아가기'];
     this.nav.beginDraw();
     labels.forEach((l, i) => {
-      const y = 108 + i * 55, on = i === this.nav.i, ty = y + 32;
+      const y = 86 + i * 54, on = i === this.nav.i, ty = y + 32;
       this.nav.rect(i, 180, y, 600, 50);
       if (on) { chamfer(180, y, 600, 50, 8); ctx.fillStyle = UI_COL.sel; ctx.fill(); }
       txt(l, 210, ty, { size: 21, weight: 700, color: on ? '#fff' : '#cfe6f5' });
       if (i <= 2) { const v = Settings[['bgm', 'sfx', 'voice'][i]]; bar(470, y + 18, 220, 14, v, ['#7ce8ff', '#1a9fd0']); txt(Math.round(v * 100) + '%', 760, ty, { size: 18, align: 'right', weight: 700 }); }
       if (i === 3) txt(['', '느리게', '보통', '빠르게', '즉시'][Settings.textSpeed], 760, ty, { size: 20, align: 'right', weight: 800, color: UI_COL.accent });
       if (i === 4 || i === 5) { const v = i === 4 ? Settings.runDefault : Settings.questTracker; txt(v ? 'ON' : 'OFF', 760, ty, { size: 20, align: 'right', weight: 800, color: v ? UI_COL.green : UI_COL.sub }); }
+      if (i === 7) txt(Settings.touchStyle === 'buttons' ? '기존 버튼' : '조이스틱 · 상황 버튼', 760, ty, { size: 18, align: 'right', color: UI_COL.accent });
       if (i === 6) txt(['쉬움 (상대 Lv -3)', '보통', '어려움 (상대 Lv +3)'][Settings.difficulty], 760, ty, { size: 18, align: 'right', weight: 800, color: ['#5dff9c', UI_COL.accent, '#ff7a85'][Settings.difficulty] });
     });
     helpLine('▲▼ 항목   ◀▶ 값 변경   Shift: 달리기(누르는 동안)   X: 돌아가기');
