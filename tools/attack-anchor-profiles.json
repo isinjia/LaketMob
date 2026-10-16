@@ -1,0 +1,2193 @@
+{
+  "leprechaun": {
+    "kind": "gun",
+    "emit": [
+      0.95,
+      0.5
+    ]
+  },
+  "gnome": {
+    "kind": "gun",
+    "emit": [
+      0.1,
+      0.33
+    ]
+  },
+  "harpy": {
+    "kind": "focus",
+    "emit": [
+      0.67,
+      0.29
+    ]
+  },
+  "brownie": {
+    "kind": "gun",
+    "emit": [
+      0.92,
+      0.34
+    ]
+  },
+  "hyena": {
+    "kind": "focus",
+    "emit": [
+      0.5,
+      0.31
+    ]
+  },
+  "gremlin": {
+    "kind": "focus",
+    "emit": [
+      0.75,
+      0.22
+    ]
+  },
+  "nymph": {
+    "kind": "gun",
+    "emit": [
+      0.02,
+      0.02
+    ]
+  },
+  "sylphid": {
+    "kind": "gun",
+    "emit": [
+      0.92,
+      0.59
+    ]
+  },
+  "pixie": {
+    "kind": "gun",
+    "emit": [
+      0.01,
+      0.5
+    ]
+  },
+  "undine": {
+    "kind": "gun",
+    "emit": [
+      0.3,
+      0.73
+    ]
+  },
+  "spriggan": {
+    "kind": "gun",
+    "emit": [
+      0.02,
+      0.06
+    ]
+  },
+  "impet": {
+    "kind": "gun",
+    "emit": [
+      0.02,
+      0.15
+    ]
+  },
+  "miho": {
+    "kind": "gun",
+    "emit": [
+      0.02,
+      0.18
+    ]
+  },
+  "bulgasari": {
+    "kind": "blade",
+    "emit": [
+      0.08,
+      0.75
+    ]
+  },
+  "talonfeather": {
+    "kind": "gun",
+    "emit": [
+      0.2,
+      0.62
+    ]
+  },
+  "hraesvelgr": {
+    "kind": "gun",
+    "emit": [
+      0.05,
+      0.45
+    ]
+  },
+  "perrault": {
+    "kind": "focus",
+    "emit": [
+      0.15,
+      0.4
+    ]
+  },
+  "alice": {
+    "kind": "focus",
+    "emit": [
+      0.15,
+      0.35
+    ]
+  },
+  "gigantes": {
+    "kind": "gun",
+    "emit": [
+      0.7,
+      0.02
+    ]
+  },
+  "daika": {
+    "kind": "gun",
+    "emit": [
+      0.12,
+      0.45
+    ]
+  },
+  "bloodypanther": {
+    "kind": "gun",
+    "emit": [
+      0.83,
+      0.04
+    ]
+  },
+  "cheona": {
+    "kind": "focus",
+    "emit": [
+      0.87,
+      0.25
+    ]
+  },
+  "phantom": {
+    "kind": "gun",
+    "emit": [
+      0.1,
+      0.22
+    ]
+  },
+  "valkyrie": {
+    "kind": "gun",
+    "emit": [
+      0.98,
+      0.75
+    ]
+  },
+  "tyrant": {
+    "kind": "mouth",
+    "emit": [
+      0.96,
+      0.38
+    ]
+  },
+  "rampart": {
+    "kind": "gun",
+    "emit": [
+      0.16,
+      0.6
+    ]
+  },
+  "goltarion": {
+    "kind": "focus",
+    "emit": [
+      0.15,
+      0.2
+    ]
+  },
+  "lindwurm": {
+    "kind": "gun",
+    "emit": [
+      0.02,
+      0.56
+    ]
+  },
+  "phoenix": {
+    "kind": "gun",
+    "emit": [
+      0.018,
+      0.754
+    ]
+  },
+  "roc": {
+    "kind": "gun",
+    "emit": [
+      0.17,
+      0.46
+    ]
+  },
+  "fafnir": {
+    "kind": "focus",
+    "emit": [
+      0.8,
+      0.66
+    ]
+  },
+  "hongryun": {
+    "kind": "blade",
+    "emit": [
+      0.94,
+      0.52
+    ]
+  },
+  "echidna": {
+    "kind": "focus",
+    "emit": [
+      0.3955,
+      0.4076
+    ]
+  },
+  "efreeti": {
+    "kind": "gun",
+    "emit": [
+      0.97,
+      0.2
+    ]
+  },
+  "blackhound": {
+    "kind": "gun",
+    "emit": [
+      0.97,
+      0.77
+    ]
+  },
+  "leona": {
+    "kind": "focus",
+    "emit": [
+      0.77,
+      0.3
+    ]
+  },
+  "blacklilith": {
+    "kind": "focus",
+    "emit": [
+      0.9,
+      0.25
+    ]
+  },
+  "eternity": {
+    "kind": "gun",
+    "emit": [
+      0.02,
+      0.14
+    ]
+  },
+  "lemongamma": {
+    "kind": "blade",
+    "emit": [
+      0.32,
+      0.02
+    ]
+  },
+  "lemonbeta": {
+    "kind": "focus",
+    "emit": [
+      0.22,
+      0.54
+    ]
+  },
+  "lemondelta": {
+    "kind": "focus",
+    "emit": [
+      0.63,
+      0.42
+    ]
+  },
+  "lemonzeta": {
+    "kind": "gun",
+    "emit": [
+      0.02,
+      0.75
+    ]
+  },
+  "lemonepsilon": {
+    "kind": "focus",
+    "emit": [
+      0.04,
+      0.5
+    ]
+  },
+  "lemonalpha": {
+    "kind": "focus",
+    "emit": [
+      0.375,
+      0.2851
+    ]
+  },
+  "lemonomega": {
+    "kind": "focus",
+    "emit": [
+      0.0864,
+      0.4468
+    ]
+  },
+  "mpzeta": {
+    "kind": "blade",
+    "emit": [
+      0.04,
+      0.94
+    ]
+  },
+  "ajax": {
+    "kind": "focus",
+    "emit": [
+      0.15,
+      0.44
+    ]
+  },
+  "albatross": {
+    "kind": "blade",
+    "emit": [
+      0.99,
+      0.61
+    ]
+  },
+  "alexandra": {
+    "kind": "focus",
+    "emit": [
+      0.2,
+      0.28
+    ]
+  },
+  "alice_1": {
+    "kind": "focus",
+    "emit": [
+      0.3,
+      0.25
+    ]
+  },
+  "alice_2": {
+    "kind": "focus",
+    "emit": [
+      0.2,
+      0.45
+    ]
+  },
+  "alice_2_dam": {
+    "kind": "focus",
+    "emit": [
+      0.7182,
+      0.426
+    ]
+  },
+  "alvis": {
+    "kind": "gun",
+    "emit": [
+      0.8,
+      0.28
+    ]
+  },
+  "alwraith": {
+    "kind": "gun",
+    "emit": [
+      0.02,
+      0.03
+    ]
+  },
+  "amphitrite": {
+    "kind": "focus",
+    "emit": [
+      0.8447,
+      0.4936
+    ]
+  },
+  "amy": {
+    "kind": "gun",
+    "emit": [
+      0.96,
+      0.52
+    ]
+  },
+  "andvari": {
+    "kind": "focus",
+    "emit": [
+      0.98,
+      0.54
+    ]
+  },
+  "angel": {
+    "kind": "focus",
+    "emit": [
+      0.28,
+      0.37
+    ]
+  },
+  "annie": {
+    "kind": "gun",
+    "emit": [
+      0.97,
+      0.32
+    ]
+  },
+  "aqua": {
+    "kind": "gun",
+    "emit": [
+      0.93,
+      0.5
+    ]
+  },
+  "arachne": {
+    "kind": "gun",
+    "emit": [
+      0.32,
+      0.01
+    ]
+  },
+  "arman": {
+    "kind": "focus",
+    "emit": [
+      0.18,
+      0.36
+    ]
+  },
+  "as12turtledragon": {
+    "kind": "gun",
+    "emit": [
+      0.02,
+      0.44
+    ]
+  },
+  "atalanta": {
+    "kind": "blade",
+    "emit": [
+      0.35,
+      0.01
+    ]
+  },
+  "audrey": {
+    "kind": "focus",
+    "emit": [
+      0.9,
+      0.26
+    ]
+  },
+  "aurora": {
+    "kind": "focus",
+    "emit": [
+      0.16,
+      0.29
+    ]
+  },
+  "azaz": {
+    "kind": "blade",
+    "emit": [
+      0.98,
+      0.85
+    ]
+  },
+  "azazel": {
+    "kind": "focus",
+    "emit": [
+      0.34,
+      0.39
+    ]
+  },
+  "azazelalter": {
+    "kind": "focus",
+    "emit": [
+      0.3,
+      0.4
+    ]
+  },
+  "babariana": {
+    "kind": "blade",
+    "emit": [
+      0.25,
+      0.73
+    ]
+  },
+  "baekto": {
+    "kind": "focus",
+    "emit": [
+      0.55,
+      0.18
+    ]
+  },
+  "banshee": {
+    "kind": "gun",
+    "emit": [
+      0.21,
+      0.02
+    ]
+  },
+  "beasthunter": {
+    "kind": "gun",
+    "emit": [
+      0.98,
+      0.14
+    ]
+  },
+  "bheur": {
+    "kind": "gun",
+    "emit": [
+      0.25,
+      0.08
+    ]
+  },
+  "blackhound_1": {
+    "kind": "focus",
+    "emit": [
+      0.42,
+      0.16
+    ]
+  },
+  "blackhound_2": {
+    "kind": "focus",
+    "emit": [
+      0.02,
+      0.2
+    ]
+  },
+  "blacklilith_1": {
+    "kind": "focus",
+    "emit": [
+      0.3681,
+      0.2766
+    ]
+  },
+  "blacklilith_2": {
+    "kind": "focus",
+    "emit": [
+      0.64,
+      0.41
+    ]
+  },
+  "blacklilith_2_dam": {
+    "kind": "focus",
+    "emit": [
+      0.17,
+      0.59
+    ]
+  },
+  "blacklilith_3": {
+    "kind": "focus",
+    "emit": [
+      0.5,
+      0.35
+    ]
+  },
+  "blackwyrm": {
+    "kind": "gun",
+    "emit": [
+      0.06,
+      0.75
+    ]
+  },
+  "bloodypanther_1": {
+    "kind": "focus",
+    "emit": [
+      0.7455,
+      0.2965
+    ]
+  },
+  "bloodypanther_1_dam": {
+    "kind": "focus",
+    "emit": [
+      0.24,
+      0.4
+    ]
+  },
+  "boryeon": {
+    "kind": "gun",
+    "emit": [
+      0.05,
+      0.07
+    ]
+  },
+  "brunhild": {
+    "kind": "focus",
+    "emit": [
+      0.81,
+      0.32
+    ]
+  },
+  "bs": {
+    "kind": "gun",
+    "emit": [
+      0.03,
+      0.15
+    ]
+  },
+  "bulgasari_1": {
+    "kind": "focus",
+    "emit": [
+      0.75,
+      0.42
+    ]
+  },
+  "bulgasari_1_dam": {
+    "kind": "focus",
+    "emit": [
+      0.72,
+      0.42
+    ]
+  },
+  "bulgasari_2": {
+    "kind": "gun",
+    "emit": [
+      0.05,
+      0.93
+    ]
+  },
+  "bulgasari_2_dam": {
+    "kind": "focus",
+    "emit": [
+      0.672,
+      0.4851
+    ]
+  },
+  "bunnyslayer": {
+    "kind": "blade",
+    "emit": [
+      0.8,
+      0.02
+    ]
+  },
+  "calista": {
+    "kind": "gun",
+    "emit": [
+      0.02,
+      0.28
+    ]
+  },
+  "carolina": {
+    "kind": "focus",
+    "emit": [
+      0.87,
+      0.33
+    ]
+  },
+  "cerberus": {
+    "kind": "gun",
+    "emit": [
+      0.85,
+      0.49
+    ]
+  },
+  "charlotte": {
+    "kind": "blade",
+    "emit": [
+      0.01,
+      0.38
+    ]
+  },
+  "cheona_1": {
+    "kind": "blade",
+    "emit": [
+      0.26,
+      0.28
+    ]
+  },
+  "cheona_1_dam": {
+    "kind": "focus",
+    "emit": [
+      0.7136,
+      0.4957
+    ]
+  },
+  "cheona_2": {
+    "kind": "focus",
+    "emit": [
+      0.13,
+      0.22
+    ]
+  },
+  "cheona_dam": {
+    "kind": "focus",
+    "emit": [
+      0.8465,
+      0.4
+    ]
+  },
+  "circe": {
+    "kind": "focus",
+    "emit": [
+      0.8,
+      0.48
+    ]
+  },
+  "cloverace": {
+    "kind": "gun",
+    "emit": [
+      0.02,
+      0.9
+    ]
+  },
+  "cocowhiteshell": {
+    "kind": "focus",
+    "emit": [
+      0.75,
+      0.3
+    ]
+  },
+  "constantia": {
+    "kind": "gun",
+    "emit": [
+      0.81,
+      0.18
+    ]
+  },
+  "cyclopseprincess": {
+    "kind": "blade",
+    "emit": [
+      0.9,
+      0.28
+    ]
+  },
+  "daika_1": {
+    "kind": "focus",
+    "emit": [
+      0.33,
+      0.39
+    ]
+  },
+  "daika_1_dam": {
+    "kind": "focus",
+    "emit": [
+      0.68,
+      0.32
+    ]
+  },
+  "daphne": {
+    "kind": "focus",
+    "emit": [
+      0.72,
+      0.35
+    ]
+  },
+  "darkelf": {
+    "kind": "focus",
+    "emit": [
+      0.58,
+      0.38
+    ]
+  },
+  "djinnia": {
+    "kind": "gun",
+    "emit": [
+      0.99,
+      0.53
+    ]
+  },
+  "draculina": {
+    "kind": "focus",
+    "emit": [
+      0.58,
+      0.25
+    ]
+  },
+  "drm": {
+    "kind": "focus",
+    "emit": [
+      0.62,
+      0.4
+    ]
+  },
+  "drone": {
+    "kind": "gun",
+    "emit": [
+      0.53,
+      0.8
+    ]
+  },
+  "dryad": {
+    "kind": "gun",
+    "emit": [
+      0.5,
+      0.47
+    ]
+  },
+  "dutchgirl": {
+    "kind": "focus",
+    "emit": [
+      0.6,
+      0.5021
+    ]
+  },
+  "echidna_1": {
+    "kind": "focus",
+    "emit": [
+      0.32,
+      0.51
+    ]
+  },
+  "echidna_2": {
+    "kind": "focus",
+    "emit": [
+      0.4727,
+      0.3
+    ]
+  },
+  "echidna_3": {
+    "kind": "focus",
+    "emit": [
+      0.23,
+      0.48
+    ]
+  },
+  "echidna_3_dam": {
+    "kind": "focus",
+    "emit": [
+      0.23,
+      0.39
+    ]
+  },
+  "efreeti_1": {
+    "kind": "gun",
+    "emit": [
+      0.05,
+      0.3
+    ]
+  },
+  "efreeti_1_dam": {
+    "kind": "focus",
+    "emit": [
+      0.19,
+      0.75
+    ]
+  },
+  "ella": {
+    "kind": "focus",
+    "emit": [
+      0.78,
+      0.4
+    ]
+  },
+  "ellie": {
+    "kind": "focus",
+    "emit": [
+      0.55,
+      0.41
+    ]
+  },
+  "elvenforestmaker": {
+    "kind": "gun",
+    "emit": [
+      0.98,
+      0.5
+    ]
+  },
+  "emily": {
+    "kind": "gun",
+    "emit": [
+      0.96,
+      0.51
+    ]
+  },
+  "empress": {
+    "kind": "gun",
+    "emit": [
+      0.94,
+      0.48
+    ]
+  },
+  "erato": {
+    "kind": "focus",
+    "emit": [
+      0.2192,
+      0.2213
+    ]
+  },
+  "eternity_1": {
+    "kind": "focus",
+    "emit": [
+      0.55,
+      0.34
+    ]
+  },
+  "eternity_1_dam": {
+    "kind": "focus",
+    "emit": [
+      0.2048,
+      0.2468
+    ]
+  },
+  "eternity_2": {
+    "kind": "focus",
+    "emit": [
+      0.36,
+      0.46
+    ]
+  },
+  "eternity_2_dam": {
+    "kind": "focus",
+    "emit": [
+      0.68,
+      0.54
+    ]
+  },
+  "eternity_3": {
+    "kind": "focus",
+    "emit": [
+      0.49,
+      0.355
+    ]
+  },
+  "eternity_dam": {
+    "kind": "gun",
+    "emit": [
+      0.98,
+      0.3
+    ]
+  },
+  "express76": {
+    "kind": "gun",
+    "emit": [
+      0.02,
+      0.2
+    ]
+  },
+  "fallen": {
+    "kind": "gun",
+    "emit": [
+      0.26,
+      0.37
+    ]
+  },
+  "faucre": {
+    "kind": "blade",
+    "emit": [
+      0.04,
+      0.34
+    ]
+  },
+  "fenrir": {
+    "kind": "blade",
+    "emit": [
+      0.16,
+      0.92
+    ]
+  },
+  "fortress": {
+    "kind": "gun",
+    "emit": [
+      0.5,
+      0.12
+    ]
+  },
+  "fortune": {
+    "kind": "focus",
+    "emit": [
+      0.9,
+      0.21
+    ]
+  },
+  "fotia": {
+    "kind": "focus",
+    "emit": [
+      0.75,
+      0.42
+    ]
+  },
+  "frigga": {
+    "kind": "focus",
+    "emit": [
+      0.0682,
+      0.3787
+    ]
+  },
+  "galatea": {
+    "kind": "focus",
+    "emit": [
+      0.35,
+      0.2
+    ]
+  },
+  "glacias": {
+    "kind": "mouth",
+    "emit": [
+      0.5,
+      0.4
+    ]
+  },
+  "gnome_1": {
+    "kind": "focus",
+    "emit": [
+      0.78,
+      0.215
+    ]
+  },
+  "gnome_1_dam": {
+    "kind": "focus",
+    "emit": [
+      0.7045,
+      0.3915
+    ]
+  },
+  "gnome_2": {
+    "kind": "focus",
+    "emit": [
+      0.15,
+      0.33
+    ]
+  },
+  "gnome_2_dam": {
+    "kind": "focus",
+    "emit": [
+      0.4743,
+      0.5149
+    ]
+  },
+  "gnome_dam": {
+    "kind": "gun",
+    "emit": [
+      0.08,
+      0.65
+    ]
+  },
+  "goltarion_1": {
+    "kind": "gun",
+    "emit": [
+      0.02,
+      0.22
+    ]
+  },
+  "gremlin_1": {
+    "kind": "focus",
+    "emit": [
+      0.6,
+      0.68
+    ]
+  },
+  "habetrot": {
+    "kind": "focus",
+    "emit": [
+      0.8922,
+      0.2766
+    ]
+  },
+  "hachiko": {
+    "kind": "gun",
+    "emit": [
+      0.02,
+      0.11
+    ]
+  },
+  "harpy_1": {
+    "kind": "focus",
+    "emit": [
+      0.18,
+      0.21
+    ]
+  },
+  "harpy_2": {
+    "kind": "focus",
+    "emit": [
+      0.77,
+      0.02
+    ]
+  },
+  "highelven": {
+    "kind": "focus",
+    "emit": [
+      0.15,
+      0.42
+    ]
+  },
+  "hirume": {
+    "kind": "focus",
+    "emit": [
+      0.68,
+      0.33
+    ]
+  },
+  "hongryun_1": {
+    "kind": "focus",
+    "emit": [
+      0.42,
+      0.37
+    ]
+  },
+  "hongryun_1_dam": {
+    "kind": "focus",
+    "emit": [
+      0.3,
+      0.55
+    ]
+  },
+  "hongryun_2": {
+    "kind": "focus",
+    "emit": [
+      0.52,
+      0.5
+    ]
+  },
+  "hongryun_2_dam": {
+    "kind": "focus",
+    "emit": [
+      0.85,
+      0.25
+    ]
+  },
+  "hongryun_3": {
+    "kind": "gun",
+    "emit": [
+      0.94,
+      0.72
+    ]
+  },
+  "hongryun_3_dam": {
+    "kind": "focus",
+    "emit": [
+      0.45,
+      0.64
+    ]
+  },
+  "hongryun_4": {
+    "kind": "focus",
+    "emit": [
+      0.3762,
+      0.4979
+    ]
+  },
+  "hongryun_dam": {
+    "kind": "blade",
+    "emit": [
+      0.84,
+      0.79
+    ]
+  },
+  "hraesvelgr_1": {
+    "kind": "focus",
+    "emit": [
+      0.83,
+      0.28
+    ]
+  },
+  "hraesvelgr_2": {
+    "kind": "focus",
+    "emit": [
+      0.9,
+      0.25
+    ]
+  },
+  "hussar": {
+    "kind": "gun",
+    "emit": [
+      0.1,
+      0.48
+    ]
+  },
+  "hyena_1": {
+    "kind": "focus",
+    "emit": [
+      0.46,
+      0.36
+    ]
+  },
+  "hyena_1_dam": {
+    "kind": "focus",
+    "emit": [
+      0.88,
+      0.24
+    ]
+  },
+  "hyena_2": {
+    "kind": "gun",
+    "emit": [
+      0.8,
+      0.03
+    ]
+  },
+  "hyena_2_dam": {
+    "kind": "focus",
+    "emit": [
+      0.45,
+      0.64
+    ]
+  },
+  "ignis": {
+    "kind": "gun",
+    "emit": [
+      0.97,
+      0.42
+    ]
+  },
+  "impet_1": {
+    "kind": "focus",
+    "emit": [
+      0.4811,
+      0.2426
+    ]
+  },
+  "invdragon": {
+    "kind": "blade",
+    "emit": [
+      0.02,
+      0.6
+    ]
+  },
+  "io": {
+    "kind": "gun",
+    "emit": [
+      0.016,
+      0.55
+    ]
+  },
+  "ironprince": {
+    "kind": "focus",
+    "emit": [
+      0.88,
+      0.38
+    ]
+  },
+  "janghwa": {
+    "kind": "focus",
+    "emit": [
+      0.67,
+      0.25
+    ]
+  },
+  "johanna": {
+    "kind": "gun",
+    "emit": [
+      0.87,
+      0.39
+    ]
+  },
+  "khan": {
+    "kind": "gun",
+    "emit": [
+      0.145,
+      0.89
+    ]
+  },
+  "kheshig": {
+    "kind": "gun",
+    "emit": [
+      0.95,
+      0.12
+    ]
+  },
+  "kidnapper": {
+    "kind": "mouth",
+    "emit": [
+      0.5,
+      0.65
+    ]
+  },
+  "kunoichienrai": {
+    "kind": "focus",
+    "emit": [
+      0.1,
+      0.25
+    ]
+  },
+  "kunoichikaen": {
+    "kind": "blade",
+    "emit": [
+      0.01,
+      0.99
+    ]
+  },
+  "kunoichizero": {
+    "kind": "focus",
+    "emit": [
+      0.275,
+      0.2809
+    ]
+  },
+  "labiata": {
+    "kind": "blade",
+    "emit": [
+      0.08,
+      0.73
+    ]
+  },
+  "lancer": {
+    "kind": "gun",
+    "emit": [
+      0.02,
+      0.02
+    ]
+  },
+  "leanne": {
+    "kind": "focus",
+    "emit": [
+      0.73,
+      0.4
+    ]
+  },
+  "leona_1": {
+    "kind": "blade",
+    "emit": [
+      0.75,
+      0.09
+    ]
+  },
+  "leona_2": {
+    "kind": "focus",
+    "emit": [
+      0.8182,
+      0.4455
+    ]
+  },
+  "leona_3": {
+    "kind": "focus",
+    "emit": [
+      0.55,
+      0.27
+    ]
+  },
+  "leprechaun_1": {
+    "kind": "focus",
+    "emit": [
+      0.25,
+      0.41
+    ]
+  },
+  "lindwurm_1": {
+    "kind": "focus",
+    "emit": [
+      0.6087,
+      0.3489
+    ]
+  },
+  "lindwurm_2": {
+    "kind": "focus",
+    "emit": [
+      0.72,
+      0.4
+    ]
+  },
+  "lrl": {
+    "kind": "focus",
+    "emit": [
+      0.26,
+      0.36
+    ]
+  },
+  "lumberjane": {
+    "kind": "blade",
+    "emit": [
+      0.97,
+      0.03
+    ]
+  },
+  "machina": {
+    "kind": "focus",
+    "emit": [
+      0.95,
+      0.17
+    ]
+  },
+  "maria": {
+    "kind": "focus",
+    "emit": [
+      0.5849,
+      0.3404
+    ]
+  },
+  "mariagrace": {
+    "kind": "focus",
+    "emit": [
+      0.14,
+      0.62
+    ]
+  },
+  "marie": {
+    "kind": "focus",
+    "emit": [
+      0.21,
+      0.26
+    ]
+  },
+  "may": {
+    "kind": "focus",
+    "emit": [
+      0.31,
+      0.42
+    ]
+  },
+  "melite": {
+    "kind": "focus",
+    "emit": [
+      0.02,
+      0.22
+    ]
+  },
+  "mercury": {
+    "kind": "focus",
+    "emit": [
+      0.62,
+      0.15
+    ]
+  },
+  "merlin": {
+    "kind": "focus",
+    "emit": [
+      0.2727,
+      0.3106
+    ]
+  },
+  "mery": {
+    "kind": "focus",
+    "emit": [
+      0.8,
+      0.4
+    ]
+  },
+  "metalguard": {
+    "kind": "blade",
+    "emit": [
+      0.27,
+      0.02
+    ]
+  },
+  "mightyr": {
+    "kind": "focus",
+    "emit": [
+      0.9,
+      0.3
+    ]
+  },
+  "miho_1": {
+    "kind": "focus",
+    "emit": [
+      0.24,
+      0.53
+    ]
+  },
+  "miho_2": {
+    "kind": "focus",
+    "emit": [
+      0.64,
+      0.16
+    ]
+  },
+  "misssafety": {
+    "kind": "focus",
+    "emit": [
+      0.15,
+      0.5
+    ]
+  },
+  "mnemosyne": {
+    "kind": "focus",
+    "emit": [
+      0.77,
+      0.39
+    ]
+  },
+  "momo": {
+    "kind": "focus",
+    "emit": [
+      0.89,
+      0.12
+    ]
+  },
+  "mpomega": {
+    "kind": "focus",
+    "emit": [
+      0.63,
+      0.36
+    ]
+  },
+  "mralfred2": {
+    "kind": "gun",
+    "emit": [
+      0.91,
+      0.32
+    ]
+  },
+  "muse": {
+    "kind": "focus",
+    "emit": [
+      0.84,
+      0.32
+    ]
+  },
+  "neodym": {
+    "kind": "focus",
+    "emit": [
+      0.5,
+      0.3574
+    ]
+  },
+  "nereid": {
+    "kind": "gun",
+    "emit": [
+      0.98,
+      0.21
+    ]
+  },
+  "nickytracy": {
+    "kind": "focus",
+    "emit": [
+      0.62,
+      0.12
+    ]
+  },
+  "nightangel": {
+    "kind": "focus",
+    "emit": [
+      0.5,
+      0.18
+    ]
+  },
+  "nightchick": {
+    "kind": "gun",
+    "emit": [
+      0.38,
+      0.58
+    ]
+  },
+  "nymph_1": {
+    "kind": "focus",
+    "emit": [
+      0.31,
+      0.28
+    ]
+  },
+  "nymph_2": {
+    "kind": "focus",
+    "emit": [
+      0.6714,
+      0.1787
+    ]
+  },
+  "nymph_2_dam": {
+    "kind": "focus",
+    "emit": [
+      0.625,
+      0.4851
+    ]
+  },
+  "orangeade": {
+    "kind": "focus",
+    "emit": [
+      0.55,
+      0.148
+    ]
+  },
+  "pa00el": {
+    "kind": "focus",
+    "emit": [
+      0.25,
+      0.34
+    ]
+  },
+  "pani": {
+    "kind": "gun",
+    "emit": [
+      0.17,
+      0.03
+    ]
+  },
+  "parasite": {
+    "kind": "mouth",
+    "emit": [
+      0.17,
+      0.35
+    ]
+  },
+  "peregrinus": {
+    "kind": "gun",
+    "emit": [
+      0.6,
+      0.48
+    ]
+  },
+  "perrault_1": {
+    "kind": "focus",
+    "emit": [
+      0.6,
+      0.25
+    ]
+  },
+  "perrault_2": {
+    "kind": "focus",
+    "emit": [
+      0.43,
+      0.24
+    ]
+  },
+  "perrault_2_dam": {
+    "kind": "focus",
+    "emit": [
+      0.25,
+      0.41
+    ]
+  },
+  "perrault_dam": {
+    "kind": "focus",
+    "emit": [
+      0.25,
+      0.47
+    ]
+  },
+  "phantom_1": {
+    "kind": "focus",
+    "emit": [
+      0.5393,
+      0.1574
+    ]
+  },
+  "phoenix_1": {
+    "kind": "gun",
+    "emit": [
+      0.7,
+      0.02
+    ]
+  },
+  "phoenix_1_dam": {
+    "kind": "focus",
+    "emit": [
+      0.34,
+      0.44
+    ]
+  },
+  "phoenix_2": {
+    "kind": "blade",
+    "emit": [
+      0.68,
+      0.03
+    ]
+  },
+  "phoenix_2_dam": {
+    "kind": "focus",
+    "emit": [
+      0.06,
+      0.73
+    ]
+  },
+  "phoenix_dam": {
+    "kind": "gun",
+    "emit": [
+      0.05,
+      0.1
+    ]
+  },
+  "poi": {
+    "kind": "blade",
+    "emit": [
+      0.94,
+      0.28
+    ]
+  },
+  "poniesanger": {
+    "kind": "gun",
+    "emit": [
+      0.73,
+      0.63
+    ]
+  },
+  "pxsilky": {
+    "kind": "focus",
+    "emit": [
+      0.7937,
+      0.3745
+    ]
+  },
+  "queenmane": {
+    "kind": "blade",
+    "emit": [
+      0.9,
+      0.13
+    ]
+  },
+  "quickcamel": {
+    "kind": "gun",
+    "emit": [
+      0.94,
+      0.57
+    ]
+  },
+  "ramiel": {
+    "kind": "focus",
+    "emit": [
+      0.5,
+      0.41
+    ]
+  },
+  "rampart_1": {
+    "kind": "gun",
+    "emit": [
+      0.96,
+      0.45
+    ]
+  },
+  "ran": {
+    "kind": "blade",
+    "emit": [
+      0.02,
+      0.24
+    ]
+  },
+  "raven": {
+    "kind": "focus",
+    "emit": [
+      0.29,
+      0.26
+    ]
+  },
+  "redhood": {
+    "kind": "gun",
+    "emit": [
+      0.03,
+      0.5
+    ]
+  },
+  "rena": {
+    "kind": "focus",
+    "emit": [
+      0.61,
+      0.18
+    ]
+  },
+  "rhea": {
+    "kind": "focus",
+    "emit": [
+      0.25,
+      0.31
+    ]
+  },
+  "rheinritter": {
+    "kind": "gun",
+    "emit": [
+      0.02,
+      0.48
+    ]
+  },
+  "robert": {
+    "kind": "gun",
+    "emit": [
+      0.94,
+      0.33
+    ]
+  },
+  "roc_1": {
+    "kind": "gun",
+    "emit": [
+      0.99,
+      0.36
+    ]
+  },
+  "roc_1_dam": {
+    "kind": "gun",
+    "emit": [
+      0.07,
+      0.47
+    ]
+  },
+  "rocc": {
+    "kind": "gun",
+    "emit": [
+      0.14,
+      0.47
+    ]
+  },
+  "royalarsenal": {
+    "kind": "blade",
+    "emit": [
+      0.02,
+      0.43
+    ]
+  },
+  "sadius": {
+    "kind": "focus",
+    "emit": [
+      0.82,
+      0.23
+    ]
+  },
+  "saetti": {
+    "kind": "focus",
+    "emit": [
+      0.58,
+      0.52
+    ]
+  },
+  "salacia": {
+    "kind": "focus",
+    "emit": [
+      0.17,
+      0.09
+    ]
+  },
+  "salamander": {
+    "kind": "gun",
+    "emit": [
+      0.4,
+      0.56
+    ]
+  },
+  "sandman": {
+    "kind": "gun",
+    "emit": [
+      0.02,
+      0.13
+    ]
+  },
+  "saraqael": {
+    "kind": "focus",
+    "emit": [
+      0.66,
+      0.49
+    ]
+  },
+  "scarabya": {
+    "kind": "focus",
+    "emit": [
+      0.2743,
+      0.3574
+    ]
+  },
+  "scathy": {
+    "kind": "focus",
+    "emit": [
+      0.14,
+      0.24
+    ]
+  },
+  "scissorslise": {
+    "kind": "blade",
+    "emit": [
+      0.7,
+      0.34
+    ]
+  },
+  "sekhmet": {
+    "kind": "focus",
+    "emit": [
+      0.18,
+      0.61
+    ]
+  },
+  "seljuq": {
+    "kind": "gun",
+    "emit": [
+      0.61,
+      0.05
+    ]
+  },
+  "serpent": {
+    "kind": "gun",
+    "emit": [
+      0.02,
+      0.3
+    ]
+  },
+  "shade": {
+    "kind": "gun",
+    "emit": [
+      0.51,
+      0.57
+    ]
+  },
+  "shirayuri": {
+    "kind": "blade",
+    "emit": [
+      0.62,
+      0.5
+    ]
+  },
+  "sirene": {
+    "kind": "gun",
+    "emit": [
+      0.95,
+      0.26
+    ]
+  },
+  "sleipnir": {
+    "kind": "focus",
+    "emit": [
+      0.0918,
+      0.2298
+    ]
+  },
+  "snowfeather": {
+    "kind": "focus",
+    "emit": [
+      0.17,
+      0.41
+    ]
+  },
+  "sonia": {
+    "kind": "focus",
+    "emit": [
+      0.2476,
+      0.0553
+    ]
+  },
+  "sowan": {
+    "kind": "blade",
+    "emit": [
+      0.95,
+      0.17
+    ]
+  },
+  "spartana": {
+    "kind": "gun",
+    "emit": [
+      0.98,
+      0.71
+    ]
+  },
+  "spartanb": {
+    "kind": "gun",
+    "emit": [
+      0.24,
+      0.67
+    ]
+  },
+  "spartanc": {
+    "kind": "gun",
+    "emit": [
+      0.21,
+      0.05
+    ]
+  },
+  "spartoia": {
+    "kind": "gun",
+    "emit": [
+      0.02,
+      0.02
+    ]
+  },
+  "speaker": {
+    "kind": "mouth",
+    "emit": [
+      0.55,
+      0.44
+    ]
+  },
+  "spriggan_1": {
+    "kind": "focus",
+    "emit": [
+      0.23,
+      0.19
+    ]
+  },
+  "stalker": {
+    "kind": "mouth",
+    "emit": [
+      0.02,
+      0.82
+    ]
+  },
+  "stinger": {
+    "kind": "gun",
+    "emit": [
+      0.12,
+      0.69
+    ]
+  },
+  "stratoangel": {
+    "kind": "focus",
+    "emit": [
+      0.65,
+      0.0588
+    ]
+  },
+  "stronghold": {
+    "kind": "gun",
+    "emit": [
+      0.61,
+      0.1
+    ]
+  },
+  "sunny": {
+    "kind": "focus",
+    "emit": [
+      0.36,
+      0.25
+    ]
+  },
+  "sylphid_1": {
+    "kind": "focus",
+    "emit": [
+      0.349,
+      0.3745
+    ]
+  },
+  "sylphid_1_dam": {
+    "kind": "focus",
+    "emit": [
+      0.68,
+      0.35
+    ]
+  },
+  "talonfeather_1": {
+    "kind": "focus",
+    "emit": [
+      0.7136,
+      0.3743
+    ]
+  },
+  "talonfeather_1_dam": {
+    "kind": "focus",
+    "emit": [
+      0.37,
+      0.25
+    ]
+  },
+  "talonfeather_2": {
+    "kind": "focus",
+    "emit": [
+      0.63,
+      0.26
+    ]
+  },
+  "thetis": {
+    "kind": "gun",
+    "emit": [
+      0.86,
+      0.21
+    ]
+  },
+  "tiamat": {
+    "kind": "blade",
+    "emit": [
+      0.82,
+      0.85
+    ]
+  },
+  "tiequan": {
+    "kind": "focus",
+    "emit": [
+      0.885,
+      0.19
+    ]
+  },
+  "titania": {
+    "kind": "focus",
+    "emit": [
+      0.66,
+      0.47
+    ]
+  },
+  "tommywalker": {
+    "kind": "gun",
+    "emit": [
+      0.98,
+      0.45
+    ]
+  },
+  "tomoe": {
+    "kind": "blade",
+    "emit": [
+      0.44,
+      0.02
+    ]
+  },
+  "triaina": {
+    "kind": "focus",
+    "emit": [
+      0.55,
+      0.33
+    ]
+  },
+  "triton": {
+    "kind": "gun",
+    "emit": [
+      0.97,
+      0.23
+    ]
+  },
+  "tyrant_1": {
+    "kind": "mouth",
+    "emit": [
+      0.39,
+      0.46
+    ]
+  },
+  "ullr": {
+    "kind": "gun",
+    "emit": [
+      0.02,
+      0.26
+    ]
+  },
+  "undine_1": {
+    "kind": "focus",
+    "emit": [
+      0.93,
+      0.65
+    ]
+  },
+  "undine_2": {
+    "kind": "focus",
+    "emit": [
+      0.15,
+      0.21
+    ]
+  },
+  "undine_2_dam": {
+    "kind": "focus",
+    "emit": [
+      0.1409,
+      0.6684
+    ]
+  },
+  "valkyrie_1": {
+    "kind": "gun",
+    "emit": [
+      0.26,
+      0.045
+    ]
+  },
+  "valkyrie_2": {
+    "kind": "focus",
+    "emit": [
+      0.7591,
+      0.1623
+    ]
+  },
+  "valkyrie_3": {
+    "kind": "focus",
+    "emit": [
+      0.35,
+      0.45
+    ]
+  },
+  "valkyrie_4": {
+    "kind": "focus",
+    "emit": [
+      0.2591,
+      0.2011
+    ]
+  },
+  "valkyrie_4_dam": {
+    "kind": "focus",
+    "emit": [
+      0.5505,
+      0.3702
+    ]
+  },
+  "vanilla": {
+    "kind": "gun",
+    "emit": [
+      0.02,
+      0.58
+    ]
+  },
+  "vargr": {
+    "kind": "blade",
+    "emit": [
+      0.02,
+      0.16
+    ]
+  },
+  "veronica": {
+    "kind": "blade",
+    "emit": [
+      0.48,
+      0.95
+    ]
+  },
+  "warwolf": {
+    "kind": "gun",
+    "emit": [
+      0.26,
+      0.25
+    ]
+  },
+  "watcher": {
+    "kind": "gun",
+    "emit": [
+      0.97,
+      0.39
+    ]
+  },
+  "wraithy": {
+    "kind": "focus",
+    "emit": [
+      0.26,
+      0.36
+    ]
+  }
+}

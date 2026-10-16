@@ -123,8 +123,10 @@ class Battle {
     Audio2.voice(m.voiceKey || m.key, 'start');
     await Promise.all([tween(this.meV, { a: 1, sc: 1 }, 380, Ease.outBack), tween(this.hudMe, { a: 1 }, 300)]);
   }
-  foePos() { return { x: FOE_BOX.cx + this.foeV.x, y: FOE_BOX.base - 120 }; }
-  mePos() { return { x: ME_BOX.cx + this.meV.x, y: ME_BOX.base - 220 }; }
+  foePos() { return BattleArt.point(this, 'foe', 'hit'); }
+  mePos() { return BattleArt.point(this, 'me', 'hit'); }
+  fxOrigin(side, fx) { return BattleArt.live(this, side, 'emit', fx); }
+  fxTarget(side) { return BattleArt.live(this, side, 'hit'); }
 
   // ---------------- 행동 선택 ----------------
   chooseAction() {
@@ -678,50 +680,71 @@ class Battle {
       this.shapes.push({ type: 'orb', sx, sy, ex: b.x, ey: b.y, t: -i * 0.03, life: 0.6, color: '#ff4d7a', size: 7 });
     }
   }
+  // Same projectile geometry in WebGL and Canvas fallback. A short tracer travels
+  // from the visible weapon socket; impact starts only once it arrives.
+  async fireShot(side, tSide, fx, type, spread = 5) {
+    const target = BattleArt.point(this,tSide,'hit'), f = BattleArt.frame(this,tSide);
+    const r = Math.min(spread, f.w*.045, 12);
+    const q = {x:target.x+rand(-r,r),y:target.y+rand(-r,r)};
+    const from = BattleArt.flash(this,side,q,fx,type);
+    const gun = BattleArt.frame(this,side).profile.kind==='gun';
+    Audio2.sfx(gun?'atk_rifle':'atk_energy',.55);
+    this.shapes.push({type:'tracer',x1:from.x,y1:from.y,x2:q.x,y2:q.y,t:0,life:.115,color:gun?'#ffe9a8':TYPES[type].color});
+    await wait(115);
+    if(window.BFX && BFX.ok) BFX.baked('hnadgun_hit',q.x,q.y,.45,tSide==='me') || BFX.hit(q.x,q.y,TYPES[type].color,.5);
+    else Particles.burst(q.x,q.y,8,{speed:100,size:3,life:.2,color:gun?'#ffe9a8':TYPES[type].color,add:true});
+  }
+  async meleeFx(fx,side,tSide,type) {
+    const back=await BattleArt.approach(this,side,tSide), target=this.fxTarget(tSide);
+    try {
+      const n=fx==='slash3'?3:1;
+      for(let i=0;i<n;i++) {
+        Audio2.sfx(fx==='dash'||fx==='smash'?'hit_smash':'atk_swing',.65);
+        this.shapes.push({type:fx==='bite'?'bite':'slash',x:target.x+rand(-6,6),y:target.y+rand(-6,6),r:fx==='smash'?40:58,a0:-2.5+i*.9,t:0,life:.22,color:fx==='bite'?'#ff778b':'#e9fbff'});
+        if(window.BFX && BFX.ok) BFX.hit(target.x,target.y,TYPES[type].color,.55);
+        await wait(n>1?85:150);
+      }
+    } finally { await back(); }
+  }
   async playFx(fx, side, tSide, type, isAtk) {
+    if (['slash','slash3','bite','dash','smash'].includes(fx)) return this.meleeFx(fx,side,tSide,type);
     if (window.BFX && BFX.ok) return this.playFx3(fx, side, tSide, type, isAtk);
-    const A = side === 'me' ? this.mePos() : this.foePos();
-    const B = tSide === 'me' ? this.mePos() : this.foePos();
+    const A = this.fxOrigin(side, fx);
+    const B = this.fxTarget(tSide);
     const col = TYPES[type].color;
     const uv = this.view(side);
-    const lunge = async (dist = 60) => { const dir = side === 'me' ? 1 : -1; const bx = uv.x; await tween(uv, { x: bx + dir * dist }, 120, Ease.outQuad); tween(uv, { x: bx }, 220); };
     const proj = (o) => new Promise(res => {
-      const s = { type: o.kind || 'proj', x: A.x, y: A.y, t: 0, life: 99, color: o.color || col, size: o.size || 8 };
+      const from={x:A.x,y:A.y}, to=o.to || {x:B.x,y:B.y};
+      BattleArt.flash(this,side,to,fx,type);
+      const s = { type: o.kind || 'proj', x: from.x, y: from.y, t: 0, life: 99, color: o.color || col, size: o.size || 8 };
       this.shapes.push(s);
       let t = 0;
       Tick.add(dt => {
         t += dt * 1000; const p = clamp(t / o.ms, 0, 1);
-        s.x = lerp(A.x, B.x, p) + (o.wob ? Math.sin(p * 20) * o.wob : 0);
-        s.y = lerp(A.y, B.y, p) - Math.sin(p * Math.PI) * (o.arc || 0);
+        s.x = lerp(from.x, to.x, p) + (o.wob ? Math.sin(p * 20) * o.wob : 0);
+        s.y = lerp(from.y, to.y, p) - Math.sin(p * Math.PI) * (o.arc || 0);
         if (o.trail) Particles.add({ x: s.x, y: s.y, size: o.size * 0.8, life: 0.3, color: pick(o.trail), add: true, vx: rand(-20, 20), vy: rand(-20, 20) });
         if (p >= 1) { s.life = 0; res(); return false; }
       });
     });
     switch (fx) {
       case 'bullet':
-        for (let i = 0; i < 3; i++) { Audio2.sfx('atk_rifle', 0.6); this.shapes.push({ type: 'tracer', x1: A.x, y1: A.y - 20, x2: B.x + rand(-20, 20), y2: B.y + rand(-20, 20), t: 0, life: 0.12, color: '#ffe9a8' }); await wait(90); }
+        for(let i=0;i<3;i++) await this.fireShot(side,tSide,fx,type,5);
         break;
-      case 'bullets':
-        for (let i = 0; i < 7; i++) { if (i % 2 === 0) Audio2.sfx('atk_rifle', 0.5); this.shapes.push({ type: 'tracer', x1: A.x, y1: A.y - 20, x2: B.x + rand(-40, 40), y2: B.y + rand(-40, 40), t: 0, life: 0.1, color: '#ffe9a8' }); await wait(55); }
-        break;
+      case 'bullets': {
+        const shots=[];
+        for(let i=0;i<7;i++){shots.push(this.fireShot(side,tSide,fx,type,12));await wait(55);}
+        await Promise.all(shots); break;
+      }
       case 'snipe':
-        Audio2.sfx('charge', 0.4); await wait(250); Audio2.sfx('atk_rifle', 0.9);
-        this.shapes.push({ type: 'beam', x1: A.x, y1: A.y - 20, x2: B.x, y2: B.y, t: 0, life: 0.25, color: '#fff', w: 3 });
+        Audio2.sfx('charge', 0.4); await wait(250); BattleArt.flash(this,side,B,fx,type); Audio2.sfx('atk_rifle', 0.9);
+        this.shapes.push({ type: 'beam', x1: A.x, y1: A.y, x2: B.x, y2: B.y, t: 0, life: 0.25, color: '#fff', w: 3 });
         FX.doFlash('#fff', 0.35); await wait(80); break;
-      case 'smash': case 'dash':
-        Audio2.sfx('cloth', 0.6); await lunge(fx === 'dash' ? 140 : 70);
-        if (fx === 'dash') this.shapes.push({ type: 'slash', x: B.x, y: B.y, r: 90, a0: -2.4, t: 0, life: 0.25, color: col });
-        break;
-      case 'slash': case 'slash3': case 'bite':
-        Audio2.sfx('atk_swing', 0.7); await lunge(40);
-        const n = fx === 'slash3' ? 3 : 1;
-        for (let i = 0; i < n; i++) { this.shapes.push({ type: fx === 'bite' ? 'bite' : 'slash', x: B.x + rand(-20, 20), y: B.y + rand(-20, 20), r: 80 + i * 12, a0: -2.6 + i * 1.3, t: 0, life: 0.25, color: fx === 'bite' ? '#ff4d5e' : '#ffffff' }); if (n > 1) { Audio2.sfx('hit_slash', 0.5); await wait(90); } }
-        await wait(90); break;
       case 'shell':
         Audio2.sfx('atk_rifle', 0.7); await proj({ ms: 420, arc: 140, size: 9, color: '#ffd76a', trail: ['#888', '#bbb'] });
         Audio2.sfx('explosion', 0.6); this.explode(B, 1); break;
       case 'barrage':
-        for (let i = 0; i < 4; i++) { Audio2.sfx('atk_rifle', 0.5); proj({ ms: 380, arc: 120 + i * 30, size: 8, color: '#ffd76a', trail: ['#888'] }).then(() => this.explode({ x: B.x + rand(-60, 60), y: B.y + rand(-40, 40) }, 0.8)); await wait(110); }
+        for (let i = 0; i < 4; i++) { Audio2.sfx('atk_rifle', 0.5); const q={x:B.x+rand(-14,14),y:B.y+rand(-12,12)}; proj({ to:q, ms: 380, arc: 120 + i * 30, size: 8, color: '#ffd76a', trail: ['#888'] }).then(() => this.explode(q, 0.8)); await wait(110); }
         await wait(380); Audio2.sfx('explosion_big', 0.7); FX.doShake(14, 0.4); break;
       case 'beam': case 'icebeam': case 'plasma':
         Audio2.sfx('charge', 0.5);
@@ -740,6 +763,7 @@ class Battle {
         for (let i = 0; i < 5; i++) { const tx = B.x + rand(-80, 80), ty = B.y + rand(-30, 50); this.shapes.push({ type: 'drop', x: tx, y: ty - 400, ty, t: 0, life: 0.35, color: '#333' }); setTimeout(() => { this.explode({ x: tx, y: ty }, 0.9); Audio2.sfx('explosion', 0.45); }, 330); await wait(90); }
         await wait(400); FX.doShake(12, 0.35); break;
       case 'flame':
+        BattleArt.flash(this,side,B,fx,type);
         Audio2.sfx('flame', 0.7);
         for (let i = 0; i < 40; i++) { const p = Particles.add({ x: A.x, y: A.y, vx: (B.x - A.x) * rand(1.3, 1.8), vy: (B.y - A.y) * rand(1.3, 1.8) + rand(-60, 60), size: rand(8, 16), life: 0.6, color: pick(['#ff7a45', '#ffd34d', '#ff3d1f']), add: true, drag: 0.97 }); if (i % 4 === 0) await wait(16); }
         await wait(260); break;
@@ -808,8 +832,13 @@ class Battle {
     // 트레이너
     if (this.trainer && this.trV.a > 0) drawFit(IMG.full[this.trainer.portrait], FOE_BOX.cx - 190 + this.trV.x, 30, 380, 300, { anchor: 'bottom', alpha: this.trV.a, flip: typeof artFlip === 'function' && artFlip(this.trainer.portrait, 'L') });
     // 유닛
-    this.drawMon(this.foe, this.foeV, FOE_BOX, false);
-    if (this.me) this.drawMon(this.me, this.meV, ME_BOX, true);
+    if(this._fxActor==='foe') {
+      if(this.me) this.drawMon(this.me,this.meV,ME_BOX,true);
+      this.drawMon(this.foe,this.foeV,FOE_BOX,false);
+    } else {
+      this.drawMon(this.foe,this.foeV,FOE_BOX,false);
+      if(this.me) this.drawMon(this.me,this.meV,ME_BOX,true);
+    }
     if (this.cmdV.x > -440) drawCommanderBig(ME_BOX.cx - 10 + this.cmdV.x, H + 30, 1.3, 'back');
     // 코어
     if (this.ball) {
@@ -843,18 +872,12 @@ class Battle {
   }
   drawMon(m, v, box, mine) {
     if (!m || !v.show || v.a <= 0) return;
-    const name = m.artName ? m.artName() : m.key, img = IMG.full[name]; if (!img || img._bad) return;
-    const flip = typeof artFlip === 'function' && artFlip(name, mine ? 'R' : 'L');
-    const bob = Math.sin(Tick.time * 2.2 + (mine ? 1 : 0)) * 3;
-    const s = Math.min(box.w / img.width, box.h / img.height) * v.sc;
-    const dw = img.width * s, dh = img.height * s;
-    // 무기 등으로 그림이 한쪽에 치우친 일러스트는 발 부분이 발판 중앙에 오도록 옮긴다
-    const foot = artFootOffset(img) * (flip ? -1 : 1);
-    const x = box.cx + v.x - dw / 2 - foot * dw, y = (mine ? box.base - 90 + 30 : box.base + 18) - dh + v.dy + bob * (mine ? 1 : 0.6);
+    const frame=BattleArt.layout(m,v,box,mine), {img,flip,x,y,w:dw,h:dh}=frame;
+    if(!img || img._bad) return;
     ctx.save();
     ctx.globalAlpha = v.a;
     // 그림자
-    ctx.save(); ctx.globalAlpha = 0.35 * v.a; ctx.fillStyle = '#000'; ctx.beginPath(); ctx.ellipse(box.cx + v.x, mine ? box.base - 70 : box.base + 12, dw * 0.32, 14, 0, 0, 7); ctx.fill(); ctx.restore();
+    ctx.save(); ctx.globalAlpha = 0.35 * v.a; ctx.fillStyle = '#000'; ctx.beginPath(); ctx.ellipse(box.cx + v.x, (mine ? box.base - 70 : box.base + 12) + v.dy, dw * 0.32, 14, 0, 0, 7); ctx.fill(); ctx.restore();
     if (flip) { ctx.translate(x + dw / 2, 0); ctx.scale(-1, 1); ctx.translate(-(x + dw / 2), 0); }
     ctx.drawImage(img, x, y, dw, dh);
     if (v.flash > 0) {
@@ -873,14 +896,23 @@ class Battle {
       if (s.t < 0) continue;
       const k = s.t / s.life;
       ctx.save(); ctx.globalCompositeOperation = 'lighter';
-      if (s.type === 'num') {
+      if (s.type === 'sourceflash') {
+        ctx.translate(s.x,s.y);ctx.rotate(s.a);ctx.globalAlpha=1-k;
+        if(s.gun) {
+          ctx.fillStyle=s.color;ctx.beginPath();ctx.moveTo(-2,0);ctx.lineTo(s.size*1.5,-s.size*.32);ctx.lineTo(s.size,0);ctx.lineTo(s.size*1.5,s.size*.32);ctx.closePath();ctx.fill();
+          ctx.fillStyle='#fff9df';ctx.beginPath();ctx.ellipse(s.size*.35,0,s.size*.55,s.size*.19,0,0,7);ctx.fill();
+        } else {
+          ctx.strokeStyle=s.color;ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,s.size*(.4+k),0,7);ctx.stroke();
+          ctx.fillStyle='#e9fbff';ctx.beginPath();ctx.arc(0,0,3*(1-k),0,7);ctx.fill();
+        }
+      } else if (s.type === 'num') {
         ctx.globalCompositeOperation = 'source-over';
         const yy = s.y - Ease.outCubic(Math.min(1, k * 2)) * 50;
         ctx.globalAlpha = k > 0.7 ? (1 - k) / 0.3 : 1;
         txt(s.text, s.x, yy, { size: s.size, weight: 900, align: 'center', color: s.color, stroke: 6, strokeColor: '#1a0a14', shadow: false, family: TITLE_FONT });
       } else if (s.type === 'tracer') {
         ctx.strokeStyle = s.color; ctx.lineWidth = 3; ctx.globalAlpha = 1 - k;
-        ctx.beginPath(); const p = Math.min(1, k * 2.2); ctx.moveTo(lerp(s.x1, s.x2, Math.max(0, p - 0.4)), lerp(s.y1, s.y2, Math.max(0, p - 0.4))); ctx.lineTo(lerp(s.x1, s.x2, p), lerp(s.y1, s.y2, p)); ctx.stroke();
+        ctx.beginPath(); const p = Math.min(1, k); ctx.moveTo(lerp(s.x1, s.x2, Math.max(0, p - 0.20)), lerp(s.y1, s.y2, Math.max(0, p - 0.20))); ctx.lineTo(lerp(s.x1, s.x2, p), lerp(s.y1, s.y2, p)); ctx.stroke();
       } else if (s.type === 'beam') {
         ctx.globalAlpha = 1 - k; ctx.strokeStyle = s.color; ctx.lineCap = 'round';
         ctx.lineWidth = s.w * (1 + Math.sin(s.t * 60) * 0.2); ctx.beginPath(); ctx.moveTo(s.x1, s.y1); ctx.lineTo(s.x2, s.y2); ctx.stroke();

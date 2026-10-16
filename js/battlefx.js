@@ -90,75 +90,52 @@ window.BFX = BFX;
 //  기술 연출 (원작 이펙트 + 파티클)
 // ---------------------------------------------------------------------
 Battle.prototype.playFx3 = async function (fx, side, tSide, type, isAtk) {
-  const A = side === 'me' ? this.mePos() : this.foePos();
-  const B = tSide === 'me' ? this.mePos() : this.foePos();
+  if(['slash','slash3','bite','dash','smash'].includes(fx)) return this.meleeFx(fx,side,tSide,type);
+  const A = this.fxOrigin(side, fx);
+  const B = this.fxTarget(tSide);
   const col = TYPES[type].color;
   const uv = this.view(side);
   const flip = side === 'foe';
-  const ang = Math.atan2(-(B.y - A.y), B.x - A.x);
-  const lunge = async (dist = 60) => { const dir = side === 'me' ? 1 : -1; const bx = uv.x; await tween(uv, { x: bx + dir * dist }, 110, Ease.outQuad); tween(uv, { x: bx }, 220); };
   const travel = (o) => new Promise(res => {
+    const from={x:A.x,y:A.y}, to=o.to || {x:B.x,y:B.y};
     let t = 0;
     Tick.add(dt => {
       t += dt * 1000; const p = clamp(t / o.ms, 0, 1);
-      const x = lerp(A.x, B.x, p), y = lerp(A.y, B.y, p) - Math.sin(p * Math.PI) * (o.arc || 0);
+      const x = lerp(from.x, to.x, p), y = lerp(from.y, to.y, p) - Math.sin(p * Math.PI) * (o.arc || 0);
       BFX.trail(x, y, o.color || col, o.size || 0.35);
       if (o.glow) BFX.trail(x, y, 0xffffff, (o.size || 0.35) * 0.5);
       if (p >= 1) { res(); return false; }
     });
   });
-  const near = (p, r = 30) => ({ x: p.x + rand(-r, r), y: p.y + rand(-r, r) });
+  const near = (p, r = 30) => { r=Math.min(16,r*.35);return {x:p.x+rand(-r,r),y:p.y+rand(-r,r)}; };
   switch (fx) {
     case 'bullet':
-      for (let i = 0; i < 3; i++) {
-        Audio2.sfx('atk_rifle', 0.6, rand(0.95, 1.05)); BFX.muzzle(A.x, A.y - 10, ang, 0xffd27a, 1.2);
-        BFX.beam(A.x, A.y - 10, B.x, B.y, 3, 0xffe9a8, 0.08);
-        const q = near(B); BFX.baked('hnadgun_hit', q.x, q.y, 0.8, flip) || BFX.hit(q.x, q.y, col, 0.7);
-        await wait(90);
-      }
+      for(let i=0;i<3;i++) await this.fireShot(side,tSide,fx,type,5);
       break;
-    case 'bullets':
-      for (let i = 0; i < 7; i++) {
-        if (i % 2 === 0) Audio2.sfx('atk_rifle', 0.5, rand(0.95, 1.1));
-        BFX.muzzle(A.x, A.y - 10, ang, 0xffd27a, 1); BFX.beam(A.x, A.y - 10, B.x + rand(-40, 40), B.y + rand(-40, 40), 2.5, 0xffe9a8, 0.07);
-        const q = near(B, 45); if (i % 2) BFX.baked('hnadgun_hit', q.x, q.y, 0.7, flip); else BFX.hit(q.x, q.y, col, 0.6);
-        await wait(55);
-      }
-      break;
+    case 'bullets': {
+      const shots=[];
+      for(let i=0;i<7;i++){shots.push(this.fireShot(side,tSide,fx,type,12));await wait(55);}
+      await Promise.all(shots);break;
+    }
     case 'snipe':
       Audio2.sfx('charge', 0.4); BFX.ring(A.x, A.y, 60, 4, 0xffffff, 0.35); await wait(280);
-      Audio2.sfx('atk_rifle', 0.9); BFX.muzzle(A.x, A.y - 10, ang, 0xffffff, 1.8);
-      BFX.beam(A.x, A.y - 10, B.x, B.y, 6, 0xffffff, 0.3);
+      Audio2.sfx('atk_rifle', 0.9); BattleArt.flash(this,side,B,fx,type);
+      BFX.beam(A.x, A.y, B.x, B.y, 6, 0xffffff, 0.3);
       BFX.baked('skill_hit_simple', B.x, B.y, 1.4, flip); FX.doFlash('#fff', 0.35); await wait(80); break;
-    case 'smash': case 'dash':
-      Audio2.sfx('cloth', 0.6); await lunge(fx === 'dash' ? 140 : 70);
-      BFX.baked('skill_hit_simple', B.x, B.y, 1.2, flip) || BFX.explosion(B.x, B.y, 40, col);
-      if (fx === 'dash') BFX.slash(B.x, B.y, col, 1.8);
-      break;
-    case 'slash': case 'slash3': case 'bite': {
-      Audio2.sfx('atk_swing', 0.7); await lunge(40);
-      const n = fx === 'slash3' ? 3 : 1;
-      for (let i = 0; i < n; i++) {
-        BFX.slash(B.x + rand(-20, 20), B.y + rand(-20, 20), fx === 'bite' ? 0xff4d5e : col, 2.6 + i * 0.3); BFX.slash(B.x + rand(-10, 10), B.y + rand(-10, 10), 0xffffff, 1.8 + i * 0.2); BFX.sparks(B.x, B.y, col, 10, 5);
-        if (i === n - 1) BFX.baked(fx === 'bite' ? 'valkyrie_Hit_skill1' : n > 1 ? 'valkyrie_Hit_skill2' : 'valkyrie_Hit_skill1', B.x, B.y, 1.1, flip);
-        if (n > 1) { Audio2.sfx('hit_slash', 0.5); await wait(90); }
-      }
-      await wait(90); break;
-    }
     case 'shell':
-      Audio2.sfx('atk_rifle', 0.7); BFX.muzzle(A.x, A.y - 10, ang, 0xffb050, 1.6);
+      Audio2.sfx('atk_rifle', 0.7); BattleArt.flash(this,side,B,fx,type);
       await travel({ ms: 420, arc: 140, color: 0xffd76a, size: 0.7, glow: true });
       Audio2.sfx('explosion', 0.6); BFX.baked('simple_explosion', B.x, B.y, 1.3, flip) || BFX.explosion(B.x, B.y, 45, 0xffb050); break;
     case 'barrage':
       for (let i = 0; i < 4; i++) {
-        Audio2.sfx('atk_rifle', 0.5); BFX.muzzle(A.x, A.y - 10, ang, 0xffb050, 1.4);
+        Audio2.sfx('atk_rifle', 0.5); BattleArt.flash(this,side,B,fx,type);
         const q = near(B, 60);
-        travel({ ms: 380, arc: 120 + i * 30, color: 0xffd76a, size: 0.35 }).then(() => { BFX.baked(i % 2 ? 'RPG_skill2_hit' : 'simple_explosion', q.x, q.y, 1.1, flip); Audio2.sfx('explosion', 0.4); });
+        travel({ to:q, ms: 380, arc: 120 + i * 30, color: 0xffd76a, size: 0.35 }).then(() => { BFX.baked(i % 2 ? 'RPG_skill2_hit' : 'simple_explosion', q.x, q.y, 1.1, flip); Audio2.sfx('explosion', 0.4); });
         await wait(110);
       }
       await wait(380); Audio2.sfx('explosion_big', 0.7); FX.doShake(14, 0.4); break;
     case 'beam': case 'icebeam': case 'plasma':
-      Audio2.sfx('charge', 0.5); BFX.ring(A.x, A.y, 80, 6, col, 0.35); BFX.holy(A.x, A.y, 30, col);
+      Audio2.sfx('charge', 0.5); BFX.ring(A.x, A.y, 34, 5, col, 0.30); BFX.holy(A.x, A.y, 12, col);
       await wait(300);
       Audio2.sfx(fx === 'icebeam' ? 'ice' : 'atk_laser', 0.8);
       BFX.beam(A.x, A.y, B.x, B.y, fx === 'beam' ? 22 : 14, fx === 'beam' ? 0x7ff6ff : col, 0.45);
@@ -183,11 +160,12 @@ Battle.prototype.playFx3 = async function (fx, side, tSide, type, isAtk) {
       }
       await wait(400); FX.doShake(12, 0.35); break;
     case 'flame':
+      BattleArt.flash(this,side,B,fx,type);
       Audio2.sfx('flame', 0.7);
       for (let i = 0; i < 10; i++) { BFX.flame(A.x, A.y, B.x, B.y, 0xff6a2a); await wait(30); }
       BFX.baked('Phoenix_skill1_hit', B.x, B.y, 1.1, flip); await wait(200); break;
     case 'fireball':
-      Audio2.sfx('fireball', 0.7); BFX.muzzle(A.x, A.y, ang, 0xff8a3d, 1.5);
+      Audio2.sfx('fireball', 0.7); BattleArt.flash(this,side,B,fx,type);
       await travel({ ms: 380, arc: 40, color: 0xff8a3d, size: 0.7, glow: true });
       BFX.baked('Phoenix_skill1_hit', B.x, B.y, 1.3, flip); BFX.explosion(B.x, B.y, 40, 0xff7a30); break;
     case 'napalm':
