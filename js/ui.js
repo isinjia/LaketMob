@@ -540,7 +540,7 @@ class DexScreen {
       txt(isSeen ? s.name : '???', x + size - 2, y + size + 18, { size: 13, align: 'right', weight: 700, color: on ? '#fff' : '#cfe6f5' });
       if (on) { ctx.save(); chamfer(x - 4, y - 4, size + 8, size + 8, 15); ctx.strokeStyle = UI_COL.line; ctx.lineWidth = 2; ctx.globalAlpha = 0.5 + 0.5 * Math.sin(Tick.time * 6); ctx.stroke(); ctx.restore(); }
     }
-    helpLine('방향키: 이동   Z: 상세 보기   X: 닫기');
+    helpLine('방향키: 이동   Z: 상세 보기   X: 닫기   ·   ' + (this.nav.i + 1) + ' / ' + DEX_LIST.length);
   }
   drawDetail() {
     const s = DEX_LIST[this.nav.i];
@@ -549,7 +549,7 @@ class DexScreen {
     ctx.save(); const g = ctx.createRadialGradient(300, 360, 10, 300, 360, 300); g.addColorStop(0, TYPES[s.types[0]].color + '55'); g.addColorStop(1, 'transparent'); ctx.fillStyle = g; ctx.fillRect(0, 60, 600, 580); ctx.restore();
     ctx.save();
     if (!caught && s.kind !== 'worm') ctx.filter = 'brightness(0.15) saturate(0)';
-    drawFit(IMG.full[s.key], 40 + (1 - a) * -60, 76, 520, 540, { anchor: 'bottom', alpha: a });
+    drawFit(IMG.full[s.key] || lazyImg('full', s.key), 40 + (1 - a) * -60, 76, 520, 540, { anchor: 'bottom', alpha: a });
     ctx.restore();
     panel(560, 80, 376, 520);
     txt('No.' + String(s.no).padStart(3, '0'), 584, 120, { size: 18, color: UI_COL.sub, weight: 700 });
@@ -559,7 +559,8 @@ class DexScreen {
     txt('소속', 584, 236, { size: 16, color: UI_COL.sub }); txt(s.kind === 'worm' ? '철충' : s.faction || '-', 660, 236, { size: 18, weight: 700 });
     txt('상태', 584, 266, { size: 16, color: UI_COL.sub }); txt(s.kind === 'worm' ? '적대 개체 (영입 불가)' : caught ? '영입 완료' : '발견', 660, 266, { size: 18, weight: 700, color: s.kind === 'worm' ? UI_COL.red : caught ? UI_COL.green : UI_COL.accent });
     ctx.fillStyle = 'rgba(56,225,255,0.2)'; ctx.fillRect(584, 286, 330, 1);
-    wrapText(caught || s.kind === 'worm' ? s.desc : '아직 영입하지 않아 상세 정보가 없다. 링크 코어로 영입해 보자.', 330, 18, 500).forEach((l, k) => txt(l, 584, 322 + k * 30, { size: 18, weight: 500, color: '#cfe6f5' }));
+    if (s.habitat) txt('출현: ' + MAPS[s.habitat].name, 584, 307, { size: 16, color: UI_COL.accent });
+    wrapText(caught || s.kind === 'worm' ? s.desc : '아직 영입하지 않아 상세 정보가 없다. 링크 코어로 영입해 보자.', 330, 18, 500).slice(0, 5).forEach((l, k) => txt(l, 584, (s.habitat ? 338 : 322) + k * 26, { size: 18, weight: 500, color: '#cfe6f5' }));
     if (caught) {
       const b = s.base;
       ['HP', '공격', '방어', '속도'].forEach((n, k) => { txt(n, 584, 478 + k * 28, { size: 15, color: UI_COL.sub }); bar(640, 466 + k * 28, 270 * a, 9, b[k] / 130, ['#ffd76a', '#ff8a1a']); });

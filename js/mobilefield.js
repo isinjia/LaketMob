@@ -56,6 +56,8 @@ const MobileField = window.MobileField = {
     const t=free && !World.player.moving ? this.target() : null;
     this.action.hidden=!t;
     this.action.textContent=t ? (['npc','trainer','legend'].includes(t.e.kind)?'대화하기':'조사하기') : '';
+    const dex = UI.top() instanceof DexScreen && !UI.top().detail;
+    this.prev.hidden=this.next.hidden=!dex;
     this.back.hidden=!UI.busy();
     this.confirm.hidden=!(UI.top() instanceof Dialog);
     this.menu.hidden=!field || UI.busy();
@@ -65,10 +67,12 @@ const MobileField = window.MobileField = {
   },
   init() {
     const el=document.createElement('div'); el.id='mobile-field';
-    el.innerHTML=`<div id="move-zone" aria-label="드래그하여 이동, 멀리 밀면 달리기"></div><div id="floating-stick" hidden><i></i></div><button id="field-menu" aria-label="메뉴">☰</button><button id="field-quest"></button><button id="field-action"></button><button id="field-confirm">계속 ▸</button><button id="field-back">돌아가기</button>`;
+    el.innerHTML=`<div id="move-zone" aria-label="드래그하여 이동, 멀리 밀면 달리기"></div><div id="floating-stick" hidden><i></i></div><button id="field-menu" aria-label="메뉴">☰</button><button id="field-quest"></button><button id="field-action"></button><button id="field-confirm">계속 ▸</button><button id="field-back">돌아가기</button><button id="dex-prev">이전 목록</button><button id="dex-next">다음 목록</button>`;
     document.body.appendChild(el); this.hud=el;
     const get=id=>document.getElementById(id);
-    this.area=get('move-zone'); this.stick=get('floating-stick'); this.menu=get('field-menu'); this.quest=get('field-quest'); this.action=get('field-action'); this.back=get('field-back'); this.confirm=get('field-confirm');
+    this.area=get('move-zone'); this.stick=get('floating-stick'); this.menu=get('field-menu'); this.quest=get('field-quest'); this.action=get('field-action'); this.back=get('field-back'); this.confirm=get('field-confirm'); this.prev=get('dex-prev'); this.next=get('dex-next');
+    const page=d=>{const t=UI.top(); if(t instanceof DexScreen) { t.nav.i=clamp(t.nav.i+d*32,0,DEX_LIST.length-1); t.nav.scroll=Math.floor(t.nav.i/8); } };
+    this.prev.onclick=()=>page(-1); this.next.onclick=()=>page(1);
     this.menu.onclick=()=>{this.release();this.pulse('menu');};
     this.quest.onclick=()=>{this.release();UI.push(new QuestLogScreen());};
     this.action.onclick=()=>{ const t=this.target(); if(t&&!World.player.moving) { World.player.dir=t.dir; this.pulse('a'); } };

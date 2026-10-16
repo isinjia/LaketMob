@@ -258,7 +258,7 @@ const Audio2 = {
     return a;
   },
   voice(key, tag, vol = 1) {
-    if (!this.unlocked || !key) return;
+    if (!this.unlocked || !key || SPECIES[key]?.noVoice) return;
     if (this.voiceEl) { const old = this.voiceEl; let t = 0; const v0 = old.volume; Tick.add(dt => { t += dt; old.volume = Math.max(0, v0 * (1 - t / 0.15)); if (t >= 0.15) { old.pause(); return false; } }); }
     const a = new Audio('assets/voice/' + key + '_' + tag + '.mp3');
     a.volume = clamp(vol * Settings.voice, 0, 1);
