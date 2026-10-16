@@ -537,7 +537,10 @@ class DexScreen {
       else { chamfer(x, y, size, size, 13); ctx.fillStyle = 'rgba(20,34,58,0.9)'; ctx.fill(); ctx.strokeStyle = on ? '#fff' : 'rgba(56,225,255,0.25)'; ctx.lineWidth = on ? 3 : 1; ctx.stroke(); txt('?', x + size / 2, y + size / 2 + 14, { size: 40, weight: 900, align: 'center', color: 'rgba(143,179,201,0.4)' }); }
       if (isCaught) { itemIcon('core', x + size - 14, y + 14, 18); }
       txt(String(s.no).padStart(3, '0'), x + 4, y + size + 18, { size: 13, color: UI_COL.sub });
-      txt(isSeen ? s.name : '???', x + size - 2, y + size + 18, { size: 13, align: 'right', weight: 700, color: on ? '#fff' : '#cfe6f5' });
+      let label = isSeen ? s.name : '???';
+      while (label.length > 1 && measure(label + '…', 13, 700) > size - 28) label = label.slice(0, -1);
+      if (isSeen && label !== s.name) label += '…';
+      txt(label, x + size - 2, y + size + 18, { size: 13, align: 'right', weight: 700, color: on ? '#fff' : '#cfe6f5' });
       if (on) { ctx.save(); chamfer(x - 4, y - 4, size + 8, size + 8, 15); ctx.strokeStyle = UI_COL.line; ctx.lineWidth = 2; ctx.globalAlpha = 0.5 + 0.5 * Math.sin(Tick.time * 6); ctx.stroke(); ctx.restore(); }
     }
     helpLine('방향키: 이동   Z: 상세 보기   X: 닫기   ·   ' + (this.nav.i + 1) + ' / ' + DEX_LIST.length);
@@ -553,7 +556,7 @@ class DexScreen {
     ctx.restore();
     panel(560, 80, 376, 520);
     txt('No.' + String(s.no).padStart(3, '0'), 584, 120, { size: 18, color: UI_COL.sub, weight: 700 });
-    txt(s.name, 584, 160, { size: 32, weight: 900 });
+    txt(s.name, 584, 160, { size: Math.min(32, Math.max(14, 32 * 328 / Math.max(1, measure(s.name, 32, 900)))), weight: 900 });
     rankBadge(s.rank, 880, 130, 32);
     s.types.forEach((t, j) => typeBadge(t, 584 + j * 74, 176, 68, 26, 15));
     txt('소속', 584, 236, { size: 16, color: UI_COL.sub }); txt(s.kind === 'worm' ? '철충' : s.faction || '-', 660, 236, { size: 18, weight: 700 });
