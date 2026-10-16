@@ -4,9 +4,9 @@
 // =====================================================================
 const BFX = {
   ok: false, busy: 0, U: 60, canvas: null, renderer: null, scene: null, camera: null, inst: [], P: null,
-  BAKED: ['simple_explosion', 'hnadgun_hit', 'FX_hit_bori', 'skill_hit_simple', 'Phoenix_skill1_hit', 'Kunoichi_skill2_after_Lighting',
-    'valkyrie_Hit_skill1', 'valkyrie_Hit_skill2', 'RPG_skill2_hit', 'Harpy_skill2_missile_last_Hit', 'Thetis_skill1_Ground_Hit',
-    'Undine_skill1_Hit', 'Mercury_N_Skill2_Hit', 'Raven_skill1_Hit', 'Sleipnir_hit', 'FX_hit_bori', 'Titania_skill1_Ground_ice'],
+  BAKED: ['simple_explosion', 'hnadgun_hit', 'skill_hit_simple', 'valkyrie_Hit_skill1', 'Phoenix_skill1_hit', 'Kunoichi_skill2_after_Lighting',
+    'valkyrie_Hit_skill2', 'RPG_skill2_hit', 'Harpy_skill2_missile_last_Hit', 'Thetis_skill1_Ground_Hit',
+    'Undine_skill1_Hit', 'Mercury_N_Skill2_Hit', 'Raven_skill1_Hit', 'Sleipnir_hit', 'Titania_skill1_Ground_ice'],
   async init() {
     try {
       if (typeof THREE === 'undefined' || !window.FXB || !window.FX || !window.FX.init || !window.FX_IMAGES_SRC) return;
@@ -132,7 +132,7 @@ Battle.prototype.playFx3 = async function (fx, side, tSide, type, isAtk) {
       BFX.baked('skill_hit_simple', B.x, B.y, 1.4, flip); FX.doFlash('#fff', 0.35); await wait(80); break;
     case 'smash': case 'dash':
       Audio2.sfx('cloth', 0.6); await lunge(fx === 'dash' ? 140 : 70);
-      BFX.baked('FX_hit_bori', B.x, B.y, 1.2, flip) || BFX.explosion(B.x, B.y, 40, col);
+      BFX.baked('skill_hit_simple', B.x, B.y, 1.2, flip) || BFX.explosion(B.x, B.y, 40, col);
       if (fx === 'dash') BFX.slash(B.x, B.y, col, 1.8);
       break;
     case 'slash': case 'slash3': case 'bite': {
@@ -140,7 +140,7 @@ Battle.prototype.playFx3 = async function (fx, side, tSide, type, isAtk) {
       const n = fx === 'slash3' ? 3 : 1;
       for (let i = 0; i < n; i++) {
         BFX.slash(B.x + rand(-20, 20), B.y + rand(-20, 20), fx === 'bite' ? 0xff4d5e : col, 2.6 + i * 0.3); BFX.slash(B.x + rand(-10, 10), B.y + rand(-10, 10), 0xffffff, 1.8 + i * 0.2); BFX.sparks(B.x, B.y, col, 10, 5);
-        if (i === n - 1) BFX.baked(fx === 'bite' ? 'FX_hit_bori' : n > 1 ? 'valkyrie_Hit_skill2' : 'valkyrie_Hit_skill1', B.x, B.y, 1.1, flip);
+        if (i === n - 1) BFX.baked(fx === 'bite' ? 'valkyrie_Hit_skill1' : n > 1 ? 'valkyrie_Hit_skill2' : 'valkyrie_Hit_skill1', B.x, B.y, 1.1, flip);
         if (n > 1) { Audio2.sfx('hit_slash', 0.5); await wait(90); }
       }
       await wait(90); break;

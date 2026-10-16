@@ -653,7 +653,7 @@ class Battle {
     if (window.BFX && BFX.ok) {
       BFX.hit(p.x, p.y, col, crit || eff > 1 ? 1.6 : 1.1);
       BFX.sparks(p.x, p.y, col, crit ? 22 : 12, crit ? 6 : 4);
-      if (crit || eff > 1) BFX.baked(crit ? 'skill_hit_simple' : 'FX_hit_bori', p.x, p.y, crit ? 1.3 : 1, side === 'me');
+      if (crit || eff > 1) BFX.baked(crit ? 'skill_hit_simple' : 'hnadgun_hit', p.x, p.y, crit ? 1.3 : 1.1, side === 'me');
       if (crit) BFX.ring(p.x, p.y, 20, 160, 0xffe14d, 0.35);
     } else {
       Particles.burst(p.x, p.y, crit ? 30 : 18, { speed: 320, size: 5, life: 0.45, color: [col, '#fff'], drag: 0.9, add: true });
