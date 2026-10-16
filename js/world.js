@@ -148,7 +148,8 @@ const World = {
   bgmKey() { if (this.id === 'nest' && Game.flags.cleared) return 'route'; return this.def.bgm; },
   entActive(e) {
     const o = e.o;
-    if (o.cond) { const neg = o.cond[0] === '!'; const f = !!Game.flags[o.cond.replace('!', '')]; if (neg ? f : !f) return false; }
+    // cond: 플래그 하나('flag' / '!flag') 또는 배열(모두 만족)
+    if (o.cond) for (const cd of [].concat(o.cond)) { const neg = cd[0] === '!'; const f = !!Game.flags[cd.replace('!', '')]; if (neg ? f : !f) return false; }
     if (e.kind === 'item' && Game.taken[o.id]) return false;
     if (e.kind === 'trainer' && o.boss && !o.stay && Game.flags['beat_' + o.id]) return false;
     if (e.kind === 'legend' && Game.flags['legend_' + o.id]) return false;
@@ -210,12 +211,24 @@ const World = {
     if (wp && !this.blockedTile(nx, ny)) { this.startMove(nx, ny); this.pendingWarp = wp; return; }
     if (this.tile(nx, ny) === 'H') { this.startMove(nx, ny); this.pendingWarp = this.objAt(nx, ny, 'warp'); return; }
     if (this.blocked(nx, ny)) {
+      // 편의: 모서리·장애물 한 칸에 걸리면 멈추지 않고 옆으로 비켜 간다
+      // (옆 칸이 비어 있고, 그 칸에서 원래 방향으로 나아갈 수 있을 때만. 워프·출구·트리거 칸으로는 비키지 않는다)
+      const sides = dx ? [[0, -1], [0, 1]] : [[-1, 0], [1, 0]];
+      if (this.lastSide) sides.sort(a => (a[0] === this.lastSide[0] && a[1] === this.lastSide[1] ? -1 : 1));
+      const safe = (x, y) => !this.blocked(x, y) && !this.objAt(x, y, 'warp') && !this.objAt(x, y, 'exit') && !this.objAt(x, y, 'trigger') && this.tile(x, y) !== 'H';
+      for (const [sx, sy] of sides) {
+        if (safe(p.x + sx, p.y + sy) && !this.blocked(p.x + sx + dx, p.y + sy + dy)) { this.lastSide = [sx, sy]; this.startMove(p.x + sx, p.y + sy); return; }
+      }
       if (this.bumpT <= 0) { Audio2.bump(); this.bumpT = 0.35; }
       this.bumpT -= FRAME_DT;
       return;
     }
     this.startMove(nx, ny);
   },
+  // 오토바이: 퀘스트로 받은 뒤 야외에서 달리는 중
+  riding() { const p = this.player; return !!(Game.flags.motorbike && p.run && !(this.def && this.def.indoor)); },
+  // 걷기 4.4칸/초, 달리기 11.25칸/초, 오토바이(야외에서 달리기) 그 3배
+  moveSpeed() { return this.riding() ? 11.25 * 3 : this.player.run ? 11.25 : 4.4; },
   blockedTile(x, y) { const c = this.tile(x, y); return c == null || !TILE_DEF[c].walk; },
   startMove(nx, ny) {
     const p = this.player;
@@ -223,13 +236,17 @@ const World = {
     if (fo) { fo.fx = fo.x; fo.fy = fo.y; fo.x = p.x; fo.y = p.y; fo.moving = !(fo.fx === fo.x && fo.fy === fo.y); fo.hidden = false; const dx = fo.x - fo.fx, dy = fo.y - fo.fy; if (dx || dy) fo.dir = dx > 0 ? 'right' : dx < 0 ? 'left' : dy > 0 ? 'down' : 'up'; }
     p.fx = p.x; p.fy = p.y; p.x = nx; p.y = ny; p.moving = true; p.prog = 0;
     p.run = Settings.runDefault ? !Input.held.run : Input.held.run;
+    // 출발하는 프레임에도 그만큼 이동한다 (칸 사이에 한 프레임씩 쉬어 빠를수록 실제 속도가 깎이던 문제)
+    p.prog = Math.min(0.95, Math.max(0, FRAME_DT) * this.moveSpeed());
+    p.px = lerp(p.fx, p.x, p.prog) * TILE; p.py = lerp(p.fy, p.y, p.prog) * TILE;
     this.bumpT = 0;
   },
   stepMove(dt) {
     const p = this.player;
-    const speed = p.run ? 7.5 : 4.4;
+    const bike = this.riding(), speed = this.moveSpeed();
     p.prog = Math.min(1, p.prog + dt * speed);
-    p.anim += dt * (p.run ? 13 : 9);
+    p.anim += dt * (bike ? 6 : p.run ? 15 : 9);
+    if (bike && Math.random() < dt * 30) { const [dx, dy] = DIRS[p.dir]; this.amb.push({ k: 'leafbit', x: p.px + 24 - dx * 22 + rand(-4, 4), y: p.py + 38 - dy * 10, vx: -dx * 60 + rand(-20, 20), vy: rand(-50, -20), t: 0, life: 0.45, c: 'rgba(200,200,200,0.7)' }); }
     p.px = lerp(p.fx, p.x, p.prog) * TILE; p.py = lerp(p.fy, p.y, p.prog) * TILE;
     const fo = this.follower;
     if (fo) { fo.px = lerp(fo.fx, fo.x, p.prog) * TILE; fo.py = lerp(fo.fy, fo.y, p.prog) * TILE; fo.anim = p.anim; }
@@ -492,7 +509,11 @@ const World = {
     for (const b of this.buildings) list.push({ y: (b.y + b.h) * TILE - 2, f: () => { drawBuilding(b); if (window.Quests) Quests.drawDoorMarker(b); } });
     for (const d of this.decos) if (this.decoActive(d)) list.push({ y: (d.y + d.h) * TILE - 4 + (d.kind === 'shelf' || d.kind === 'machine' || d.kind === 'healer' ? -60 : 0), f: () => drawDeco(d, this) });
     for (const e of this.ents) if (this.entActive(e)) list.push({ y: e.py + 44, f: () => drawEnt(e) });
-    list.push({ y: p.py + 45, f: () => drawCommander(p.px, p.py, p.dir, p.moving ? p.anim : 0, p.run && p.moving) });
+    list.push({ y: p.py + 45, f: () => {
+      // 오토바이를 타면 다리를 멈추고 안장 높이로 올려 앉힌다
+      if (this.riding()) { drawBike(p.px, p.py, p.dir, 'back', p.anim); drawCommander(p.px, p.py - 8, p.dir, 0, false); drawBike(p.px, p.py, p.dir, 'front', p.anim); }
+      else drawCommander(p.px, p.py, p.dir, p.moving ? p.anim : 0, p.run && p.moving);
+    } });
     // 동료 (부대 선두)
     const lead = Game.party.find(m => m.hp > 0), fo = this.follower;
     const showFo = lead && fo && !fo.hidden && !(fo.x === p.x && fo.y === p.y && !p.moving);
@@ -1262,6 +1283,15 @@ function drawObj(e) {
     ctx.fillStyle = '#2b3a4f'; ctx.fillRect(X + 6, Y - 6, 36, 50); ctx.fillStyle = '#1c2632'; ctx.fillRect(X + 10, Y - 2, 28, 22);
     ctx.fillStyle = '#38e1ff'; ctx.globalAlpha = 0.6 + 0.3 * Math.sin(t * 3); ctx.fillRect(X + 12, Y, 24, 18); ctx.globalAlpha = 1;
     ctx.fillStyle = '#5ff4ff'; ctx.fillRect(X + 12, Y + 26, 24, 3);
+  } else if (k === 'bikepart') {
+    // 버려진 차 옆 엔진 부품 (반짝임으로 조사할 수 있음을 알린다)
+    const b = Math.sin(t * 3) * 2;
+    ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.beginPath(); ctx.ellipse(X + 24, Y + 40, 14, 4, 0, 0, 7); ctx.fill();
+    ctx.fillStyle = '#4a4f57'; rrect(X + 10, Y + 20 + b, 28, 18, 4); ctx.fill();
+    ctx.fillStyle = '#7a828c'; ctx.fillRect(X + 13, Y + 23 + b, 22, 4); ctx.fillRect(X + 13, Y + 29 + b, 22, 3);
+    ctx.fillStyle = '#c9a24a'; ctx.beginPath(); ctx.arc(X + 34, Y + 22 + b, 5, 0, 7); ctx.fill();
+    ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.45 + 0.35 * Math.sin(t * 5); ctx.fillStyle = '#fff6c0';
+    ctx.beginPath(); ctx.moveTo(X + 24, Y + 6 + b); ctx.lineTo(X + 27, Y + 14 + b); ctx.lineTo(X + 24, Y + 22 + b); ctx.lineTo(X + 21, Y + 14 + b); ctx.closePath(); ctx.fill(); ctx.restore();
   } else if (k === 'healpod') {
     ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.beginPath(); ctx.ellipse(X + 24, Y + 42, 20, 6, 0, 0, 7); ctx.fill();
     ctx.fillStyle = '#d8e2ea'; rrect(X + 8, Y - 14, 32, 56, 14); ctx.fill(); ctx.strokeStyle = '#7a8a9a'; ctx.lineWidth = 2; ctx.stroke();

@@ -121,6 +121,27 @@
     steps: [{ goal: '그렘린 영입하기 (1번 폐도로)', check: () => caught('gremlin'), at: ['base', 'poi'],
       talk: async o => lines(o, ['와아, 진짜 그렘린이다! ...벌써 제 공구함을 뜯고 있어요!', '이건 수리하다 남은 부품으로 만든 키트예요. 받아 주세요!']) }],
     reward: { money: 500, items: { kit2: 2 } } });
+  sideQ({ id: 's_bike', title: '사령관 전용 오토바이', giver: ['base', 'poi'], area: '오르카 캠프', prev: 's_poi', avail: () => Game.badges.length >= 1,
+    offer: ['사령관님! 오르카호를 고치다 보니 부품이 꽤 남았어요.', '이걸로 사령관님 전용 오토바이를 만들 수 있을 것 같아요! 엔진만 있으면요.', '1번 폐도로에 버려진 차가 있죠? 거기서 엔진 부품을 떼어 와 주세요. 그리고 조립은 그렘린이 도와줄 거예요!'],
+    summary: '포이가 남은 부품으로 사령관 전용 오토바이를 만들어 주겠다고 한다. 엔진 부품과 정비를 도울 그렘린이 필요하다.',
+    steps: [
+      { goal: '1번 폐도로의 버려진 차에서 엔진 부품 회수', check: () => F('bike_part'), onStart: () => { Game.flags.bikeq = 1; } },
+      { goal: '그렘린을 부대에 넣고 오르카 캠프의 포이에게 가기', check: () => Game.party.some(m => m.key === 'gremlin'), at: ['base', 'poi'],
+        talk: async o => {
+          await lines(o, ['엔진 부품이다! 그렘린, 렌치 줘! ...그거 말고, 그거 내 공구함이야!', '(뚝딱뚝딱... 쾅! ...뚝딱뚝딱.)', '완성! 사령관님 전용 오토바이예요! 달리기 버튼을 누르고 있으면 밖에서는 오토바이를 타요.', '평소 달리기보다 세 배는 빨라요. 수풀에서 너무 밟으면 폭주체가 깜짝 놀라니 조심하세요!']);
+          Game.flags.motorbike = 1; Game.flags.bikeq = 0;
+          Audio2.sfx('item_get', 0.8); await say('사령관은 전용 오토바이를 얻었다! (야외에서 달리기 버튼을 누르고 있으면 탑승 · 속도 3배)');
+        } }],
+    reward: { items: { kit2: 2 } } });
+  // 오토바이 엔진 부품: 퀘스트 중에만 1번 폐도로의 버려진 차 옆에 나타난다
+  MAPS.route1.objects.push({ t: 'obj', id: 'bikepart', kind: 'bikepart', x: 10, y: 33, block: 1, cond: ['bikeq', '!bike_part'] });
+  Scripts.obj_bikepart = async function (e) {
+    Audio2.sfx('item_get', 0.7);
+    await say('버려진 차의 보닛을 열었다... 아직 쓸 만한 엔진 부품이 남아 있다!');
+    Game.flags.bike_part = 1; e.hidden = true;
+    await say('사령관은 엔진 부품을 손에 넣었다! 오르카 캠프의 포이에게 가져가자.');
+    Quests.tick();
+  };
   sideQ({ id: 's_rhea', title: '승급의 비밀', giver: ['base', 'rhea'], area: '오르카 캠프', avail: () => F('gotStarter'),
     offer: ['사령관님, 바이오로이드는 레벨 16이 되면 A랭크로 승급해요. 능력치가 쑥 오르죠.', '실제로 승급한 아이를 보고 싶어요. 연구 자료로요! 데려와 주실 수 있나요?'],
     summary: '레아가 승급한 바이오로이드를 연구하고 싶어 한다.',

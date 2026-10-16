@@ -77,6 +77,8 @@
     s_shirayuri: () => { Game.dex.caught.miho = 1; },
     s_johanna: () => { Game.dex.caught.hraesvelgr = 1; },
     s_sekhmet: () => { Game.dex.caught.echidna = 1; },
+    // 오토바이: 버려진 차 옆 부품을 실제로 조사해서 줍고, 그렘린을 부대에 넣는다
+    s_bike: async () => { if (!Game.flags.bike_part) await talk('route1', 'bikepart', 'obj'); if (!Game.party.some(m => m.key === 'gremlin')) Game.party.push(new Mon('gremlin', 30)); },
   };
   const LEGEND_MAP = { hongryun: 'forest', phoenix: 'snowfield', eternity: 'coast', blacklilith: 'nest' };
 
@@ -88,7 +90,7 @@
     for (let guard = 0; guard < 8 && st(q.id).s === 'active'; guard++) {
       const step = q.steps[st(q.id).step];
       if (step.at) {
-        if (step.check && !step.check(st(q.id)) && satisfy) satisfy();
+        if (step.check && !step.check(st(q.id)) && satisfy) await satisfy();
         Quests.tick();
         expect(Quests.stepReady(q), q.id + ' 단계 ' + st(q.id).step + ' 준비 안 됨: ' + step.goal);
         const k0 = st(q.id).step;
@@ -106,7 +108,7 @@
           expect(Game.flags['met_' + lg], lg + ' 전투 결과가 기록되지 않음');
           L('  전설 조우', SPECIES[lg].name, Game.flags['legend_' + lg] ? '(영입)' : '(승리)');
         } else if (step.goal.includes('설원 고지대에 가기')) { await goMap('snowfield'); }
-        else if (satisfy) satisfy();
+        else if (satisfy) await satisfy();
         Quests.tick();
       }
     }

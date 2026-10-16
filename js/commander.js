@@ -120,3 +120,57 @@ function drawCommanderBust(x, y, s = 1) {
   drawCommanderBig(x, y + 150 * s, 0.9 * s, 'front', 'sweat');
   ctx.restore();
 }
+
+// ---- 오토바이 (사이드 퀘스트 보상). layer: 'back' 은 사령관보다 먼저, 'front' 는 나중에 그린다 ----
+function drawBike(X, Y, dir, layer, t) {
+  const g = window.__cmdCtx || ctx, cx = X + 24, foot = Y + 45, side = dir === 'left' || dir === 'right', f = dir === 'left' ? -1 : 1;
+  const RED = '#d8352f', DARK = '#2a2d33', CHROME = '#c9d1da', spin = (t || 0) * 18;
+  const wheel = (x, y, r) => {
+    g.fillStyle = '#16181c'; g.beginPath(); g.ellipse(x, y, r, side ? r : r * 0.45, 0, 0, 7); g.fill();
+    g.fillStyle = '#6b7380'; g.beginPath(); g.ellipse(x, y, r * 0.45, side ? r * 0.45 : r * 0.2, 0, 0, 7); g.fill();
+    if (side) { g.strokeStyle = '#9aa3ad'; g.lineWidth = 1; for (let k = 0; k < 3; k++) { const a = spin + k * 2.09; g.beginPath(); g.moveTo(x, y); g.lineTo(x + Math.cos(a) * r * 0.85, y + Math.sin(a) * r * 0.85); g.stroke(); } }
+  };
+  g.save();
+  if (side) {
+    if (layer === 'back') {
+      g.fillStyle = 'rgba(0,0,0,0.28)'; g.beginPath(); g.ellipse(cx, foot - 1, 24, 5, 0, 0, 7); g.fill();
+      wheel(cx - f * 15, foot - 8, 8.5);
+      // 차체: 뒤 펜더 → 시트 → 연료탱크
+      g.fillStyle = DARK; g.beginPath(); g.moveTo(cx - f * 22, foot - 15); g.lineTo(cx + f * 4, foot - 16); g.lineTo(cx + f * 6, foot - 10); g.lineTo(cx - f * 12, foot - 8); g.closePath(); g.fill();
+      g.fillStyle = RED; g.beginPath(); g.moveTo(cx - f * 4, foot - 20); g.quadraticCurveTo(cx + f * 10, foot - 25, cx + f * 15, foot - 18); g.lineTo(cx + f * 4, foot - 14); g.closePath(); g.fill();
+      g.fillStyle = 'rgba(255,255,255,0.35)'; g.fillRect(cx + f * 2 - (f < 0 ? 6 : 0), foot - 22, 6, 2);
+      g.fillStyle = '#1c1c1c'; g.beginPath(); g.ellipse(cx - f * 9, foot - 18, 9, 3, 0, 0, 7); g.fill();
+      g.strokeStyle = CHROME; g.lineWidth = 2.5; g.beginPath(); g.moveTo(cx - f * 18, foot - 9); g.lineTo(cx - f * 26, foot - 11); g.stroke(); // 배기관
+    } else {
+      wheel(cx + f * 16, foot - 8, 8.5);
+      g.strokeStyle = CHROME; g.lineWidth = 2.5; g.beginPath(); g.moveTo(cx + f * 16, foot - 8); g.lineTo(cx + f * 12, foot - 26); g.stroke(); // 앞 포크
+      g.strokeStyle = DARK; g.lineWidth = 3; g.beginPath(); g.moveTo(cx + f * 6, foot - 27); g.lineTo(cx + f * 14, foot - 28); g.stroke(); // 핸들
+      g.fillStyle = '#ffe9a0'; g.beginPath(); g.arc(cx + f * 15, foot - 23, 2.6, 0, 7); g.fill(); // 전조등
+    }
+  } else if (dir === 'down') {
+    // 정면: 뒷바퀴는 사령관 뒤, 앞바퀴·핸들·전조등은 앞
+    if (layer === 'back') {
+      g.fillStyle = 'rgba(0,0,0,0.28)'; g.beginPath(); g.ellipse(cx, foot - 1, 13, 6, 0, 0, 7); g.fill();
+      g.fillStyle = DARK; g.fillRect(cx - 5, foot - 26, 10, 10);
+    } else {
+      wheel(cx, foot - 6, 7);
+      g.fillStyle = RED; g.beginPath(); g.moveTo(cx - 8, foot - 16); g.lineTo(cx + 8, foot - 16); g.lineTo(cx + 5, foot - 8); g.lineTo(cx - 5, foot - 8); g.closePath(); g.fill();
+      g.strokeStyle = DARK; g.lineWidth = 3; g.beginPath(); g.moveTo(cx - 15, foot - 25); g.lineTo(cx + 15, foot - 25); g.stroke();
+      g.fillStyle = '#ffe9a0'; g.beginPath(); g.arc(cx, foot - 19, 3.2, 0, 7); g.fill();
+      g.strokeStyle = CHROME; g.lineWidth = 1.5; g.beginPath(); g.moveTo(cx - 15, foot - 25); g.lineTo(cx - 17, foot - 28); g.moveTo(cx + 15, foot - 25); g.lineTo(cx + 17, foot - 28); g.stroke();
+    }
+  } else {
+    // 뒷모습: 핸들은 사령관 뒤, 뒷바퀴·후미등·번호판은 앞
+    if (layer === 'back') {
+      g.fillStyle = 'rgba(0,0,0,0.28)'; g.beginPath(); g.ellipse(cx, foot - 1, 13, 6, 0, 0, 7); g.fill();
+      g.strokeStyle = DARK; g.lineWidth = 3; g.beginPath(); g.moveTo(cx - 15, foot - 30); g.lineTo(cx + 15, foot - 30); g.stroke();
+    } else {
+      wheel(cx, foot - 6, 7);
+      g.fillStyle = DARK; g.beginPath(); g.moveTo(cx - 9, foot - 18); g.lineTo(cx + 9, foot - 18); g.lineTo(cx + 6, foot - 10); g.lineTo(cx - 6, foot - 10); g.closePath(); g.fill();
+      g.fillStyle = '#ff3a3a'; g.fillRect(cx - 5, foot - 18, 10, 3);
+      g.fillStyle = '#e8e2d0'; g.fillRect(cx - 4, foot - 14, 8, 4);
+      g.strokeStyle = CHROME; g.lineWidth = 2.5; g.beginPath(); g.moveTo(cx + 7, foot - 9); g.lineTo(cx + 11, foot - 4); g.stroke();
+    }
+  }
+  g.restore();
+}
