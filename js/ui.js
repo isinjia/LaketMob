@@ -59,9 +59,11 @@ class Dialog {
     // 전투 중에는 캐릭터를 가리지 않는 얇은 대화창
     this.box = (typeof Battle !== 'undefined' && Scene instanceof Battle && typeof BDLG !== 'undefined' && !o.portrait) ? BDLG : BOX;
     this.slim = this.box !== BOX;
-    this.lines = wrapText(this.full, this.box.w - 64, this.slim ? 20 : 23, 600);
+    const portrait = window.MobileField && MobileField.portrait;
+    this.lines = wrapText(this.full, portrait ? W - 68 : this.box.w - 64, this.slim ? 20 : 23, 600);
     this.pages = [];
-    const per = this.slim ? 2 : 3;
+    this._portraitLayout=!!portrait;
+    const per = portrait ? 5 : this.slim ? 2 : 3;
     for (let i = 0; i < this.lines.length; i += per) this.pages.push(this.lines.slice(i, i + per));
     this.page = 0; this.shown = 0; this.t = 0; this.doneT = 0; this.blip = 0;
   }

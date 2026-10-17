@@ -1,10 +1,13 @@
-// 세로 필드는 540px 논리 폭으로 확장한다. 전투·타이틀은 기존 화면을 유지한다.
+// 세로 필드와 메뉴는 540px 논리 폭으로 확장한다. 전투·타이틀 본 화면은 기존 비율을 유지한다.
 const MobileField = window.MobileField = {
   portrait: false, drag: null, fast: false, touch: matchMedia('(pointer: coarse)').matches,
   enabled() { return this.touch && Settings.touchStyle !== 'buttons'; },
   field() { return typeof Scene !== 'undefined' && Scene === World && !!World.def; },
+  portraitContext() {
+    return this.field() || (typeof UI !== 'undefined' && UI.stack.some(w=>!['Dialog','Choice'].includes(w.constructor.name)));
+  },
   dimensions() {
-    this.portrait = this.enabled() && innerHeight > innerWidth && this.field();
+    this.portrait = this.enabled() && innerHeight > innerWidth && this.portraitContext();
     W = this.portrait ? 540 : 960;
     H = this.portrait ? Math.round(540 * innerHeight / innerWidth) : 640;
   },
@@ -21,11 +24,13 @@ const MobileField = window.MobileField = {
     return { scale, y: dialog ? H - 640 * scale - 82 : (H - 640 * scale) / 2 };
   },
   uiPoint(e, r) {
+    if(window.PortraitUI && PortraitUI.active()) return {x:(e.clientX-r.left)/r.width*W,y:(e.clientY-r.top)/r.height*H};
     const b = this.uiBox();
     return { x: (e.clientX-r.left)/r.width*W/b.scale, y: ((e.clientY-r.top)/r.height*H-b.y)/b.scale };
   },
   drawUI() {
     if (!UI.busy()) return;
+    if(window.PortraitUI) return PortraitUI.drawStack();
     const b = this.uiBox(), w = W, h = H;
     ctx.save();
     if (!(UI.top() instanceof Dialog) && !(UI.top() instanceof Choice)) { ctx.fillStyle='rgba(2,4,10,.65)'; ctx.fillRect(0,0,W,H); }
@@ -44,7 +49,7 @@ const MobileField = window.MobileField = {
     return null;
   },
   sync() {
-    const want=this.enabled() && innerHeight>innerWidth && this.field();
+    const want=this.enabled() && innerHeight>innerWidth && this.portraitContext();
     if (want!==this.portrait) { this.release(); resize(); }
     const modern=this.enabled(), field=modern && this.field(), free=field && !UI.busy() && !World.locked && !Trans.active;
     if (!free) this.release();
@@ -71,7 +76,7 @@ const MobileField = window.MobileField = {
     document.body.appendChild(el); this.hud=el;
     const get=id=>document.getElementById(id);
     this.area=get('move-zone'); this.stick=get('floating-stick'); this.menu=get('field-menu'); this.quest=get('field-quest'); this.action=get('field-action'); this.back=get('field-back'); this.confirm=get('field-confirm'); this.prev=get('dex-prev'); this.next=get('dex-next');
-    const page=d=>{const t=UI.top(); if(t instanceof DexScreen) { t.nav.i=clamp(t.nav.i+d*32,0,DEX_LIST.length-1); t.nav.scroll=Math.floor(t.nav.i/8); } };
+    const page=d=>{const t=UI.top(); if(t instanceof DexScreen) { t.nav.i=clamp(t.nav.i+d*(this.portrait?(t._pageSize||16):32),0,DEX_LIST.length-1); t.nav.scroll=Math.floor(t.nav.i/t.nav.cols); } };
     this.prev.onclick=()=>page(-1); this.next.onclick=()=>page(1);
     this.menu.onclick=()=>{this.release();this.pulse('menu');};
     this.quest.onclick=()=>{this.release();UI.push(new QuestLogScreen());};
