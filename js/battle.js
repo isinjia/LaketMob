@@ -50,6 +50,8 @@ class Battle {
     this.resetStages('me'); this.resetStages('foe');
     this.introT = 0;
     this.levelPanel = null;
+    // 알파의 역송신 준비는 최종전 첫 턴의 지휘로 이어진다.
+    this.cmdG = this.trainer && this.trainer.copyOf && Game.flags.counterlink ? 3 : 0;
   }
   get foe() { return this.foes[this.foeI]; }
   pfx(side) { if (side === 'me') return ''; if (this.kind === 'trainer') return '상대 '; return this.o.legend ? '' : '폭주한 '; }
@@ -175,26 +177,54 @@ class Battle {
   }
 
   // ---------------- 턴 처리 ----------------
-  foeAI() {
+  // 연출·난수를 소비하지 않는 AI용 기대 피해. 다단 공격과 현재 능력 변화를 포함한다.
+  expectedDamage(user, target, d, side, tSide) {
+    if (d.cat !== 'atk') return 0;
+    const attack = user.atk * stageMult(this.stage[side].atk) * (user.status === 'burn' ? 0.75 : 1);
+    const defense = target.def * stageMult(this.stage[tSide].def);
+    let damage = Math.floor(Math.floor(Math.floor(2 * user.level / 5 + 2) * d.pow * attack / defense) / 50) + 2;
+    if (user.types.includes(d.type)) damage *= 1.5 * (user.hp <= user.maxHp / 3 ? 1.3 : 1);
+    const eff = typeEff(d.type, target.types);
+    damage *= eff * (eff > 1 && traitOf(target) === 'heavy' ? 0.75 : 1);
+    const hits = d.hits ? (d.hits[0] + d.hits[1]) / 2 : 1;
+    const accuracy = d.acc ? Math.min(1, d.acc / 100 * stageMult(this.stage[side].acc, true) * (traitOf(target) === 'air' ? 0.9 : 1)) : 1;
+    return Math.max(1, damage * 0.925) * hits * accuracy;
+  }
+  moveScore(d) {
     const f = this.foe, m = this.me;
+    const damage = this.expectedDamage(f, m, d, 'foe', 'me');
+    let score = d.cat === 'atk' ? Math.min(110, damage / Math.max(1, m.hp) * 100) : 0;
+    if (damage >= m.hp && d.cat === 'atk') score += 60;
+    if (d.recoil && damage < m.hp) score -= Math.min(damage, m.hp) * d.recoil / f.maxHp * 70;
+    if (d.drain) score += Math.min(f.maxHp - f.hp, damage * d.drain) / f.maxHp * 100;
+    // 회복과 능력 변화는 가산한다. 요새화의 회복 가치를 방어 평가가 덮어쓰지 않는다.
+    if (d.heal) score += Math.min(f.maxHp - f.hp, f.maxHp * d.heal) / f.maxHp * (f.hp < f.maxHp * 0.45 ? 180 : 90);
+    if (d.status && !m.status) {
+      const immune = { para: 'elec', burn: 'fire', freeze: 'ice' }[d.status];
+      if (!m.types.includes(immune)) score += (d.status === 'freeze' ? 45 : 35) * (d.acc || 100) / 100;
+    }
+    const healthy = f.hp / f.maxHp;
+    if (d.self) for (const [key, amount] of Object.entries(d.self)) {
+      if (this.stage.foe[key] >= 2) continue;
+      if (key === 'spd' && this.speedOf('foe') > this.speedOf('me')) continue;
+      if (key === 'acc' && f.moves.every(x => !MOVES[x.id].acc || MOVES[x.id].acc >= 100) && this.stage.foe.acc >= 0) continue;
+      score += Math.min(amount, 2 - this.stage.foe[key]) * (key === 'atk' ? 25 : 19) * healthy;
+    }
+    if (d.foe) for (const [key, amount] of Object.entries(d.foe)) {
+      if (this.stage.me[key] <= -2) continue;
+      score += Math.min(-amount, 2 + this.stage.me[key]) * 33 * healthy;
+    }
+    return Math.max(0, score);
+  }
+  foeAI() {
+    const f = this.foe;
     const usable = f.moves.filter(x => x.pp > 0);
     if (!usable.length) return '__struggle';
     const smart = this.kind === 'trainer';
     let best = null, bestS = -1;
     for (const mv of usable) {
       const d = MOVES[mv.id];
-      let s;
-      if (d.cat === 'atk') {
-        const stab = f.types.includes(d.type) ? 1.5 : 1;
-        s = d.pow * typeEff(d.type, m.types) * stab * (d.acc / 100);
-        if (d.drain && f.hp < f.maxHp * 0.6) s *= 1.3;
-      } else {
-        s = 35;
-        if (d.heal) s = f.hp < f.maxHp * 0.45 ? 160 : 5;
-        if (d.status) { const imm = { para: 'elec', burn: 'fire', freeze: 'ice' }[d.status]; s = m.status || m.types.includes(imm) ? 0 : 70; }
-        if (d.self) { const k = Object.keys(d.self)[0]; s = this.stage.foe[k] >= 2 ? 5 : 55; }
-        if (d.foe) { const k = Object.keys(d.foe)[0]; s = this.stage.me[k] <= -2 ? 5 : 45; }
-      }
+      let s = this.moveScore(d);
       s *= smart ? rand(0.85, 1.15) : rand(0.4, 1.6);
       if (s > bestS) { bestS = s; best = mv.id; }
     }
@@ -549,7 +579,7 @@ class Battle {
     const trainerMul = this.kind === 'trainer' ? 1.5 : 1;
     // 난이도 보정: 쉬움은 경험치를 더, 어려움은 덜 줘서 상대 레벨 차이로 보상이 뒤집히지 않게 한다
     const diffMul = [1.25, 1, 0.8][Settings.difficulty] || 1;
-    const base = Math.floor(foe.species.exp * foe.level / 4 * trainerMul * diffMul);
+    const base = Math.floor(foe.species.exp * foe.level / 4 * trainerMul * diffMul * (this.o.expMul || 1));
     const alive = Game.party.filter(p => p.hp > 0);
     const part = [...this.participants].filter(p => p.hp > 0 && Game.party.includes(p));
     for (const m of alive) {
@@ -617,7 +647,7 @@ class Battle {
     if (res === 'lose') {
       Audio2.stopBgm(300);
       await say('사령관의 부대는 모두 전투불능이 되었다...', { auto: 1200 });
-      const lost = Math.floor(Game.money / 2);
+      const lost = defeatCost(Game.money, Game.badges.length);
       Game.money -= lost;
       await say('눈앞이 캄캄해졌다...' + (lost ? '  (자원 ' + lost + ' P를 잃었다)' : ''), { auto: 1600 });
     }

@@ -27,15 +27,22 @@ const EFF = {
   light: { air: 2, heavy: 0.5 },
   heavy: { light: 2, air: 0.5 },
   air:   { heavy: 2, light: 0.5 },
-  phys:  { heavy: 0.5 },
+  // 물리는 모든 병종에 중립. 불리한 자속을 대신할 기본 공격으로 쓴다.
+  phys:  {},
   fire:  { ice: 2, fire: 0.5 },
-  ice:   { elec: 2, air: 2, ice: 0.5 },
-  elec:  { fire: 2, heavy: 2, elec: 0.5 },
+  ice:   { elec: 2, ice: 0.5 },
+  elec:  { fire: 2, elec: 0.5 },
 };
 function typeEff(atkType, defTypes) {
   let m = 1;
   for (const t of defTypes) { const r = EFF[atkType] && EFF[atkType][t]; if (r) m *= r; }
   return m;
+}
+
+// 자원 보유량 때문에 패배 비용이 불어나지 않는다. 첫 배지 전에는 무료 재도전.
+function defeatCost(money, badges) {
+  const n = clamp(Math.floor(badges), 0, 7);
+  return Math.min(Math.max(0, Math.floor(money)), n === 0 ? 0 : 200 + n * 100);
 }
 
 // ---------- 상태이상 ----------
@@ -70,6 +77,7 @@ const MOVES = {
   taunt:    { name: '위협 사격', type: 'phys', cat: 'st', acc: 100, pp: 30, foe: { atk: -1 }, fx: 'debuff', desc: '위협 사격으로 상대의 공격을 떨어뜨린다.' },
   smoke:    { name: '연막탄', type: 'phys', cat: 'st', acc: 100, pp: 20, foe: { acc: -1 }, fx: 'smoke', desc: '연막을 펼쳐 상대의 명중률을 떨어뜨린다.' },
   command:  { name: '전술 지휘', type: 'phys', cat: 'st', acc: 0, pp: 15, self: { atk: 1, spd: 1 }, fx: 'buff', desc: '전장을 지휘해 공격과 속도가 오른다.' },
+  coverfire:{ name: '엄호 사격', type: 'phys', cat: 'atk', pow: 55, acc: 100, pp: 15, self: { def: 1 }, fx: 'bullet', desc: '엄폐 지점을 확보하며 사격한다. 자신의 방어가 오른다.' },
   // 경장
   quick:    { name: '기습', type: 'light', cat: 'atk', pow: 40, acc: 100, pp: 30, prio: 1, fx: 'slash', desc: '반드시 먼저 공격하는 기습.' },
   blade:    { name: '근접 베기', type: 'light', cat: 'atk', pow: 65, acc: 100, pp: 20, fx: 'slash', desc: '근접 무기로 베어낸다.' },
@@ -77,6 +85,7 @@ const MOVES = {
   flash:    { name: '섬광 연격', type: 'light', cat: 'atk', pow: 110, acc: 85, pp: 5, fx: 'slash3', desc: '눈에 보이지 않는 속도로 연속 공격한다.' },
   steelwill:{ name: '강철의 의지', type: 'light', cat: 'atk', pow: 90, acc: 100, pp: 10, self: { def: 1 }, fx: 'slash3', desc: '스틸라인의 긍지. 공격 후 방어가 오른다.' },
   execute:  { name: '처형', type: 'light', cat: 'atk', pow: 130, acc: 95, pp: 5, crit: 2, fx: 'slash3', desc: '블랙 릴리스의 일격. 급소에 맞기 쉽다.' },
+  expose:   { name: '약점 노출', type: 'light', cat: 'atk', pow: 55, acc: 100, pp: 15, eff: { foeDef: 0.3 }, fx: 'snipe', desc: '장갑의 이음새를 노린다. 30% 확률로 상대의 방어를 떨어뜨린다.' },
   // 중장
   shell:    { name: '포격', type: 'heavy', cat: 'atk', pow: 60, acc: 95, pp: 25, fx: 'shell', desc: '포탄을 쏘아 공격한다.' },
   barrage:  { name: '일제 포격', type: 'heavy', cat: 'atk', pow: 90, acc: 90, pp: 10, fx: 'barrage', desc: '모든 포문을 열어 일제히 포격한다.' },
@@ -87,6 +96,7 @@ const MOVES = {
   strafe:   { name: '기총 소사', type: 'air', cat: 'atk', pow: 80, acc: 95, pp: 15, fx: 'bullets', desc: '저공 비행하며 기총을 퍼붓는다.' },
   bomb:     { name: '공중 폭격', type: 'air', cat: 'atk', pow: 100, acc: 90, pp: 10, fx: 'bombs', desc: '하늘에서 폭탄을 쏟아붓는다.' },
   afterburn:{ name: '애프터버너', type: 'air', cat: 'st', acc: 0, pp: 20, self: { spd: 2 }, fx: 'buff', desc: '추진기를 점화해 속도가 크게 오른다.' },
+  bloodlink:{ name: '혈광 흡수', type: 'air', cat: 'atk', pow: 65, acc: 95, pp: 10, drain: 0.4, fx: 'beam', desc: '붉은 빛으로 링크 에너지를 흡수한다. 준 피해의 40%만큼 자신을 회복한다.' },
   // 화염
   flamer:   { name: '화염 방사', type: 'fire', cat: 'atk', pow: 50, acc: 100, pp: 25, eff: { burn: 0.1 }, fx: 'flame', desc: '화염을 내뿜는다. 화상을 입힐 때가 있다.' },
   incend:   { name: '소이탄', type: 'fire', cat: 'atk', pow: 75, acc: 95, pp: 15, eff: { burn: 0.2 }, fx: 'fireball', desc: '소이탄을 발사한다. 화상을 입힐 때가 있다.' },
@@ -112,7 +122,7 @@ const MOVES = {
 const SPECIES_LIST = [
   // 스타터
   { key: 'leprechaun', name: '레프리콘', types: ['light'], base: [52, 64, 46, 64], rank: 'B', catch: 45, exp: 64, kind: 'bio', faction: '둠 브링어',
-    moves: [[1, 'shot'], [1, 'command'], [5, 'quick'], [9, 'taunt'], [13, 'blade'], [17, 'burst'], [22, 'rush'], [27, 'aimed'], [33, 'snipe'], [39, 'flash']],
+    moves: [[1, 'shot'], [1, 'command'], [5, 'quick'], [7, 'taunt'], [9, 'burst'], [13, 'blade'], [22, 'rush'], [27, 'aimed'], [33, 'snipe'], [39, 'flash']],
     desc: '브라우니들을 이끄는 소대장. 작은 체구지만 지휘 능력이 뛰어나 아군의 사기를 끌어올린다.' },
   { key: 'gnome', name: '노움', types: ['heavy', 'fire'], base: [60, 64, 56, 44], rank: 'B', catch: 45, exp: 64, kind: 'bio', faction: '둠 브링어',
     moves: [[1, 'tackle'], [1, 'guard'], [5, 'flamer'], [9, 'shell'], [13, 'taunt'], [17, 'incend'], [22, 'fortify'], [27, 'barrage'], [33, 'napalm'], [39, 'railgun']],
@@ -233,7 +243,7 @@ const SPECIES_LIST = [
 
   // ---------- 레모네이드 자매 (보스 전용, 영입 불가) ----------
   { key: 'lemongamma', name: '레모네이드 감마', types: ['heavy', 'phys'], base: [80, 80, 74, 52], rank: 'A', catch: 0, exp: 140, kind: 'boss', money: 0,
-    moves: [[1, 'strike'], [1, 'shell'], [8, 'guard'], [12, 'barrage'], [16, 'overload']],
+    moves: [[1, 'tackle'], [1, 'taunt'], [8, 'guard'], [15, 'shell'], [20, 'barrage'], [26, 'overload']],
     desc: '포세이돈 인더스트리 담당 레모네이드. 오른쪽 눈의 상처는 무적의 용과의 결투 흔적. 육아도 전투라고 믿는다.' },
   { key: 'lemonbeta', name: '레모네이드 베타', types: ['light', 'ice'], base: [72, 66, 72, 62], rank: 'A', catch: 0, exp: 160, kind: 'boss', money: 0,
     moves: [[1, 'coldshot'], [1, 'quick'], [8, 'smoke'], [12, 'blade'], [16, 'cryo'], [20, 'absolute']],

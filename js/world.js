@@ -422,7 +422,7 @@ const World = {
     for (const [k, w] of table.list) { if ((r -= w) < 0) { key = k; break; } }
     const lv = randi(table.lv[0], table.lv[1]);
     this.locked = true;
-    try { await startBattle({ kind: 'wild', foes: [new Mon(key, lv)], bg: this.def.bg }); }
+    try { await startBattle({ kind: 'wild', foes: [new Mon(key, lv)], bg: this.def.bg, expMul: table.expMul || 1 }); }
     finally { this.locked = false; this.encCool = 1.2; }
   },
 

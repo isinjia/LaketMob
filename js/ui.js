@@ -856,7 +856,7 @@ class ControlsScreen {
       txt(b, 840, y, { size: 18, align: 'right', color: UI_COL.accent, weight: 700 });
       ctx.fillStyle = 'rgba(56,225,255,0.12)'; ctx.fillRect(120, y + 16, 720, 1);
     });
-    txt('수풀에서 폭주 바이오로이드가 나타납니다. 체력을 깎은 뒤 링크 코어로 영입하세요.', W / 2, 568 - 24, { size: 15, align: 'center', color: UI_COL.sub });
+    txt('전투 지휘: 기술 선택 중 게이지가 차면 M/Tab 또는 지휘 버튼 → 위력 1.5배 · 필중', W / 2, 568 - 24, { size: 15, align: 'center', color: UI_COL.sub });
     helpLine('Z / X: 돌아가기');
   }
 }

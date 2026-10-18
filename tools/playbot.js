@@ -219,7 +219,7 @@
       for (let i = 0; i < 100 && Scene !== World; i++) await sl(100);
       await settle();
       L('연구소 도착', World.id);
-      // 스타터: 하르페이아 (가장 어려운 선택)
+      // 스타터: 하르페이아 (기동·전기 상성 경로 검증)
       B.phase = 'starter';
       await interactAt(8, 4);
       await settle();
