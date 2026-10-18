@@ -834,7 +834,8 @@ async function boot() {
   // 폰은 미리 만든 절반 크기 아틀라스를 다시 줄여 쓰고(≈1/8), PC도 0.6배로 올린다. SD 아틀라스도 폰은 절반
   if (window.FXB) FXB.texScale = LOW_MEM ? 0.35 : 0.6;
   if (window.SD) SD.texScale = LOW_MEM ? 0.5 : 1;
-  if (window.SDF && LOW_MEM) SDF.R = 1;
+  // SD 칸 렌더 배율은 화면 배율(SCALE)보다 낮으면 확대돼 흐려진다: 폰(SCALE≤1.6)은 2, 고해상도 PC는 3
+  if (window.SDF) SDF.R = LOW_MEM ? 2 : (SCALE > 2 ? 3 : 2);
   if (await threeReady && window.__initFX) window.__initFX();
   if (window.SDF) SDF.init();
   if (window.BFX) BFX.init();
