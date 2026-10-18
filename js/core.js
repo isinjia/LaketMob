@@ -364,7 +364,7 @@ const IMG = { full: {}, icon: {}, bg: {}, room: {}, bld: {} };
 const _lazy = {};
 // 필요할 때 불러오는 이미지 (스킨 진화 형태 / 중파 일러스트)
 // 같은 파일명으로 교체한 그림은 브라우저 캐시에 옛 그림이 남으므로 여기에 번호를 올려 새로 받게 한다
-const ASSET_REV = { 'full/constantia': 2 };
+const ASSET_REV = { 'full/constantia': 3 };
 const assetUrl = (cat, name) => 'assets/' + cat + '/' + name + '.webp' + (ASSET_REV[cat + '/' + name] ? '?r=' + ASSET_REV[cat + '/' + name] : '');
 function lazyImg(cat, name) {
   const im = IMG[cat][name];

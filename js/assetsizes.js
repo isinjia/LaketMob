@@ -54,7 +54,7 @@ const ASSET_SIZES = {
   labiata: [631, 720],
   daphne: [577, 720],
   vanilla: [554, 720],
-  constantia: [439, 720],
+  constantia: [493, 720],
   audrey: [561, 720],
   emily: [687, 720],
   alvis: [450, 720],
