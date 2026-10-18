@@ -161,7 +161,7 @@ const PortraitUI = window.PortraitUI = {
       this.lines('경장 → 기동 → 중장 → 경장\n화염 → 냉기 → 전기 → 화염\n기술과 자신의 타입이 같으면 위력 1.5배',24,y0+n*ch+46,W-48,21);return true;
     }
     if(name==='ControlsScreen') {
-      this.header('조작법','모바일 터치');const rows=[['필드 이동','화면을 드래그하면 이동합니다.'],['달리기','조이스틱을 멀리 밀면 달립니다.'],['대화 · 조사','대상 옆에서 상황 버튼을 터치하세요.'],['메뉴','오른쪽 위 메뉴 버튼을 터치하세요.'],['목록 이동','항목을 터치하거나 위아래로 밀어 이동합니다.'],['설정 값 변경','설정의 − / + 버튼을 터치하세요.'],['기존 버튼 방식','설정 → 터치 조작에서 선택할 수 있습니다.']];const rh=Math.min(118,(H-240)/rows.length);rows.forEach(([a,b],i)=>{const y=104+i*rh;panel(20,y,W-40,rh-8);txt(a,36,y+32,{size:22,weight:800});this.lines(b,36,y+63,W-72,19,2);});return true;
+      this.header('조작법','모바일 터치');const rows=[['필드 이동','화면을 드래그하면 이동합니다.'],['달리기','조이스틱을 멀리 밀면 달립니다.'],['대화 · 조사','대상 근처에서 이동 영역을 짧게 탭하세요.'],['메뉴','이동 영역을 길게 누르거나 ☰를 터치하세요.'],['대화 넘기기','화면 어디든 짧게 탭하세요.'],['목록 이동','항목 터치 · 위아래로 밀어 이동'],['설정 값 변경','설정의 − / + 버튼을 터치하세요.'],['기존 버튼 방식','설정 → 터치 조작에서 선택']];const rh=Math.min(118,(H-240)/rows.length);rows.forEach(([a,b],i)=>{const y=104+i*rh;panel(20,y,W-40,rh-8);txt(a,36,y+32,{size:22,weight:800});this.lines(b,36,y+60,W-72,18,1);});return true;
     }
     if(name==='MoveForgetScreen') {
       this.header('기술 교체',w.m.name+' · 잊을 기술을 선택하세요');
@@ -182,7 +182,7 @@ const PortraitUI = window.PortraitUI = {
     }
     if(name==='BadgeScreen') {w.draw();return true;}
     if(name==='Choice') {
-      const rh=64,h=w.options.length*rh+24,y=Math.max(100,H-420-h);ctx.fillStyle='#020815bb';ctx.fillRect(0,0,W,H);panel(24,y,W-48,h);w.nav.beginDraw();w.options.forEach((s,i)=>{this.row(w.nav,i,34,y+12+i*rh,W-68,rh-6);this.fit(s,50,y+53+i*rh,W-100,23);});return true;
+      const rh=64,h=w.options.length*rh+24,y=Math.max(100,H-420-h);if(!UI.stack.some(item=>item instanceof Dialog)){ctx.fillStyle='#020815bb';ctx.fillRect(0,0,W,H);}panel(24,y,W-48,h);w.nav.beginDraw();w.options.forEach((s,i)=>{this.row(w.nav,i,34,y+12+i*rh,W-68,rh-6);this.fit(s,50,y+53+i*rh,W-100,23);});return true;
     }
     if(name==='NumberPick') {
       ctx.fillStyle='#020815bb';ctx.fillRect(0,0,W,H);const y=H/2-160;panel(20,y,W-40,310);txt('구매 수량',36,y+45,{size:26,weight:900});txt('× '+w.n,W/2,y+110,{size:40,align:'center'});txt((w.n*w.price).toLocaleString()+' P',W/2,y+150,{size:24,align:'center',color:UI_COL.accent});

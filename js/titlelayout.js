@@ -1,13 +1,13 @@
 // =====================================================================
 //  타이틀 화면을 화면 전체에 맞춘다 (세로·가로 모두 검은 여백 없이)
 //  - 타이틀에서만 논리 화면을 실제 화면비로 넓힌다: 가로는 높이 640 기준, 세로는 폭 540 기준
-//  - 타이틀 위에 대화창·설정 등 창이 열리면 기존 960×640 배치로 돌아간다 (기존 UI 그대로)
+//  - 대화창·설정이 열려도 타이틀 화면비는 유지하고 UI만 별도로 배치한다.
 //  game.js, mobilefield.js 다음에 로드한다.
 // =====================================================================
 (function () {
   const TitleFill = window.TitleFill = {
     on: false,
-    active() { return typeof Scene !== 'undefined' && Scene instanceof TitleScene && !UI.busy(); },
+    active() { return typeof Scene !== 'undefined' && Scene instanceof TitleScene; },
     apply() {
       this.on = this.active();
       if (!this.on) return;
@@ -21,6 +21,27 @@
   // 화면 크기 계산: 기존 계산 뒤에 타이틀이면 화면비에 맞춘다
   const baseDims = MobileField.dimensions.bind(MobileField);
   MobileField.dimensions = function () { baseDims(); TitleFill.apply(); };
+  const baseContext = MobileField.portraitContext.bind(MobileField);
+  MobileField.portraitContext = function () { return baseContext() || (TitleFill.active() && UI.busy()); };
+  // Desktop / legacy controls keep their original dialog geometry, centred over
+  // the full-size title. Portrait touch menus already have their own layout.
+  function overlayBox() {
+    const scale = Math.min(W / 960, H / 640);
+    return {scale,x:(W-960*scale)/2,y:(H-640*scale)/2};
+  }
+  const baseUIDraw = UI.draw.bind(UI);
+  UI.draw = function () {
+    if(!TitleFill.active() || !UI.busy() || MobileField.portrait) return baseUIDraw();
+    const b=overlayBox(),width=W,height=H;
+    ctx.save();ctx.translate(b.x,b.y);ctx.scale(b.scale,b.scale);
+    try{W=960;H=640;return baseUIDraw();}finally{W=width;H=height;ctx.restore();}
+  };
+  const basePoint = toLogical;
+  toLogical = function (e) {
+    const p=basePoint(e);
+    if(!TitleFill.active() || !UI.busy() || MobileField.portrait) return p;
+    const b=overlayBox();return {x:(p.x-b.x)/b.scale,y:(p.y-b.y)/b.scale};
+  };
   // 타이틀 ↔ 다른 장면(또는 타이틀 위 창)으로 바뀌면 크기를 다시 계산한다
   const baseSync = MobileField.sync.bind(MobileField);
   MobileField.sync = function () {
@@ -28,9 +49,10 @@
     if (TitleFill.active() !== TitleFill.on) resize();
     // 타이틀에서는 화면을 직접 눌러 고르므로 방향키·A·B 터치 패드를 숨긴다 (글자·메뉴를 가리지 않게)
     document.body.classList.toggle('title-screen', TitleFill.on);
+    document.body.classList.toggle('title-ui', TitleFill.on && UI.busy());
   };
   const st = document.createElement('style');
-  st.textContent = 'body.title-screen #touchpad, body.title-screen #mobile-field { display: none !important; }';
+  st.textContent = 'body.title-screen #touchpad, body.title-screen:not(.title-ui) #mobile-field { display: none !important; }';
   document.head.appendChild(st);
 
   // ---- 화면비에 맞춘 타이틀 그리기 ----
