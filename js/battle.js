@@ -117,7 +117,7 @@ class Battle {
     // 코어 투척
     this.meV.show = true; this.meV.x = 0; this.meV.a = 0; this.meV.sc = 0.2;
     this.hudMe.hp = m.hp; this.hudMe.exp = m.expRatio();
-    if (first) { tween(this.cmdV, { x: -460 }, 700, Ease.inQuad); await this.throwCore({ x: ME_BOX.cx + 40, y: 360 }, this.mePos(), 'core', 380); }
+    if (first) { tween(this.cmdV, { x: -460 }, 700, Ease.inQuad); await this.throwCore({ x: ME_BOX.cx + 40, y: ME_BOX.base - 212 }, this.mePos(), 'core', 380); }
     else await this.throwCore({ x: 60, y: 600 }, this.mePos(), 'core', 380);
     this.ball = null;
     this.burst(this.mePos(), ['#5ff4ff', '#fff'], 26);
@@ -520,7 +520,7 @@ class Battle {
     if (a >= 255) shakes = 4;
     else { const b = 65536 / Math.pow(255 / Math.max(1, a), 0.1875); for (let i = 0; i < 4; i++) { if (Math.random() * 65536 < b) shakes++; else break; } }
     // 투척 연출
-    await this.throwCore({ x: 120, y: 560 }, { x: FOE_BOX.cx, y: FOE_BOX.base - 140 }, id, 520);
+    await this.throwCore({ x: 120, y: ME_BOX.base - 12 }, { x: FOE_BOX.cx, y: FOE_BOX.base - 140 }, id, 520);
     Audio2.sfx('shine', 0.7);
     FX.doFlash('#bff6ff', 0.6);
     this.burst({ x: FOE_BOX.cx, y: FOE_BOX.base - 140 }, ['#5ff4ff', '#fff'], 30, 260);
@@ -860,7 +860,7 @@ class Battle {
     this.platform(FOE_BOX.cx + this.foeV.x * 0, FOE_BOX.base, 210, 46, this.introT);
     this.platform(ME_BOX.cx, ME_BOX.base - 90, 250, 54, this.introT);
     // 트레이너
-    if (this.trainer && this.trV.a > 0) drawFit(IMG.full[this.trainer.portrait], FOE_BOX.cx - 190 + this.trV.x, 30, 380, 300, { anchor: 'bottom', alpha: this.trV.a, flip: typeof artFlip === 'function' && artFlip(this.trainer.portrait, 'L') });
+    if (this.trainer && this.trV.a > 0) drawFit(IMG.full[this.trainer.portrait], FOE_BOX.cx - 190 + this.trV.x, FOE_BOX.base - 288, 380, 300, { anchor: 'bottom', alpha: this.trV.a, flip: typeof artFlip === 'function' && artFlip(this.trainer.portrait, 'L') });
     // 유닛
     if(this._fxActor==='foe') {
       if(this.me) this.drawMon(this.me,this.meV,ME_BOX,true);
@@ -1001,7 +1001,7 @@ class Battle {
   }
   drawHudMe() {
     const m = this.me; if (!m || this.hudMe.a <= 0) return;
-    const a = this.hudMe.a, x = 540 + (1 - a) * 300, y = 352, w = 400, h = 118;
+    const a = this.hudMe.a, x = 540 + (1 - a) * 300, y = ME_BOX.base - 220, w = 400, h = 118;
     ctx.save(); ctx.globalAlpha = a;
     panel(x, y, w, h, { c: 12 });
     txt(m.name, x + 20, y + 34, { size: 23, weight: 900 });
@@ -1115,7 +1115,7 @@ class Battle {
   }
   drawCutIn() {
     const k = this.cut.t, a = k < 0.15 ? k / 0.15 : k > 0.85 ? (1 - k) / 0.15 : 1, sx = (1 - Math.min(1, k / 0.2)) * -300;
-    ctx.save(); ctx.globalAlpha = a;
+    ctx.save(); ctx.globalAlpha = a; ctx.translate(0, Math.round((H - 640) / 2));
     ctx.fillStyle = 'rgba(5,15,30,0.82)'; ctx.beginPath(); ctx.moveTo(0, 190); ctx.lineTo(W, 150); ctx.lineTo(W, 330); ctx.lineTo(0, 370); ctx.closePath(); ctx.fill();
     ctx.fillStyle = '#ffb22e'; ctx.fillRect(0, 186, W, 3); ctx.fillRect(0, 368, W, 3);
     for (let i = 0; i < 14; i++) { const yy = 200 + i * 12, xx = ((Tick.time * 900 + i * 173) % (W + 300)) - 150; ctx.fillStyle = 'rgba(255,178,46,0.25)'; ctx.fillRect(xx, yy, 120, 2); }
