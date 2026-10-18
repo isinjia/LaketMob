@@ -14,7 +14,7 @@
     t0: Date.now(),
     mark(s) {
       this.cur.steps.push(((Date.now() - this.t0) / 1000).toFixed(1) + 's ' + s);
-      if (this.cur.steps.length > 10) this.cur.steps.shift();
+      if (this.cur.steps.length > 14) this.cur.steps.shift();
       this.save();
     },
     save() { try { localStorage.setItem(K, JSON.stringify(this.cur)); } catch (e) { } },
@@ -28,7 +28,20 @@
 
   // 주요 단계 기록
   const baseLoad = World.load.bind(World);
-  World.load = function (id, ...a) { D.mark('map ' + id + ' 시작'); const r = baseLoad(id, ...a); D.mark('map ' + id + ' 완료'); return r; };
+  World.load = function (id, ...a) { D.mark('map ' + id + ' 시작'); const r = baseLoad(id, ...a); D.mark('map ' + id + ' 완료'); D.trace = 300; D.fn = 0; return r; };
+  // 맵 진입 직후 몇 초는 프레임 단계까지 기록한다 (어느 단계에서 꺼지는지)
+  const ph = s => { if (D.trace > 0) { D.cur.f = 'f' + D.fn + ' ' + s; D.save(); } };
+  const baseDraw0 = World.draw.bind(World);
+  World.draw = function () { if (D.trace > 0) { D.trace--; D.fn++; } ph('draw 시작'); const r = baseDraw0(); ph('draw 끝'); return r; };
+  if (typeof SDF !== 'undefined') {
+    const baseRF = SDF.renderFrame.bind(SDF);
+    SDF.renderFrame = function (items, dt) { ph('SD 렌더 ' + items.map(i => i.key).join(',')); const r = baseRF(items, dt); ph('SD 렌더 끝'); return r; };
+  }
+  if (window.SD && SD.prepare) {
+    const baseP = SD.prepare;
+    SD.prepare = function (id) { D.mark('SD 준비 ' + id); return baseP.call(SD, id).then(t => { D.mark('SD 완료 ' + id + (t ? '' : ' 실패')); return t; }); };
+  }
+  if (typeof Audio2 !== 'undefined') for (const k of ['bgm', 'ambient']) { const b = Audio2[k]; if (typeof b === 'function') Audio2[k] = function (n) { D.mark(k + ' ' + n); return b.apply(this, arguments); }; }
   const baseCont = window.continueGame;
   window.continueGame = function () { D.mark('이어하기'); return baseCont.apply(this, arguments); };
   const baseNew = window.newGame;
@@ -47,7 +60,7 @@
   TitleScene.prototype.draw = function () {
     baseDraw.call(this);
     const p = D.prev; if (!p) return;
-    const lines = ['[직전 실행이 비정상 종료됨] ' + p.v + ' dpr' + p.dpr + ' mem' + p.dm, '상태: ' + p.last, ...p.steps.slice(-6), ...p.errs.map(e => '에러: ' + e)];
+    const lines = ['[직전 실행이 비정상 종료됨] ' + p.v + ' dpr' + p.dpr + ' mem' + p.dm, '상태: ' + p.last, '프레임: ' + (p.f || '-'), ...p.steps.slice(-12), ...p.errs.map(e => '에러: ' + e)];
     const lh = 15, h = lines.length * lh + 12;
     ctx.save(); ctx.fillStyle = 'rgba(0,0,0,0.78)'; ctx.fillRect(6, 6, W - 12, h); ctx.restore();
     lines.forEach((s, i) => txt(s, 12, 22 + i * lh, { size: 11, color: i ? '#ffd6a0' : '#ff8a80', shadow: false }));
