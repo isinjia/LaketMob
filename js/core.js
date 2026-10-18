@@ -363,11 +363,14 @@ document.addEventListener('visibilitychange', () => { try { Audio2.setHidden(doc
 const IMG = { full: {}, icon: {}, bg: {}, room: {}, bld: {} };
 const _lazy = {};
 // 필요할 때 불러오는 이미지 (스킨 진화 형태 / 중파 일러스트)
+// 같은 파일명으로 교체한 그림은 브라우저 캐시에 옛 그림이 남으므로 여기에 번호를 올려 새로 받게 한다
+const ASSET_REV = { 'full/constantia': 2 };
+const assetUrl = (cat, name) => 'assets/' + cat + '/' + name + '.webp' + (ASSET_REV[cat + '/' + name] ? '?r=' + ASSET_REV[cat + '/' + name] : '');
 function lazyImg(cat, name) {
   const im = IMG[cat][name];
   if (im) return im._bad ? null : im;
   const k = cat + '/' + name;
-  if (!_lazy[k]) { _lazy[k] = 1; loadImage('assets/' + cat + '/' + name + '.webp').then(i => { IMG[cat][name] = i; }); }
+  if (!_lazy[k]) { _lazy[k] = 1; loadImage(assetUrl(cat, name)).then(i => { IMG[cat][name] = i; }); }
   return null;
 }
 function loadImage(src) {
@@ -377,7 +380,7 @@ async function loadAssets(onProgress) {
   const jobs = [];
   const keys = Object.keys(ASSET_SIZES);
   for (const k of keys) {
-    jobs.push(['full', k, 'assets/full/' + k + '.webp']);
+    jobs.push(['full', k, assetUrl('full', k)]);
     jobs.push(['icon', k, 'assets/icon/' + k + '.webp']);
   }
   for (const b of ['base', 'route', 'forest', 'town', 'coast', 'cliff', 'nest', 'nightcliff', 'lighttower', 'hangar', 'camp', 'beach', 'sky', 'hospital', 'px'])
