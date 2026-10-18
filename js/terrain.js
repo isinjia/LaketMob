@@ -237,13 +237,21 @@ const Terrain = (() => {
     g.fillStyle = col; g.beginPath(); g.ellipse(x, y, r * 1.1, r * 0.75, 0, 0, 7); g.fill();
     g.fillStyle = 'rgba(255,255,255,0.3)'; g.beginPath(); g.ellipse(x - r * 0.3, y - r * 0.25, r * 0.4, r * 0.25, 0, 0, 7); g.fill();
   }
-  function softShadow(g, fn, blur, alpha) {
-    g.save(); g.globalAlpha = alpha; try { g.filter = 'blur(' + blur + 'px)'; } catch (e) { } g.fillStyle = '#000'; fn(g); g.restore();
+  // 큰 지형 캔버스 전체에 blur 필터를 걸면 일부 안드로이드 폰에서 탭이 꺼진다(1번 폐도로 진입 크래시).
+  // 그림자는 월드 1/2 해상도의 작은 캔버스에 그려 흐린 뒤 확대해 얹는다 (흐린 그림자라 차이가 거의 없다)
+  function softShadow(g, fn, blur, alpha, cw, ch, S) {
+    const k = 0.5, sc = document.createElement('canvas'); sc.width = Math.ceil(cw * k); sc.height = Math.ceil(ch * k);
+    const sg = sc.getContext('2d'); sg.setTransform(k, 0, 0, k, 0, 0); sg.fillStyle = '#000'; fn(sg);
+    const b = document.createElement('canvas'); b.width = sc.width; b.height = sc.height;
+    const bg = b.getContext('2d'); try { bg.filter = 'blur(' + Math.max(1, blur / S * k * 2).toFixed(2) + 'px)'; } catch (e) { } bg.drawImage(sc, 0, 0);
+    g.save(); g.globalAlpha = alpha; g.imageSmoothingEnabled = true; g.drawImage(b, 0, 0, cw, ch); g.restore();
+    sc.width = sc.height = b.width = b.height = 0;
   }
 
   function build(world, th) {
-    const S = Math.min(SCALE, 2);
     const cw = world.w * TILE, ch = world.h * TILE;
+    // 폰: 긴 맵(1번 폐도로 24×40)은 지형 캔버스가 수백만 px이 되므로 약 450만 px로 묶는다
+    const S = Math.min(SCALE, 2, LOW_MEM ? Math.sqrt(4.5e6 / (cw * ch)) : 9);
     const c = document.createElement('canvas'); c.width = Math.ceil(cw * S); c.height = Math.ceil(ch * S);
     const g = c.getContext('2d');
     const tmp = document.createElement('canvas'); tmp.width = c.width; tmp.height = c.height;
@@ -356,7 +364,7 @@ const Terrain = (() => {
         else if (c === 'r' || c === 'b') { s.beginPath(); s.ellipse(x * TILE + 32, y * TILE + 42, 20, 8, 0.3, 0, 7); s.fill(); }
       }
       for (const b of world.buildings) { s.beginPath(); s.moveTo(b.x * TILE + 10, (b.y + b.h) * TILE - 6); s.lineTo((b.x + b.w) * TILE + 6, (b.y + b.h) * TILE - 6); s.lineTo((b.x + b.w) * TILE + 30, (b.y + b.h) * TILE + 14); s.lineTo(b.x * TILE + 34, (b.y + b.h) * TILE + 14); s.closePath(); s.fill(); }
-    }, 5, nest ? 0.4 : 0.22);
+    }, 5, nest ? 0.4 : 0.22, cw, ch, S);
     // 소품 (기존 타일 그리기에서 바닥을 제외하고)
     for (let y = 0; y < world.h; y++) for (let x = 0; x < world.w; x++) drawProps(g, world, x, y, th);
     return { canvas: c, S };
