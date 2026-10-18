@@ -11,7 +11,7 @@ const SDF = {
     try {
       if (typeof THREE === 'undefined' || !window.SD) return;
       this.canvas = document.createElement('canvas');
-      this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, alpha: true, antialias: true, premultipliedAlpha: true });
+      this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, alpha: true, antialias: !LOW_MEM, premultipliedAlpha: true });
       this.renderer.setPixelRatio(1);
       this.renderer.setSize(this.COLS * this.CW * this.R, this.ROWS * this.CH * this.R, false);
       this.renderer.setClearColor(0x000000, 0);

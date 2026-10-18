@@ -12,7 +12,7 @@ const BFX = {
       if (typeof THREE === 'undefined' || !window.FXB || !window.FX || !window.FX.init || !window.FX_IMAGES_SRC) return;
       this.P = window.FX; // 파티클 (core.js 의 FX 와 이름이 같아 window 로 접근)
       this.canvas = document.createElement('canvas');
-      this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, alpha: true, antialias: true, premultipliedAlpha: true });
+      this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, alpha: true, antialias: !LOW_MEM, premultipliedAlpha: true });
       this.renderer.setPixelRatio(1);
       this.renderer.setClearColor(0x000000, 0);
       this.resize();

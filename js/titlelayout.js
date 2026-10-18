@@ -7,7 +7,7 @@
 (function () {
   const TitleFill = window.TitleFill = {
     on: false,
-    active() { return typeof Scene !== 'undefined' && Scene instanceof TitleScene; },
+    active() { return typeof Scene !== 'undefined' && (Scene instanceof TitleScene || Scene instanceof LoadingScene); }, // 로딩 화면도 화면 전체에,
     apply() {
       this.on = this.active();
       if (!this.on) return;
