@@ -693,6 +693,8 @@ class PCScreen {
 class PauseMenu {
   constructor() {
     this.items = [['퀘스트', 'quest'], ['도감', 'dex'], ['부대', 'party'], ['가방', 'bag'], ['사령관 카드', 'card'], ['상성표', 'chart'], ['저장', 'save'], ['설정', 'settings'], ['조작법', 'help'], ['타이틀로', 'title'], ['닫기', 'close']];
+    // 전술 귀환 장치를 받으면 '지도'(가 본 마을로 순간이동)가 생긴다
+    if (Game.flags.warpKit && typeof MapScreen !== 'undefined') this.items.splice(4, 0, ['지도', 'map']);
     this.nav = new ListNav(this.items.length, { start: PauseMenu.last || 0 });
   }
   async update(dt) {
@@ -712,6 +714,7 @@ class PauseMenu {
       if (k === 'dex') await UI.push(new DexScreen());
       if (k === 'party') await UI.push(new PartyScreen('view'));
       if (k === 'bag') await UI.push(new BagScreen('field'));
+      if (k === 'map') await UI.push(new MapScreen());
       if (k === 'card') await UI.push(new CardScreen());
       if (k === 'chart') await UI.push(new TypeChartScreen());
       if (k === 'settings') await UI.push(new SettingsScreen());
@@ -755,6 +758,7 @@ function menuGlyph(k, cx, cy, on) {
   else if (k === 'bag') { rrect(-10, -7, 20, 17, 3); ctx.stroke(); ctx.beginPath(); ctx.arc(0, -7, 5, Math.PI, 0); ctx.stroke(); }
   else if (k === 'card') { rrect(-12, -8, 24, 16, 2); ctx.stroke(); ctx.beginPath(); ctx.arc(-5, -1, 3, 0, 7); ctx.fill(); ctx.fillRect(1, -3, 8, 2); ctx.fillRect(1, 2, 6, 2); }
   else if (k === 'chart') { for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) ctx.fillRect(-10 + i * 7, -10 + j * 7, 5, 5); }
+  else if (k === 'map') { ctx.beginPath(); ctx.moveTo(-11, -8); ctx.lineTo(-4, -11); ctx.lineTo(4, -8); ctx.lineTo(11, -11); ctx.lineTo(11, 8); ctx.lineTo(4, 11); ctx.lineTo(-4, 8); ctx.lineTo(-11, 11); ctx.closePath(); ctx.stroke(); ctx.beginPath(); ctx.moveTo(-4, -11); ctx.lineTo(-4, 8); ctx.moveTo(4, -8); ctx.lineTo(4, 11); ctx.stroke(); }
   else if (k === 'save') { rrect(-10, -10, 20, 20, 2); ctx.stroke(); ctx.fillRect(-5, -10, 10, 7); }
   else if (k === 'quest') { ctx.font = font(22, 900, TITLE_FONT); ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = on ? '#ffd23a' : '#b89a3a'; ctx.fillText('!', -4, 1); ctx.fillStyle = on ? '#dfe7f0' : '#7f8a96'; ctx.fillText('?', 6, 1); ctx.textBaseline = 'alphabetic'; }
   else if (k === 'help') { rrect(-12, -8, 24, 16, 3); ctx.stroke(); for (let i = 0; i < 4; i++) ctx.fillRect(-8 + i * 5, -4, 3, 3); ctx.fillRect(-6, 2, 12, 3); }

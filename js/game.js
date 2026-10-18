@@ -64,7 +64,7 @@ class Mon {
 //  게임 상태
 // ---------------------------------------------------------------------
 const SAVE_KEY = 'racketmon_save_v1';
-const GAME_VERSION = 'v0.30';
+const GAME_VERSION = 'v0.31';
 const Game = {
   party: [], box: [], bag: {}, money: 3000, dex: { seen: {}, caught: {} }, flags: {}, badges: [], stats: {}, taken: {}, quests: {},
   map: 'lab', px: 6, py: 6, dir: 'up', playTime: 0, lastHeal: ['center1', 7, 7, 'up'], pendingPromote: new Set(),
@@ -391,10 +391,11 @@ const Scripts = {
     const o = { speaker: '라비아타', portrait: 'labiata' };
     Audio2.voice('labiata', 'talk');
     await say('좋은 선택이에요! 그 아이라면 분명 사령관님을 지켜 줄 거예요.', o);
-    await say('이건 제 선물이에요. 바이오로이드 도감과 링크 코어, 수복 키트예요.', o);
+    await say('이건 제 선물이에요. 바이오로이드 도감과 링크 코어, 수복 키트, 그리고 전술 귀환 장치예요.', o);
     Audio2.sfx('item_get', 0.8);
-    Game.addItem('core', 5); Game.addItem('kit', 3);
-    await say('사령관은 바이오로이드 도감, 링크 코어 ×5, 수복 키트 ×3을 받았다!');
+    Game.addItem('core', 30); Game.addItem('kit', 3); Game.flags.warpKit = 1;
+    await say('사령관은 바이오로이드 도감, 링크 코어 ×30, 수복 키트 ×3, 전술 귀환 장치를 받았다!');
+    await say('귀환 장치가 있으면 메뉴의 「지도」에서 한 번 가 본 마을로 언제든 순간이동할 수 있어요.', o);
     await say('도감은 메뉴(X 키)에서 볼 수 있어요. 수풀에서 만난 바이오로이드는 자동으로 기록된답니다.', o);
     await say('레모네이드 일곱 자매가 관장 협회를 열었어요. 첫 관장 감마 씨는 경장·기동·중장 부대를 차례로 내보낸대요.', o);
     await say('1번 폐도로에서 브라우니는 기동에, 실피드는 중장에 강해요. 서로 다른 병종을 영입하면 첫 부대원의 약점을 메울 수 있어요.', o);
