@@ -30,8 +30,9 @@ const SDF = {
     const st = this.status[key];
     if (st === 'ok') return true;
     if (!st) {
+      // 폰: 여러 리그를 동시에 디코드·업로드하면 일부 기기에서 탭이 꺼져 하나씩 차례로 준비한다
       this.status[key] = 'loading';
-      SD.prepare(key).then(t => { this.status[key] = t ? 'ok' : 'fail'; }).catch(() => { this.status[key] = 'fail'; });
+      this.queue = (this.queue || Promise.resolve()).then(() => SD.prepare(key)).then(t => { this.status[key] = t ? 'ok' : 'fail'; }, () => { this.status[key] = 'fail'; });
     }
     return false;
   },

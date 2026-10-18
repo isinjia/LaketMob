@@ -26,6 +26,15 @@
   document.addEventListener('visibilitychange', () => { D.cur.clean = document.hidden ? 1 : 0; D.save(); });
   D.mark('boot');
 
+  // SD 안전 모드: 직전 실행이 SD 리그 준비·렌더 중에 꺼졌으면 이 버전에서는 SD 대신 아이콘 스탠디로 그린다
+  // (버전이 바뀌면 다시 SD를 시도한다)
+  try {
+    const p = D.prev;
+    if (p && p.v === GAME_VERSION && ((p.f || '').includes('SD') || p.steps.slice(-4).some(s => s.includes('SD 준비')))) localStorage.setItem('rm_sdoff', GAME_VERSION);
+    D.sdOff = localStorage.getItem('rm_sdoff') === GAME_VERSION;
+  } catch (e) { }
+  if (D.sdOff && typeof SDF !== 'undefined') { SDF.init = function () { this.ok = false; }; D.mark('SD 안전 모드'); }
+
   // 주요 단계 기록
   const baseLoad = World.load.bind(World);
   World.load = function (id, ...a) { D.mark('map ' + id + ' 시작'); const r = baseLoad(id, ...a); D.mark('map ' + id + ' 완료'); D.trace = 300; D.fn = 0; return r; };
@@ -59,6 +68,7 @@
   const baseDraw = TitleScene.prototype.draw;
   TitleScene.prototype.draw = function () {
     baseDraw.call(this);
+    if (D.sdOff) txt('SD 안전 모드 (직전 크래시로 SD 캐릭터 대신 아이콘 표시)', 12, H - 44, { size: 12, color: '#ffd6a0' });
     const p = D.prev; if (!p) return;
     const lines = ['[직전 실행이 비정상 종료됨] ' + p.v + ' dpr' + p.dpr + ' mem' + p.dm, '상태: ' + p.last, '프레임: ' + (p.f || '-'), ...p.steps.slice(-12), ...p.errs.map(e => '에러: ' + e)];
     const lh = 15, h = lines.length * lh + 12;
