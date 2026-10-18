@@ -60,6 +60,8 @@
   const HIDE = ['drawHudFoe', 'drawHudMe', 'drawTeamDots', 'drawCommand', 'drawMoves'];
   const baseDraw = Battle.prototype.draw;
   Battle.prototype.draw = function () {
+    // 세로는 2×2 버튼이므로 방향 이동도 2열로 (가로는 원래 4열 한 줄)
+    for (const n of [this.menuNav, this.moveNav]) if (n) { if (n._cols == null) n._cols = n.cols; n.cols = BF.on ? 2 : n._cols; }
     if (!BF.on) return baseDraw.call(this);
     const s = W / 960;
     // 장면: 가상 좌표에서 그리고 축소 (HUD·명령은 아래에서 540 좌표로 따로 그린다)
@@ -82,6 +84,45 @@
     const f = Battle.prototype[k]; if (typeof f !== 'function') continue;
     Battle.prototype[k] = function () { return BF.virt(() => f.apply(this, arguments)); };
   }
+
+  // ---- 한손 제스처: 버튼은 그대로 누르고, 빈 곳을 탭하면 지금 고른 항목 선택, 상하좌우로 밀면 커서 이동 ----
+  // 대상: 세로 전투의 명령·기술 메뉴, 대화 중 선택지(Choice)
+  function gestureTarget() {
+    if (!MobileField.enabled() || !MobileField.portrait) return null;
+    const top = UI.top();
+    if (top instanceof Choice) return { navs: [top.nav], extra: top._touch || [], choice: true };
+    if (BF.on && !UI.busy() && Scene && (Scene.mode === 'command' || Scene.mode === 'move')) {
+      const b = Scene;
+      return { navs: [b.mode === 'command' ? b.menuNav : b.moveNav], extra: b.mode === 'move' ? [b._backRect, b.orderRect].filter(Boolean) : [] };
+    }
+    return null;
+  }
+  let g = null;
+  window.addEventListener('pointerdown', e => {
+    if (e.pointerType === 'mouse' || e.target !== canvas) return;
+    const t = gestureTarget(); if (!t) return;
+    e.preventDefault(); e.stopImmediatePropagation(); // 기존 탭·드래그 처리 대신 여기서 처리 (중복 선택 방지)
+    try { canvas.setPointerCapture(e.pointerId); } catch (_) { }
+    Audio2.unlock();
+    g = { id: e.pointerId, x: e.clientX, y: e.clientY };
+  }, { capture: true, passive: false });
+  window.addEventListener('pointerup', e => {
+    if (!g || e.pointerId !== g.id) return;
+    e.stopImmediatePropagation();
+    const dx = e.clientX - g.x, dy = e.clientY - g.y, t = gestureTarget(); g = null;
+    if (!t) return;
+    if (Math.hypot(dx, dy) >= 30) {
+      let dir = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up');
+      if (t.choice && (dir === 'left' || dir === 'right')) dir = dir === 'left' ? 'up' : 'down'; // 선택지는 한 줄 목록
+      MobileField.pulse(dir);
+      return;
+    }
+    const r = canvas.getBoundingClientRect(), p = { x: (e.clientX - r.left) / r.width * W, y: (e.clientY - r.top) / r.height * H };
+    const inside = q => q && p.x >= q.x && p.x <= q.x + q.w && p.y >= q.y && p.y <= q.y + q.h;
+    const hit = t.navs.some(n => n && n.rects.some(inside)) || t.extra.some(inside);
+    if (hit) Input.mouse.click = p; else MobileField.pulse('a');
+  }, { capture: true, passive: true });
+  for (const ev of ['pointercancel', 'lostpointercapture']) window.addEventListener(ev, e => { if (g && e.pointerId === g.id) g = null; }, { capture: true });
 
   function hp(x, y, w, cur, max) {
     txt('HP', x, y + 12, { size: 15, weight: 900, color: UI_COL.accent });
