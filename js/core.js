@@ -16,7 +16,8 @@ function resize() {
   if (window.MobileField) MobileField.dimensions();
   const fit = Math.min(vw / W, vh / H);
   const dpr = window.devicePixelRatio || 1;
-  SCALE = Math.max(1, Math.min(2.5, fit * dpr));
+  // 폰은 화면 버퍼·지형 레이어가 해상도 제곱으로 커져 메모리 초과로 탭이 꺼지므로 렌더 배율을 1.6으로 묶는다
+  SCALE = Math.max(1, Math.min(LOW_MEM ? 1.6 : 2.5, fit * dpr));
   canvas.width = Math.round(W * SCALE);
   canvas.height = Math.round(H * SCALE);
   canvas.style.width = Math.floor(W * fit) + 'px';
