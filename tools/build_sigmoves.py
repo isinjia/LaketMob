@@ -99,6 +99,16 @@ GENERIC = {
     'achem': {'name': '공중 살포', 'type': 'air', 'cat': 'atk', 'pow': 55, 'acc': 100, 'pp': 25, 'eff': {'foeDef': 0.2}, 'fx': 'acid', 'desc': '공중에서 약품을 흩뿌려 상대를 덮친다. 상대의 방어를 떨어뜨릴 때가 있다.'},
     'lbreak': {'name': '전력 돌파', 'type': 'light', 'cat': 'atk', 'pow': 115, 'acc': 95, 'pp': 5, 'recoil': 0.25, 'fx': 'dash', 'desc': '몸을 아끼지 않고 정면으로 부딪쳐 꿰뚫고 나간다. 반동을 받는다.'},
     'hbreak': {'name': '갑옷 분쇄', 'type': 'heavy', 'cat': 'atk', 'pow': 120, 'acc': 90, 'pp': 5, 'recoil': 0.25, 'fx': 'smash', 'desc': '온몸의 출력을 실어 내리찍어 장갑째 부순다. 반동을 받는다.'},
+    'lunge': {'name': '파고들기', 'type': 'light', 'cat': 'atk', 'pow': 55, 'acc': 100, 'pp': 25, 'eff': {'foeDef': 0.2}, 'fx': 'dash', 'desc': '단숨에 품으로 파고들어 날을 찔러 넣는다. 상대의 방어를 떨어뜨릴 때가 있다.'},
+    'twinslash': {'name': '연속 베기', 'type': 'light', 'cat': 'atk', 'pow': 30, 'hits': [2, 3], 'acc': 100, 'pp': 15, 'fx': 'slash3', 'desc': '날을 되돌려 2~3회 연달아 벤다.'},
+    'bleed': {'name': '깊게 베기', 'type': 'light', 'cat': 'atk', 'pow': 70, 'acc': 100, 'pp': 15, 'eff': {'foeAtk': 0.3}, 'fx': 'slash', 'desc': '힘줄을 노려 깊게 베어 낸다. 상대의 공격을 떨어뜨릴 때가 있다.'},
+    'doubletap': {'name': '점사', 'type': 'light', 'cat': 'atk', 'pow': 30, 'hits': [2, 2], 'acc': 100, 'pp': 25, 'fx': 'bullet', 'desc': '두 발씩 끊어 쏘아 같은 곳을 두 번 맞힌다.'},
+    'lsweep': {'name': '소탕 사격', 'type': 'light', 'cat': 'atk', 'pow': 95, 'acc': 95, 'pp': 5, 'area': 1, 'fx': 'bullets', 'desc': '탄창을 갈아 끼우며 일대를 쓸어 버린다.'},
+    'aburst': {'name': '기총 연사', 'type': 'air', 'cat': 'atk', 'pow': 25, 'hits': [2, 3], 'acc': 95, 'pp': 20, 'fx': 'bullets', 'desc': '스쳐 지나가며 기총을 2~3회 끊어 쏜다.'},
+    'carpet': {'name': '융단 폭격', 'type': 'air', 'cat': 'atk', 'pow': 95, 'acc': 90, 'pp': 5, 'area': 1, 'fx': 'bombs', 'desc': '편대를 짜 지상을 빈틈없이 폭격한다.'},
+    'hstomp': {'name': '짓밟기', 'type': 'heavy', 'cat': 'atk', 'pow': 65, 'acc': 100, 'pp': 20, 'eff': {'foeSpd': 0.3}, 'fx': 'smash', 'desc': '육중한 다리로 짓밟아 움직임을 묶는다. 상대의 속도를 떨어뜨릴 때가 있다.'},
+    'hshellap': {'name': '철갑 포탄', 'type': 'heavy', 'cat': 'atk', 'pow': 60, 'acc': 95, 'pp': 25, 'eff': {'foeDef': 0.2}, 'fx': 'shell', 'desc': '철갑 포탄을 쏘아 장갑을 깎는다. 상대의 방어를 떨어뜨릴 때가 있다.'},
+    'hsalvo': {'name': '연속 포격', 'type': 'heavy', 'cat': 'atk', 'pow': 35, 'hits': [2, 3], 'acc': 90, 'pp': 10, 'fx': 'barrage', 'desc': '포문을 번갈아 2~3회 쏘아 댄다.'},
     'provoke': {'name': '도발', 'type': 'phys', 'cat': 'st', 'acc': 0, 'pp': 20, 'self': {'def': 1}, 'foe': {'atk': -1}, 'fx': 'debuff', 'desc': '일부러 앞으로 나서 적의 공격을 끌어낸다. 자신의 방어가 오르고 상대의 공격이 떨어진다.'},
     'lcover': {'name': '엄폐', 'type': 'light', 'cat': 'st', 'acc': 0, 'pp': 15, 'self': {'def': 1}, 'heal': 0.25, 'fx': 'shield', 'desc': '엄폐물 뒤로 몸을 숨겨 숨을 고른다. 방어가 오르고 HP를 조금 회복한다.'},
     'evade': {'name': '회피 기동', 'type': 'air', 'cat': 'st', 'acc': 0, 'pp': 15, 'self': {'def': 1, 'spd': 1}, 'heal': 0.2, 'fx': 'buff', 'desc': '급선회로 적의 조준을 흐트러뜨린다. 방어와 속도가 오르고 HP를 조금 회복한다.'},
@@ -247,9 +257,24 @@ def mech_move(u, p):
     return m
 
 
+GUARD_TEXT = ['몸을 낮춰 공격을 받아낼 태세를 갖춘다. 방어가 오르고 상대의 공격이 떨어지며 HP를 조금 회복한다.',
+              '동료 앞을 막아서며 반격할 틈을 노린다. 방어가 오르고 상대의 공격이 떨어지며 HP를 조금 회복한다.',
+              '자세를 다잡고 버티며 적의 기세를 꺾는다. 방어가 오르고 상대의 공격이 떨어지며 HP를 조금 회복한다.']
+MECH_FIX = {
+    'harpy': {'cat': 'st', 'self': {'spd': 2, 'acc': 1}, 'fx': 'buff', 'desc': '스텔스 기동으로 레이더에서 사라졌다가 유리한 각도를 잡는다. 속도가 크게 오르고 명중이 오른다.'},
+    'cheona': {'cat': 'st', 'self': {'spd': 1, 'atk': 1}, 'fx': 'smoke', 'desc': '그림자에 숨어 기척을 지우고 다음 일격을 노린다. 속도와 공격이 오른다.'},
+    'cocowhiteshell': {'cat': 'st', 'self': {'def': 1}, 'foe': {'atk': -1}, 'fx': 'shield', 'desc': '궤도 장갑판을 겹쳐 받아내고 충격을 되돌린다. 방어가 오르고 상대의 공격이 떨어진다.'},
+}
+
+
 def passive_move(u):
     p = u.get('passive')
     if not p or not p.get('name'): return None
+    if u['key'] in MECH_FIX:
+        p = dict(p, mech=dict(MECH_FIX[u['key']]))
+    elif u['role'] == '보호기' and (p.get('mech') or {}).get('cat') == 'atk':
+        i = sum(map(ord, u['key'])) % len(GUARD_TEXT)
+        p = dict(p, mech={'cat': 'st', 'self': {'def': 1}, 'foe': {'atk': -1}, 'heal': 0.2, 'fx': 'shield', 'desc': GUARD_TEXT[i]})
     if p.get('mech'):
         m = mech_move(u, p)
         if m: return m
@@ -316,7 +341,7 @@ def learnset(u, elem, fam, has3):
         if fam == 'gun': crit = 'snipe' if sniper else {'light': 'lpierce', 'heavy': 'hpierce', 'air': 'apierce'}[cls]
         elif fam == 'blade': crit = {'light': 'vital', 'heavy': 'hcrush', 'air': 'aslash'}[cls]
         elif fam == 'melee': crit = {'light': 'vital', 'heavy': 'hcrush', 'air': 'aslash'}[cls]
-        elif fam == 'energy': crit = {'light': 'lbeam2', 'heavy': 'hpierce', 'air': 'apierce'}[cls]
+        elif fam == 'energy': crit = 'thunder' if elem == 'elec' else {'light': 'lbeam2', 'heavy': 'hpierce', 'air': 'apierce'}[cls]
         else: crit = {'light': 'lpierce', 'heavy': 'hpierce', 'air': 'apierce'}[cls]
         prep = {'gun': 'aimed', 'blast': 'aimed', 'blade': 'quick' if cls == 'light' else 'rally', 'energy': 'charge', 'melee': 'rally', 'chem': 'aimed'}[fam]
         ls = [[1, s1], [1, w[0]], [6, prep], [11, w[1] if not e2 else e[0]], [16, s2], [21, crit], [27, mid], [40, ult]]
@@ -354,6 +379,17 @@ def effect_key(m):
     return json.dumps([m.get('cat'), sign(m.get('self')), sign(m.get('foe')), bool(m.get('heal')), sorted((m.get('eff') or {}).keys()), m.get('status')])
 
 
+ALT = {'quick': 'lunge', 'blade': 'twinslash', 'vital': 'bleed', 'lshot': 'doubletap', 'lfocus': 'lsweep', 'suppress': 'doubletap',
+       'ashot': 'aburst', 'bomb': 'carpet', 'strafe': 'aburst', 'hsmash': 'hstomp', 'shell': 'hshellap', 'barrage': 'hsalvo', 'hmgburst': 'hsalvo'}
+
+
+def variant(key, m):
+    """같은 계열 유닛끼리 공용 세트가 똑같지 않게: 유닛 이름으로 정해지는 한쪽을 고른다."""
+    if m not in ALT: return m
+    h = sum(ord(c) * (i + 1) for i, c in enumerate(key + m))
+    return ALT[m] if h % 2 else m
+
+
 def tidy(u, ls, moves, elems):
     """키트 정리: 고유 기술과 효과가 같은 공용 변화기 빼기, 방어 강화·회복 겹침 줄이기,
     속성 무기 유닛의 총·미사일 공용기를 속성 기술로, 지원기의 공격 마무리기를 빼기."""
@@ -389,7 +425,7 @@ def tidy(u, ls, moves, elems):
                 m = pool.pop(0)
             if u['role'] == '지원기' and lv >= 40:
                 continue  # 지원기는 공격 마무리기 대신 고유 기술과 지원기로 싸운다
-        out.append([lv, m])
+        out.append([lv, variant(u['key'], m) if not m.startswith('sig_') else m])
     seen, res = set(), []
     for lv, m in out:
         if m not in seen: seen.add(m); res.append([lv, m])
@@ -402,8 +438,11 @@ def power(u, med):
     return 0.4 * hp / med['HP'] + 0.4 * st['ATK'] / med['ATK'] + 0.2 * max(st['DEF'], 15) / med['DEF']
 
 
+STAT_FIX = {'goltarion': {'HP': 3900, 'DEF': 300}}  # 본편 표의 골타리온 HP 420 은 자료 오류 (보호기 AGS)
+
+
 def base_stats(u, med, zrank):
-    st = u.get('stat')
+    st = dict(u.get('stat') or {}, **STAT_FIX.get(u['key'], {})) if u.get('stat') else None
     if not st: return None
     hp, atk, de, spd = st['HP'], st['ATK'], st['DEF'], st['SPD']
     if hp < 1000: hp = med['HP']  # 본편 자료 오류(예: 골타리온 HP 420)
@@ -426,7 +465,7 @@ med = {k: statistics.median(u['stat'][k] for u in units if u.get('stat')) for k 
 zrank = {}
 for rk in RANK_TOTAL:
     for role in ('공격기', '보호기', '지원기'):  # 지원기는 본편 능력치가 원래 낮아 역할 안에서 순위를 낸다
-        ps = sorted((power(u, med), u['key']) for u in units if u['rank'] == rk and u['role'] == role and u.get('stat'))
+        ps = sorted((power(u, med), u['key']) for u in units if u['rank'] == rk and u['role'] == role and u.get('stat') and u['key'] not in STARTERS)
         for i, (_, k) in enumerate(ps):
             zrank[k] = (i / max(1, len(ps) - 1)) * 2 - 1
 import re as _re
