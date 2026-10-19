@@ -132,7 +132,7 @@ function interior(w, h, door) {
       { t: 'exit', x: 6, y: 8, to: ['base', 5, 6, 'down'] },
       { t: 'npc', id: 'labiata', sprite: 'labiata', x: 6, y: 2, dir: 'down', name: '라비아타', talk: 'labiata' },
       { t: 'starter', x: 4, y: 4, sp: 'leprechaun' }, { t: 'starter', x: 6, y: 4, sp: 'aqua' }, { t: 'starter', x: 8, y: 4, sp: 'rhode' },
-      { t: 'deco', kind: 'shelf', x: 1, y: 1, w: 2, h: 1 }, { t: 'deco', kind: 'machine', x: 9, y: 1, w: 3, h: 1 }, { t: 'deco', kind: 'shelf', x: 3, y: 1, w: 2, h: 1 },
+      { t: 'deco', kind: 'machine', x: 9, y: 1, w: 3, h: 1 },
     ],
   };
 })();
