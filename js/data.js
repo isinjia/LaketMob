@@ -115,6 +115,13 @@ const MOVES = {
   eternal:  { name: '영원의 섬광', type: 'elec', cat: 'atk', pow: 125, acc: 90, pp: 5, eff: { para: 0.2 }, fx: 'thunder', desc: '이터니티가 다루는 끝없는 빛의 창.' },
   // 레모네이드 전용
   order:    { name: '절대 명령', type: 'elec', cat: 'atk', pow: 90, acc: 100, pp: 5, eff: { para: 0.2 }, fx: 'thunder', desc: '레모네이드 오메가의 절대 명령. 강렬한 전자기 충격이 몰아친다.' },
+  // 램파리온 전용 (용자 로봇)
+  knuckle:  { name: '브로큰 너클', type: 'light', cat: 'atk', pow: 75, acc: 100, pp: 15, fx: 'dash', desc: '회전하는 주먹을 로켓처럼 쏘아 보내 꿰뚫는다. 주먹은 날아서 돌아온다.' },
+  protect:  { name: '프로텍트 월', type: 'light', cat: 'st', acc: 0, pp: 10, self: { def: 2 }, heal: 0.2, fx: 'shield', desc: '왼팔에 방어장을 펼쳐 공격을 받아낸다. 방어가 크게 오르고 HP를 조금 회복.' },
+  drillknee:{ name: '드릴 니', type: 'light', cat: 'atk', pow: 85, acc: 95, pp: 10, crit: 2, fx: 'smash', desc: '무릎의 드릴로 장갑을 뚫는다. 급소에 맞기 쉽다.' },
+  bravefuse:{ name: '용자 합체', type: 'fire', cat: 'st', acc: 0, pp: 5, self: { atk: 1, def: 1, spd: 1 }, fx: 'buff', desc: '사자의 심장에 링크를 잇는 최종 합체. 공격·방어·속도가 모두 오른다.' },
+  shining:  { name: '샤이닝 핸드', type: 'fire', cat: 'atk', pow: 110, acc: 95, pp: 5, eff: { burn: 0.3 }, fx: 'napalm', desc: '불타는 손바닥으로 상대를 움켜쥐고 폭발시킨다. 화상을 입히기 쉽다.' },
+  heavenhell:{ name: '헤븐 앤 헬', type: 'light', cat: 'atk', pow: 150, acc: 95, pp: 3, recoil: 0.2, fx: 'thunder', desc: '파괴와 수호의 힘을 두 손에 모아 하나로 짓눌러 부순다. 램파리온 최강의 필살기. 반동을 받는다.' },
 };
 
 // ---------- 유닛 (도감) ----------
@@ -270,6 +277,15 @@ const SPECIES_LIST = [
 const SPECIES = {};
 SPECIES_LIST.forEach((s, i) => { s.no = i + 1; SPECIES[s.key] = s; });
 const DEX_LIST = SPECIES_LIST.filter(s => s.kind !== 'boss');
+// 원작 표 밖에서 추가한 유닛. 기존 도감 번호를 바꾸지 않도록 roster.js 가 확장 로스터 뒤에 붙인다.
+const EXTRA_SPECIES = [
+  { key: 'rhode', name: '로데', types: ['heavy'], base: [64, 54, 64, 42], rank: 'A', catch: 45, exp: 64, kind: 'bio', faction: '펙스 콘소시엄',
+    moves: [[1, 'shot'], [1, 'guard'], [5, 'shell'], [7, 'repair'], [9, 'taunt'], [13, 'coverfire'], [17, 'fortify'], [22, 'barrage'], [27, 'command'], [33, 'railgun'], [39, 'overload']],
+    desc: '양어깨에 함포 의장을 짊어진 중장형 지원기. 포격으로 전선을 받치고 동료를 수복한다.' },
+  { key: 'lamparion', name: '램파리온', types: ['light', 'fire'], base: [104, 118, 108, 82], rank: 'SS', catch: 5, exp: 250, kind: 'ags', faction: 'AGS', legend: true,
+    moves: [[1, 'tackle'], [1, 'protect'], [1, 'knuckle'], [8, 'drillknee'], [16, 'shining'], [24, 'bravefuse'], [30, 'heavenhell']],
+    desc: '램파트의 전투 데이터로 깨어난 사자형 용자 로봇. 정의를 외치며 싸우고, 두 손으로 하늘과 지옥을 하나로 짓누른다.' },
+];
 
 // ---------- 아이템 ----------
 const ITEMS = {

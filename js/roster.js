@@ -29,6 +29,12 @@ for (const source of EXPANDED_ROSTER) {
   const s = { ...source, moves: ROSTER_MOVE_PROFILES[source.key] || source.moves, no: DEX_LIST.length + 1 };
   SPECIES[s.key] = s; SPECIES_LIST.push(s); DEX_LIST.push(s);
 }
+// 원작 표 밖의 추가 유닛(로데·램파리온)도 같은 방식으로 맨 뒤에 붙인다.
+for (const s of EXTRA_SPECIES) {
+  if (SPECIES[s.key]) continue;
+  s.no = DEX_LIST.length + 1;
+  SPECIES[s.key] = s; SPECIES_LIST.push(s); DEX_LIST.push(s);
+}
 // 각 지역의 기존 조우를 2/3 정도 유지하고 추가 캐릭터를 1/3 확률로 섞는다.
 for (const [area, table] of Object.entries(ENCOUNTERS)) {
   const additions = EXPANDED_ROSTER.filter(s => s.habitat === area && SPECIES[s.key]?.expanded);

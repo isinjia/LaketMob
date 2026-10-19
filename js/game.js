@@ -64,7 +64,7 @@ class Mon {
 //  게임 상태
 // ---------------------------------------------------------------------
 const SAVE_KEY = 'racketmon_save_v1';
-const GAME_VERSION = 'v0.52';
+const GAME_VERSION = 'v0.53';
 const Game = {
   party: [], box: [], bag: {}, money: 3000, dex: { seen: {}, caught: {} }, flags: {}, badges: [], stats: {}, taken: {}, quests: {},
   map: 'lab', px: 6, py: 6, dir: 'up', playTime: 0, lastHeal: ['center1', 7, 7, 'up'], pendingPromote: new Set(),
@@ -381,6 +381,13 @@ const Scripts = {
     const c = await ask(TYPES[sp.types[0]].name + '형 바이오로이드 ' + sp.name + '. ' + J(sp.name, '으로') + ' 결정하시겠어요?', ['결정한다', '다시 생각한다'], { speaker: '라비아타' });
     UI.close(UI.stack.find(w => w instanceof StarterPreview));
     if (c !== 0) return;
+    await this.joinStarter(sp);
+    const o = { speaker: '라비아타', portrait: 'labiata' };
+    Audio2.voice('labiata', 'talk');
+    await say('좋은 선택이에요! 그 아이라면 분명 사령관님을 지켜 줄 거예요.', o);
+    await this.starterGifts(o);
+  },
+  async joinStarter(sp) {
     const m = new Mon(sp.key, 6, { trainer: true });
     m.ot = '사령관';
     Game.addMon(m); Game.markCaught(sp.key);
@@ -388,9 +395,28 @@ const Scripts = {
     Audio2.voice(sp.key, 'join');
     Audio2.jingle([659, 784, 988, 1319, 0, 988, 1319], 0.12, 'square', 0.07);
     await say(J(sp.name, '이') + ' 사령관의 부대에 합류했다!');
+  },
+  // 링크 코어를 고르지 않고 연구소를 나가려 하면 라비아타가 전설 유닛 램파리온을 맡긴다
+  async labExit() {
     const o = { speaker: '라비아타', portrait: 'labiata' };
+    const lab = World.ents.find(x => x.o.id === 'labiata');
+    if (lab) { lab.exclaim = 0.9; lab.dir = 'down'; }
+    Audio2.exclaim();
+    await wait(400);
     Audio2.voice('labiata', 'talk');
-    await say('좋은 선택이에요! 그 아이라면 분명 사령관님을 지켜 줄 거예요.', o);
+    await say('사령관님, 잠깐만요! 빈손으로 나가시면 위험해요.', o);
+    await say('...링크 코어 셋 중에 마음에 드는 아이가 없으셨나요? 후훗, 괜찮아요.', o);
+    await say('그럼 제가 아껴 두던 아이를 맡길게요. 램파트의 전투 데이터로 깨어난 용자 로봇, 램파리온이에요.', o);
+    const sp = SPECIES.lamparion;
+    Audio2.sfx('shine', 0.6);
+    UI.push(new StarterPreview(sp));
+    Audio2.voice(sp.key, 'start');
+    await say('조금 시끄럽지만 정의감만큼은 누구에게도 지지 않아요. 제가 있으니까 너무 걱정 마세요.', o);
+    UI.close(UI.stack.find(w => w instanceof StarterPreview));
+    await this.joinStarter(sp);
+    await this.starterGifts(o);
+  },
+  async starterGifts(o) {
     await say('이건 제 선물이에요. 바이오로이드 도감과 링크 코어, 수복 키트, 그리고 전술 귀환 장치예요.', o);
     Audio2.sfx('item_get', 0.8);
     Game.addItem('core', 30); Game.addItem('kit', 3); Game.flags.warpKit = 1;

@@ -206,6 +206,9 @@ const World = {
     const b = this.buildingAt(nx, ny);
     if (b && b.to && b.door === nx && ny === b.y + b.h - 1 && dir === 'up') { this.enterDoor(b); return; }
     const ex = this.objAt(nx, ny, 'exit');
+    if (ex && this.id === 'lab' && !Game.flags.gotStarter && Game.flags.introDone) {
+      this.locked = true; Scripts.labExit().finally(() => { this.locked = false; }); return;
+    }
     if (ex) { this.leaveTo(ex.to); return; }
     const wp = this.objAt(nx, ny, 'warp');
     if (wp && !this.blockedTile(nx, ny)) { this.startMove(nx, ny); this.pendingWarp = wp; return; }

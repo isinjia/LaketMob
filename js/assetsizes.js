@@ -86,4 +86,6 @@ const ASSET_SIZES = {
   mpomega: [222, 720],
   lemonzeta: [554, 720],
   lemonomega: [248, 720],
+  rhode: [720, 601],
+  lamparion: [638, 720],
 };
