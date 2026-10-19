@@ -242,6 +242,11 @@ def status_move(m, kind, extra, role):
         if extra in ('selfDef', 'selfAtk', 'selfSpd'): m['self'] = {extra[4:].lower(): 1}
     elif kind == 'buff':
         m['self'] = {'atk': 2} if extra == 'selfAtk' else {'spd': 2} if extra == 'selfSpd' else {'atk': 1, 'acc': 1} if extra == 'selfAcc' else {'atk': 1, 'spd': 1}
+        if role == '지원기' and extra == 'selfAtk':  # 지원기의 강화는 설명이 말하는 방향으로 (지휘·노래·보급이 다 같지 않게)
+            d = m.get('desc', '') + (m.get('name') or '')
+            if any(w in d for w in ('명중', '조준', '정밀', '관측')): m['self'] = {'atk': 1, 'acc': 1}
+            elif any(w in d for w in ('속도', '기동', '신속', '가속', '노래', '응원')): m['self'] = {'atk': 1, 'spd': 1}
+            elif any(w in d for w in ('방어', '보호', '수호', '장갑', '보급')): m['self'] = {'atk': 1, 'def': 1}
 
         if extra == 'heal' or (role == '지원기' and says_heal(m)): m['heal'] = 0.25
     elif kind == 'focus':
@@ -439,7 +444,7 @@ def learnset(u, elem, fam, has3, has4=False):
     return out
 
 
-GUNLIKE = {'lshot', 'ashot', 'hmg', 'lpierce', 'apierce', 'hpierce', 'lfocus', 'afocus', 'hmgfull', 'hmgburst', 'amissile',
+GUNLIKE = {'lray', 'aray', 'lshot', 'ashot', 'hmg', 'lpierce', 'apierce', 'hpierce', 'lfocus', 'afocus', 'hmgfull', 'hmgburst', 'amissile',
            'burst', 'snipe', 'suppress', 'strafe', 'shell', 'barrage', 'lgrenade', 'coverfire', 'taunt',
            'arocket', 'aburst', 'doubletap', 'lsweep', 'hsalvo', 'hshellap', 'carpet', 'hcannon', 'bomb'}
 
@@ -539,7 +544,7 @@ def tidy(u, ls, moves, elems):
             if d.get('cat') == 'atk' and fx_count.get(dv.get('fx'), 0) >= 3:
                 continue  # 같은 연출의 공격이 이미 셋이다
             if d.get('cat') == 'atk': fx_count[dv.get('fx')] = fx_count.get(dv.get('fx'), 0) + 1
-            if d.get('cat') == 'atk' and (dv.get('pow') or 0) > 60 and any(moves[x].get('type') == dv.get('type') and abs(eff_pow(moves[x]) - eff_pow(dv)) <= 0.1 * eff_pow(dv)
+            if d.get('cat') == 'atk' and (dv.get('pow') or 0) > 55 and any((moves[x].get('type') == dv.get('type') or moves[x].get('fx') == dv.get('fx')) and abs(eff_pow(moves[x]) - eff_pow(dv)) <= 0.15 * eff_pow(dv)
                                                                          for x in sigs if x in moves and moves[x].get('cat') == 'atk'):
                 continue  # 같은 타입·같은 위력대의 고유 공격기가 있다
             if d.get('cat') == 'atk' and sig_max and (dv.get('pow') or 0) > 55 and eff_pow(dv) > sig_max:  # 기본기(위력 55 이하)는 남긴다
@@ -754,7 +759,7 @@ HAND = {
             'sig_lemonomega_3': {'name': '챔피언의 위엄', 'type': 'phys', 'cat': 'st', 'acc': 0, 'pp': 10, 'self': {'atk': 1, 'spd': 1}, 'fx': 'buff', 'desc': '자매들의 정점에 선 자의 여유로 전장을 내려다본다. 공격과 속도가 오른다.'},
         },
         'desc': '레모네이드 자매의 정점에 선 리더이자 리그 챔피언. 절대 명령 한마디로 자매들을 움직이며, 오만해 보여도 자매들에게는 누구보다 정이 깊다.',
-        'learn': [[1, 'sig_lemonomega_1'], [1, 'order'], [11, 'guard'], [16, 'sig_lemonomega_2'], [21, 'hmgburst'], [30, 'sig_lemonomega_3']],
+        'learn': [[1, 'sig_lemonomega_1'], [1, 'order'], [11, 'guard'], [16, 'sig_lemonomega_2'], [21, 'hcannon'], [30, 'sig_lemonomega_3']],
     },
 }
 for k, h in HAND.items():
@@ -768,7 +773,7 @@ for m in moves.values():
     if m.get('cat') == 'st' and m.get('fx') not in ('buff', 'debuff', 'shield', 'heal'):
         m['fx'] = 'debuff' if m.get('foe') and not m.get('self') else ('heal' if m.get('heal') and not m.get('self') else 'buff')  # 변화기는 변화 연출
     if m.get('cat') == 'st' or m.get('heal'):
-        for a, b in (('아군 전체의', '자신의'), ('아군 전원의', '자신의'), ('아군 전체를', '자신을'), ('아군 전체', '자신'), ('아군들의', '자신의'), ('아군의', '자신의'), ('아군을', '자신을'), ('아군에게', '자신에게'), ('아군이', '자신이'), ('아군', '자신')):
+        for a, b in (('지상군 자신의', '자신의'), ('아군 전체의', '자신의'), ('아군 전원의', '자신의'), ('아군 전체를', '자신을'), ('아군 전체', '자신'), ('아군들의', '자신의'), ('아군의', '자신의'), ('아군을', '자신을'), ('아군에게', '자신에게'), ('아군이', '자신이'), ('아군', '자신')):
             m['desc'] = m['desc'].replace(a, b)
     if m.get('sig') and m.get('cat') == 'st' and 'self' in m:
         d = m['desc']
@@ -780,6 +785,16 @@ for sp in species.values():
     if 'desc' in sp: sp['desc'] = fix_words(sp['desc'])
 for k, v in DESC_FIX.items():
     if k in moves: moves[k]['desc'] = v
+# 지원기의 액티브 강화는 성격대로 나눈다: 지시·정보는 명중, 사기·마음은 속도, 장비·보급은 방어 (돌격 명령처럼 공격만 말하면 그대로)
+BUFF_KIND = [(('지시', '지휘', '호령', '정찰', '정보', '분석', '위성'), 'acc'), (('기원', '마음', '무대', '사기', '그림', '관중'), 'spd'), (('무기고', '장비', '튜닝', '탄약', '보급'), 'def')]
+for u in units:
+    if u['role'] != '지원기': continue
+    for i in (1, 2):
+        m = moves.get(f"sig_{u['key']}_{i}") or {}
+        if m.get('cat') != 'st' or m.get('self') != {'atk': 2} or '돌격' in m['name']: continue
+        t = m['name'] + m['desc']
+        for ws, k in BUFF_KIND:
+            if any(w in t for w in ws): m['self'] = {'atk': 1, k: 1}; break
 # 지원기: 액티브가 이미 공격을 올리면 패시브는 방어 쪽으로, 회복만 겹치면 패시브에 방어 강화를 더한다
 for u in units:
     if u['role'] != '지원기': continue
