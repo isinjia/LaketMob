@@ -56,7 +56,7 @@ WEAPON = {
     ('heavy', 'blast'): ['shell', 'barrage', 'railgun'], ('heavy', 'energy'): ['shell', 'hbeam', 'railgun'],
     ('heavy', 'melee'): ['hsmash', 'hcrush', 'hbreak'],
     ('air', 'gun'): ['ashot', 'strafe', 'afocus'], ('air', 'blade'): ['dive', 'aslash', 'skyfall'],
-    ('air', 'blast'): ['ashot', 'amissile', 'bomb'], ('air', 'energy'): ['ashot', 'abeam', 'abeam2'],
+    ('air', 'blast'): ['ashot', 'amissile', 'bomb'], ('air', 'energy'): ['aray', 'abeam', 'abeam2'],
     ('air', 'melee'): ['dive', 'aslash', 'skyfall'],
     ('light', 'chem'): ['lchem', 'jam', 'lpierce'], ('heavy', 'chem'): ['hchem', 'jam', 'hpierce'], ('air', 'chem'): ['achem', 'jam', 'apierce'],
 }
@@ -109,6 +109,8 @@ GENERIC = {
     'hstomp': {'name': '짓밟기', 'type': 'heavy', 'cat': 'atk', 'pow': 65, 'acc': 100, 'pp': 20, 'eff': {'foeSpd': 0.3}, 'fx': 'smash', 'desc': '육중한 다리로 짓밟아 움직임을 묶는다. 상대의 속도를 떨어뜨릴 때가 있다.'},
     'hshellap': {'name': '철갑 포탄', 'type': 'heavy', 'cat': 'atk', 'pow': 60, 'acc': 95, 'pp': 25, 'eff': {'foeDef': 0.2}, 'fx': 'shell', 'desc': '철갑 포탄을 쏘아 장갑을 깎는다. 상대의 방어를 떨어뜨릴 때가 있다.'},
     'hsalvo': {'name': '연속 포격', 'type': 'heavy', 'cat': 'atk', 'pow': 35, 'hits': [2, 3], 'acc': 90, 'pp': 10, 'fx': 'barrage', 'desc': '포문을 번갈아 2~3회 쏘아 댄다.'},
+    'aray': {'name': '조준 광선', 'type': 'air', 'cat': 'atk', 'pow': 55, 'acc': 100, 'pp': 25, 'fx': 'beam', 'desc': '위에서 가는 광선을 짧게 끊어 쏜다.'},
+    'ldrill': {'name': '천공 일격', 'type': 'light', 'cat': 'atk', 'pow': 75, 'acc': 100, 'pp': 15, 'pierce': 1, 'fx': 'smash', 'desc': '회전하는 끝으로 한 점을 파고들어 장갑을 뚫는다. 상대의 방어 강화를 무시한다.'},
     'provoke': {'name': '도발', 'type': 'phys', 'cat': 'st', 'acc': 0, 'pp': 20, 'self': {'def': 1}, 'foe': {'atk': -1}, 'fx': 'debuff', 'desc': '일부러 앞으로 나서 적의 공격을 끌어낸다. 자신의 방어가 오르고 상대의 공격이 떨어진다.'},
     'lcover': {'name': '엄폐', 'type': 'light', 'cat': 'st', 'acc': 0, 'pp': 15, 'self': {'def': 1}, 'heal': 0.25, 'fx': 'shield', 'desc': '엄폐물 뒤로 몸을 숨겨 숨을 고른다. 방어가 오르고 HP를 조금 회복한다.'},
     'evade': {'name': '회피 기동', 'type': 'air', 'cat': 'st', 'acc': 0, 'pp': 15, 'self': {'def': 1, 'spd': 1}, 'heal': 0.2, 'fx': 'buff', 'desc': '급선회로 적의 조준을 흐트러뜨린다. 방어와 속도가 오르고 HP를 조금 회복한다.'},
@@ -257,10 +259,22 @@ def mech_move(u, p):
     return m
 
 
+def guard_stance(u, name):
+    """보호기 패시브를 변화기로: 이름에 담긴 뜻에 따라 다른 태세."""
+    if any(w in name for w in ('반격', '카운터', '역습', '되갚', '응징')):
+        return {'cat': 'st', 'self': {'def': 1, 'atk': 1}, 'fx': 'shield', 'desc': '공격을 받아넘기며 되갚아 줄 자세를 잡는다. 방어와 공격이 오른다.'}
+    if any(w in name for w in ('속도', '기동', '추적', '질주', '빠르')):
+        return {'cat': 'st', 'self': {'spd': 2, 'def': 1}, 'fx': 'buff', 'desc': '속도를 끌어올려 맞기 전에 비켜선다. 속도가 크게 오르고 방어가 오른다.'}
+    if any(w in name for w in ('조심', '지키', '수호', '호위', '보호', '막아', '방패', '님')):
+        return {'cat': 'st', 'self': {'def': 1}, 'foe': {'atk': -1}, 'heal': 0.2, 'fx': 'shield', 'desc': '지켜야 할 이를 등 뒤에 두고 적을 막아선다. 방어가 오르고 상대의 공격이 떨어지며 HP를 조금 회복한다.'}
+    return {'cat': 'st', 'self': {'def': 1}, 'heal': 0.35, 'fx': 'heal', 'desc': '이를 악물고 버티며 몸을 추스른다. 방어가 오르고 HP를 회복한다.'}
+
+
 GUARD_TEXT = ['몸을 낮춰 공격을 받아낼 태세를 갖춘다. 방어가 오르고 상대의 공격이 떨어지며 HP를 조금 회복한다.',
               '동료 앞을 막아서며 반격할 틈을 노린다. 방어가 오르고 상대의 공격이 떨어지며 HP를 조금 회복한다.',
               '자세를 다잡고 버티며 적의 기세를 꺾는다. 방어가 오르고 상대의 공격이 떨어지며 HP를 조금 회복한다.']
 MECH_FIX = {
+    'aqua': {'cat': 'st', 'heal': 0.35, 'self': {'def': 1}, 'fx': 'heal', 'desc': '다친 동료를 다독이며 소독하고 감싸 준다. HP를 회복하고 방어가 오른다.'},
     'harpy': {'cat': 'st', 'self': {'spd': 2, 'acc': 1}, 'fx': 'buff', 'desc': '스텔스 기동으로 레이더에서 사라졌다가 유리한 각도를 잡는다. 속도가 크게 오르고 명중이 오른다.'},
     'cheona': {'cat': 'st', 'self': {'spd': 1, 'atk': 1}, 'fx': 'smoke', 'desc': '그림자에 숨어 기척을 지우고 다음 일격을 노린다. 속도와 공격이 오른다.'},
     'cocowhiteshell': {'cat': 'st', 'self': {'def': 1}, 'foe': {'atk': -1}, 'fx': 'shield', 'desc': '궤도 장갑판을 겹쳐 받아내고 충격을 되돌린다. 방어가 오르고 상대의 공격이 떨어진다.'},
@@ -273,8 +287,7 @@ def passive_move(u):
     if u['key'] in MECH_FIX:
         p = dict(p, mech=dict(MECH_FIX[u['key']]))
     elif u['role'] == '보호기' and (p.get('mech') or {}).get('cat') == 'atk':
-        i = sum(map(ord, u['key'])) % len(GUARD_TEXT)
-        p = dict(p, mech={'cat': 'st', 'self': {'def': 1}, 'foe': {'atk': -1}, 'heal': 0.2, 'fx': 'shield', 'desc': GUARD_TEXT[i]})
+        p = dict(p, mech=guard_stance(u, p['name']))
     if p.get('mech'):
         m = mech_move(u, p)
         if m: return m
@@ -340,7 +353,7 @@ def learnset(u, elem, fam, has3):
         sniper = any(x['fx'] == 'snipe' for x in u['skills'][:2])
         if fam == 'gun': crit = 'snipe' if sniper else {'light': 'lpierce', 'heavy': 'hpierce', 'air': 'apierce'}[cls]
         elif fam == 'blade': crit = {'light': 'vital', 'heavy': 'hcrush', 'air': 'aslash'}[cls]
-        elif fam == 'melee': crit = {'light': 'vital', 'heavy': 'hcrush', 'air': 'aslash'}[cls]
+        elif fam == 'melee': crit = {'light': 'ldrill', 'heavy': 'hcrush', 'air': 'aslash'}[cls]
         elif fam == 'energy': crit = 'thunder' if elem == 'elec' else {'light': 'lbeam2', 'heavy': 'hpierce', 'air': 'apierce'}[cls]
         else: crit = {'light': 'lpierce', 'heavy': 'hpierce', 'air': 'apierce'}[cls]
         prep = {'gun': 'aimed', 'blast': 'aimed', 'blade': 'quick' if cls == 'light' else 'rally', 'energy': 'charge', 'melee': 'rally', 'chem': 'aimed'}[fam]
@@ -376,7 +389,8 @@ GUNLIKE = {'lshot', 'ashot', 'hmg', 'lpierce', 'apierce', 'hpierce', 'lfocus', '
 
 def effect_key(m):
     sign = lambda d: sorted(k + ('+' if v > 0 else '-') for k, v in (d or {}).items())
-    return json.dumps([m.get('cat'), sign(m.get('self')), sign(m.get('foe')), bool(m.get('heal')), sorted((m.get('eff') or {}).keys()), m.get('status')])
+    heal_only = bool(m.get('heal')) and not m.get('self') and not m.get('foe')
+    return json.dumps([m.get('cat'), sign(m.get('self')), sign(m.get('foe')), heal_only, sorted((m.get('eff') or {}).keys()), m.get('status')])
 
 
 ALT = {'quick': 'lunge', 'blade': 'twinslash', 'vital': 'bleed', 'lshot': 'doubletap', 'lfocus': 'lsweep', 'suppress': 'doubletap',
@@ -398,7 +412,7 @@ def tidy(u, ls, moves, elems):
     e = ELEM_MOVES.get(elems[0]) if elems else None
     pool = [x for x in (e or []) if x not in [m for _, m in ls]]
     out = []
-    def_up = sum(1 for m in sigs if m in moves and (moves[m].get('self') or {}).get('def', 0) > 0 and not moves[m].get('foe'))
+    def_up = sum(1 for m in sigs if m in moves and (moves[m].get('self') or {}).get('def', 0) > 0)
     sig_def = def_up > 0
     atk_up = sum(1 for m in sigs if m in moves and moves[m].get('cat') == 'st' and (moves[m].get('self') or {}).get('atk', 0) > 0)
     heals = sum(1 for m in sigs if m in moves and moves[m].get('heal'))
@@ -449,7 +463,7 @@ def base_stats(u, med, zrank):
     r = [(hp / med['HP']) ** 0.6, (atk / med['ATK']) ** 0.85, (max(de, 15) / med['DEF']) ** 0.45, ((spd - 3.0) / (med['SPD'] - 3.0)) ** 0.8]
     w = [x * 0.25 for x in r]
     total = RANK_TOTAL[u['rank']] + round(SPREAD * zrank) + STORY_BONUS.get(u['key'], 0)
-    total = min(total, CHAMPION_TOTAL - 6)  # 챔피언 레모네이드 오메가가 가장 강하다
+    total = min(total, CHAMPION_TOTAL - (6 if u['key'] == 'lemonalpha' else 8))  # 챔피언 오메가가 가장 강하고, 협회장 알파가 그다음
     if u['key'] in STARTERS: total = round(STARTER_POWER / RANK_MULT[u['rank']])
     b = [total * x / sum(w) for x in w]
     if u['key'] in STARTERS:  # 시작 유닛은 성향을 4분의 1만 살려 한쪽으로 치우치지 않게

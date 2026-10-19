@@ -48,7 +48,7 @@
     alpha: { name: '레모네이드 알파', title: '알파 체육관 관장 · 관장 협회장', portrait: L('alpha'), team: [['phoenix', 30], ['miho', 30], ['bloodypanther', 27], [L('alpha'), 32]], prize: 4400, boss: true, badge: 'alpha', bgm: 'boss', voice: L('alpha'),
       intro: '', lose: '', after: '우후후... 사령관님, 조심하세요. 이제부터는 저도 모르는 일이 벌어질 테니까요.' },
     // 7. 챔피언 오메가 (레모네이드 리조트)
-    omega: { name: '레모네이드 오메가', title: '레모네이드 리그 챔피언', portrait: L('omega'), team: [['tyrant', 31], ['fafnir', 31], ['leona', 33], ['valkyrie', 33], [L('omega'), 36]], prize: 9999, boss: true, badge: 'omega', bgm: 'final',
+    omega: { name: '레모네이드 오메가', title: '레모네이드 리그 챔피언', portrait: L('omega'), team: [['tyrant', 31], ['fafnir', 31], ['leona', 33], ['valkyrie', 32], [L('omega'), 36]], prize: 9999, boss: true, badge: 'omega', bgm: 'final',
       intro: '', lose: '', after: '...한 번 더요? 사양할게요, 인간님. 오늘은 술이나 마실 거니까요.' },
     // 사령관 독점단
     dok1: { name: '사령관 독점단 브라우니', title: '사령관 독점단 (마스코트)', portrait: 'brownie', team: [['brownie', 6], ['brownie', 7], ['brownie', 7]], prize: 300,
