@@ -109,7 +109,8 @@
       ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
       const cy = H * 0.5, ch = H * 0.56;
       ctx.save(); const rg = ctx.createRadialGradient(W / 2, cy, 20, W / 2, cy, W * 0.62); rg.addColorStop(0, col + '55'); rg.addColorStop(1, 'transparent'); ctx.globalAlpha = a; ctx.fillStyle = rg; ctx.fillRect(0, cy - ch / 2, W, ch); ctx.restore();
-      drawFit(IMG.full[k], W / 2 - 250 + (1 - a) * 40, H * 0.2, 500, ch, { anchor: 'bottom', alpha: a });
+      // 옆으로 넓은 그림(무장이 큰 기체 등)도 작아지지 않게 높이 기준으로 맞춘다 (폭은 화면 밖까지 허용)
+      drawFit(IMG.full[k], W / 2 - 450 + (1 - a) * 40, H * 0.2, 900, ch, { anchor: 'bottom', alpha: a });
       const ly = Math.max(110, H * 0.11);
       logo(W / 2, ly, 78, t, 'center');
       band(W / 2 - 436 * 0.92 / 2, ly + 26, 0.92);
@@ -131,7 +132,7 @@
     ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
     const ax = W - 490 - Math.round((W - 960) * 0.2);
     ctx.save(); const rg = ctx.createRadialGradient(ax + 230, oy + 330, 20, ax + 230, oy + 330, 320); rg.addColorStop(0, col + '55'); rg.addColorStop(1, 'transparent'); ctx.globalAlpha = a; ctx.fillStyle = rg; ctx.fillRect(ax - 90, 0, 580, H); ctx.restore();
-    drawFit(IMG.full[k], ax + (1 - a) * 60, oy + 30, 480, 610, { anchor: 'bottom', alpha: a });
+    drawFit(IMG.full[k], ax - 160 + (1 - a) * 60, oy + 30, 800, 610, { anchor: 'bottom', alpha: a }); // 넓은 그림도 높이 기준
     const ly = oy + 170;
     logo(lx, ly, 92, t, 'left');
     band(lx + 4, ly + 40, 1);
