@@ -696,6 +696,11 @@ def apply_unity_meshes(nodes, uid, atlas):
     if not os.path.exists(path):
         return False
     data = json.load(open(path, encoding="utf-8"))
+    # some exports root paths at the instantiated clone: "~Model_X(Clone)/size_root/..." -> "~size_root/..."
+    unclone = lambda p: re.sub(r"^~[^/]*\(Clone\)/", "~", p) if isinstance(p, str) else p
+    for part in data["parts"]:
+        part["path"] = unclone(part["path"])
+        if part.get("bones"): part["bones"] = [unclone(b) for b in part["bones"]]
     for n in nodes:
         n.pop("skin", None)
     by_path = {}

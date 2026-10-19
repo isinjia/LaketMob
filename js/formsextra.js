@@ -4,4 +4,4 @@ Object.assign(FORM_SIZES, {"albatross_1": [720, 719], "alexandra_1": [437, 720],
 // 같은 파일명으로 교체한 기본 그림은 캐시를 새로 받는다
 Object.assign(ASSET_REV, {"full/ajax": 2, "full/albatross": 2, "full/alexandra": 2, "full/amphitrite": 2, "full/brunhild": 2, "full/constantia": 4, "full/drm": 2, "full/erato": 2, "full/fallen": 2, "full/frigga": 2, "full/glacias": 2, "full/habetrot": 2, "full/janghwa": 2, "full/khan": 2, "full/kunoichizero": 2, "full/lrl": 2, "full/may": 2, "full/melite": 2, "full/mercury": 2, "full/mnemosyne": 2, "full/muse": 2, "full/neodym": 2, "full/nightangel": 2, "full/pa00el": 2, "full/peregrinus": 2, "full/ramiel": 2, "full/rena": 2, "full/sadius": 2, "full/salacia": 2, "full/salamander": 2, "full/saraqael": 2, "full/scarabya": 2, "full/scathy": 2, "full/sirene": 2, "full/sleipnir": 2, "full/sonia": 2, "full/stratoangel": 2, "full/vargr": 2});
 // 다시 만든 SD 리그는 캐시를 새로 받는다 (js/sd.js 가 ?r= 를 붙임)
-window.SD_REV = Object.assign(window.SD_REV || {}, { lemongamma: 3, lemonalpha: 3, lemonepsilon: 3 });
+window.SD_REV = Object.assign(window.SD_REV || {}, { lemongamma: 3, lemonalpha: 3, lemonepsilon: 3, perrault: 2 });
