@@ -416,7 +416,8 @@ def learnset(u, elem, fam, has3, has4=False):
 
 
 GUNLIKE = {'lshot', 'ashot', 'hmg', 'lpierce', 'apierce', 'hpierce', 'lfocus', 'afocus', 'hmgfull', 'hmgburst', 'amissile',
-           'burst', 'snipe', 'suppress', 'strafe', 'shell', 'barrage', 'lgrenade', 'coverfire', 'taunt'}
+           'burst', 'snipe', 'suppress', 'strafe', 'shell', 'barrage', 'lgrenade', 'coverfire', 'taunt',
+           'arocket', 'aburst', 'doubletap', 'lsweep', 'hsalvo', 'hshellap', 'carpet', 'hcannon', 'bomb'}
 
 
 def effect_key(m):
@@ -486,6 +487,9 @@ def tidy(u, ls, moves, elems):
             dv = dict(d, **(moves.get(variant(u['key'], m)) or {})) if d.get('cat') == 'atk' else d
             if d.get('cat') == 'atk' and lv < 40 and atk_key(dv) in sig_atk:
                 continue  # 같은 성격의 고유 공격기가 있다
+            if d.get('cat') == 'atk' and (dv.get('pow') or 0) > 60 and any(moves[x].get('type') == dv.get('type') and abs(eff_pow(moves[x]) - eff_pow(dv)) <= 0.1 * eff_pow(dv)
+                                                                         for x in sigs if x in moves and moves[x].get('cat') == 'atk'):
+                continue  # 같은 타입·같은 위력대의 고유 공격기가 있다
             if d.get('cat') == 'atk' and sig_max and (dv.get('pow') or 0) > 60 and eff_pow(dv) > sig_max:  # 기본기(위력 60 이하)는 남긴다
                 continue  # 본편 고유 기술보다 센 공용기는 두지 않는다
             if d.get('cat') == 'atk' and dv.get('type') in ('fire', 'ice', 'elec') and sig_elem >= 2:
@@ -641,7 +645,7 @@ HAND = {
             'sig_lemondelta_2': {'name': '질투의 업화', 'type': 'fire', 'cat': 'atk', 'pow': 95, 'acc': 100, 'pp': 10, 'area': 1, 'eff': {'burn': 0.3}, 'fx': 'napalm', 'desc': '질투가 폭발하면 무대가 불바다가 된다. 일대를 태우고 화상을 입힐 때가 있다.'},
             'sig_lemondelta_3': {'name': '무대 의상 교체', 'type': 'phys', 'cat': 'st', 'acc': 0, 'pp': 10, 'self': {'atk': 1, 'spd': 1}, 'heal': 0.2, 'fx': 'buff', 'desc': '최신작 드레스로 갈아입고 무대에 다시 선다. 공격과 속도가 오르고 HP를 조금 회복한다.'},
         },
-        'learn': [[1, 'sig_lemondelta_1'], [1, 'dive'], [6, 'afterburn'], [11, 'flamer'], [16, 'sig_lemondelta_2'], [21, 'apierce'], [26, 'incend'], [30, 'sig_lemondelta_3'], [40, 'napalm']],
+        'learn': [[1, 'sig_lemondelta_1'], [1, 'dive'], [6, 'afterburn'], [11, 'flamer'], [16, 'sig_lemondelta_2'], [21, 'apierce'], [26, 'incend'], [30, 'sig_lemondelta_3']],
     },
     'lemonzeta': {
         'moves': {
@@ -649,14 +653,14 @@ HAND = {
             'sig_lemonzeta_2': {'name': '효율 연산: 과부하', 'type': 'elec', 'cat': 'atk', 'pow': 95, 'acc': 100, 'pp': 10, 'area': 1, 'eff': {'para': 0.3}, 'fx': 'plasma', 'desc': '최적 출력을 계산해 전류를 한꺼번에 흘려보낸다. 감전시킬 때가 있다.'},
             'sig_lemonzeta_3': {'name': '데이터 수집', 'type': 'phys', 'cat': 'st', 'acc': 95, 'pp': 10, 'foe': {'def': -1}, 'self': {'acc': 1}, 'fx': 'debuff', 'desc': '상대의 움직임을 관측해 기록한다. 상대의 방어가 떨어지고 자신의 명중이 오른다.'},
         },
-        'learn': [[1, 'sig_lemonzeta_1'], [1, 'quick'], [6, 'shock'], [11, 'emp'], [16, 'sig_lemonzeta_2'], [21, 'lpierce'], [26, 'plasma'], [30, 'sig_lemonzeta_3'], [40, 'thunder']],
+        'learn': [[1, 'sig_lemonzeta_1'], [1, 'quick'], [6, 'shock'], [11, 'emp'], [16, 'sig_lemonzeta_2'], [21, 'lpierce'], [26, 'plasma'], [30, 'sig_lemonzeta_3']],
     },
     'lemonomega': {
         'moves': {
             'sig_lemonomega_2': {'name': '오메가 섬멸 포격', 'type': 'heavy', 'cat': 'atk', 'pow': 110, 'acc': 90, 'pp': 5, 'pierce': 1, 'fx': 'beam', 'desc': '모든 포문의 출력을 하나로 모아 꿰뚫는다. 상대의 방어 강화를 무시한다.'},
             'sig_lemonomega_3': {'name': '챔피언의 위엄', 'type': 'phys', 'cat': 'st', 'acc': 0, 'pp': 10, 'self': {'atk': 1, 'spd': 1}, 'fx': 'buff', 'desc': '자매들의 정점에 선 자의 여유로 전장을 내려다본다. 공격과 속도가 오른다.'},
         },
-        'learn': [[1, 'order'], [1, 'shell'], [11, 'guard'], [16, 'sig_lemonomega_2'], [21, 'plasma'], [26, 'railgun'], [30, 'sig_lemonomega_3'], [36, 'thunder']],
+        'learn': [[1, 'order'], [1, 'shell'], [11, 'guard'], [16, 'sig_lemonomega_2'], [21, 'plasma'], [26, 'hpierce'], [30, 'sig_lemonomega_3']],
     },
 }
 for k, h in HAND.items():
