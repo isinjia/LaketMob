@@ -19,7 +19,7 @@ import sys
 import yaml
 from PIL import Image
 
-ROOT = r"E:/LAO/Google_QA/Assets"
+ROOT = r"E:/LAO_Google_QA/Assets"
 CHAR_DIRS = [ROOT + "/AssetBundleResource/Character", ROOT + "/AssetBundleResourceSub/Character"]
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "js", "sd")
 FPS = 24
@@ -269,7 +269,7 @@ def build_prefab(path, atlas):
                 n["skin"] = {
                     "mesh": [d["m_Mesh"].get("guid"), int(d["m_Mesh"].get("fileID", 0))],
                     "bones": [str(b["fileID"]) for b in d.get("m_Bones") or []],
-                    "o": int(d.get("m_SortingOrder", 0)), "L": int(d.get("m_SortingLayer", 0)),
+                    "o": int(d.get("m_SortingOrder", 0)), "L": LAYER_IDS.get(int(d.get("m_SortingLayerID", 0)), 2),
                     "e": int(d.get("m_Enabled", 1)),
                     "mat": mats[0].get("guid") if mats else None,
                 }
@@ -543,6 +543,11 @@ def resolve_skins(nodes, atlas, manifest):
             n.pop("skin"); continue
         dump = json.load(open(dump_path, encoding="utf-8"))
         mesh = next((m for m in dump["meshes"] if m["name"] == name), None)
+        if not mesh and name is None:
+            # newer Unity metas do not list mesh fileIDs: match by renderer name (or its mirrored twin)
+            nn = str(n["n"])
+            sw = re.sub(r"(L|R)$", lambda m: "R" if m.group(1) == "L" else "L", nn)
+            mesh = next((m for m in dump["meshes"] if m["name"] == nn), None) or next((m for m in dump["meshes"] if m["name"] == sw), None)
         if not mesh:
             n.pop("skin"); continue
         # FBX bone names -> prefab node indices (prefer the renderer's own bone list)

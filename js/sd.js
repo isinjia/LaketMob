@@ -201,7 +201,7 @@
     if (window.SD_ATLAS && SD_ATLAS[key]) return Promise.resolve();
     return new Promise((res) => {
       const s = document.createElement('script');
-      s.src = 'js/sd/' + key + '.js';
+      s.src = 'js/sd/' + key + '.js' + (window.SD_REV && SD_REV[id] ? '?r=' + SD_REV[id] : '');
       s.onload = s.onerror = () => { s.remove(); res(); };
       document.head.appendChild(s);
     });
@@ -211,7 +211,7 @@
     let s0 = a.s || 1;
     if (!a.u) { // split variant (tools/build_sd.py): pick the file for this scale
       const key = id + '.' + atlasTag();
-      if (HTTP) a.u = 'js/sd/' + key + '.webp';
+      if (HTTP) a.u = 'js/sd/' + key + '.webp' + (window.SD_REV && SD_REV[id] ? '?r=' + SD_REV[id] : '');
       else {
         a.u = window.SD_ATLAS && SD_ATLAS[key];
         if (!a.u) return null; // atlas script failed to load
@@ -253,7 +253,7 @@
     if (window.SD_DATA && SD_DATA[id]) return Promise.resolve();
     return new Promise((res) => {
       const s = document.createElement('script');
-      s.src = 'js/sd/' + id + '.js';
+      s.src = 'js/sd/' + id + '.js' + (window.SD_REV && SD_REV[id] ? '?r=' + SD_REV[id] : '');
       s.onload = s.onerror = () => { s.remove(); res(); }; // data-only script: let its source be collected
       document.head.appendChild(s);
     });
