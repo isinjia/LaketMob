@@ -34,7 +34,7 @@ RANK_MULT = {'B': 1.0, 'A': 1.12, 'S': 1.25, 'SS': 1.4}
 # 레모네이드 관장은 체육관 순서에 맞춘다 — 첫 관장 감마와 여섯째 알파는 같은 레벨대 부대가 넘을 수 있게 SS 하단으로
 # (tools/balancetest.js 의 관장 승률 검사 기준)
 STORY_BONUS = {'blacklilith': 25, 'eternity': 10, 'phoenix': 10, 'hongryun': 25, 'labiata': 10, 'harpy': 15, 'sleipnir': 10, 'cheona': 10,
-               'lemongamma': -25, 'lemonbeta': 0, 'lemonepsilon': 0, 'lemonalpha': 15}
+               'lemongamma': -25, 'lemonbeta': 15, 'lemonepsilon': 15, 'lemonalpha': 20}
 LEGENDS = {'blacklilith', 'eternity', 'phoenix', 'hongryun'}
 # 시작 유닛은 등급과 무관하게 실전 능력치(합계 × 등급 배율)를 같게, 같은 B급 야생(230)보다 조금 높게
 STARTERS = {'leprechaun', 'aqua', 'rhode'}
@@ -51,10 +51,10 @@ FAMILY = {'bullet': 'gun', 'bullets': 'gun', 'snipe': 'gun', 'acid': 'chem', 'sm
 WEAPON = {
     ('light', 'gun'): ['lshot', 'suppress', 'lfocus'], ('light', 'blade'): ['quick', 'blade', 'flash'],
     ('light', 'blast'): ['lshot', 'lgrenade', 'lfocus'], ('light', 'energy'): ['lshot', 'lbeam', 'lbeam2'],
-    ('light', 'melee'): ['quick', 'rush', 'overload'],
-    ('heavy', 'gun'): ['hmg', 'hmgburst', 'hmgfull'], ('heavy', 'blade'): ['hsmash', 'hcrush', 'overload'],
+    ('light', 'melee'): ['quick', 'rush', 'lbreak'],
+    ('heavy', 'gun'): ['hmg', 'hmgburst', 'hmgfull'], ('heavy', 'blade'): ['hsmash', 'hcrush', 'hbreak'],
     ('heavy', 'blast'): ['shell', 'barrage', 'railgun'], ('heavy', 'energy'): ['shell', 'hbeam', 'railgun'],
-    ('heavy', 'melee'): ['hsmash', 'hcrush', 'overload'],
+    ('heavy', 'melee'): ['hsmash', 'hcrush', 'hbreak'],
     ('air', 'gun'): ['ashot', 'strafe', 'afocus'], ('air', 'blade'): ['dive', 'aslash', 'skyfall'],
     ('air', 'blast'): ['ashot', 'amissile', 'bomb'], ('air', 'energy'): ['ashot', 'abeam', 'abeam2'],
     ('air', 'melee'): ['dive', 'aslash', 'skyfall'],
@@ -97,6 +97,8 @@ GENERIC = {
     'lchem': {'name': '나노 분무', 'type': 'light', 'cat': 'atk', 'pow': 55, 'acc': 100, 'pp': 25, 'eff': {'foeDef': 0.2}, 'fx': 'acid', 'desc': '나노 머신을 섞은 분무를 뿌려 장갑을 갉아 먹는다. 상대의 방어를 떨어뜨릴 때가 있다.'},
     'hchem': {'name': '부식액 살포', 'type': 'heavy', 'cat': 'atk', 'pow': 60, 'acc': 100, 'pp': 25, 'eff': {'foeDef': 0.2}, 'fx': 'acid', 'desc': '대용량 탱크에서 부식액을 쏟아붓는다. 상대의 방어를 떨어뜨릴 때가 있다.'},
     'achem': {'name': '공중 살포', 'type': 'air', 'cat': 'atk', 'pow': 55, 'acc': 100, 'pp': 25, 'eff': {'foeDef': 0.2}, 'fx': 'acid', 'desc': '공중에서 약품을 흩뿌려 상대를 덮친다. 상대의 방어를 떨어뜨릴 때가 있다.'},
+    'lbreak': {'name': '전력 돌파', 'type': 'light', 'cat': 'atk', 'pow': 115, 'acc': 95, 'pp': 5, 'recoil': 0.25, 'fx': 'dash', 'desc': '몸을 아끼지 않고 정면으로 부딪쳐 꿰뚫고 나간다. 반동을 받는다.'},
+    'hbreak': {'name': '갑옷 분쇄', 'type': 'heavy', 'cat': 'atk', 'pow': 120, 'acc': 90, 'pp': 5, 'recoil': 0.25, 'fx': 'smash', 'desc': '온몸의 출력을 실어 내리찍어 장갑째 부순다. 반동을 받는다.'},
     'provoke': {'name': '도발', 'type': 'phys', 'cat': 'st', 'acc': 0, 'pp': 20, 'self': {'def': 1}, 'foe': {'atk': -1}, 'fx': 'debuff', 'desc': '일부러 앞으로 나서 적의 공격을 끌어낸다. 자신의 방어가 오르고 상대의 공격이 떨어진다.'},
     'lcover': {'name': '엄폐', 'type': 'light', 'cat': 'st', 'acc': 0, 'pp': 15, 'self': {'def': 1}, 'heal': 0.25, 'fx': 'shield', 'desc': '엄폐물 뒤로 몸을 숨겨 숨을 고른다. 방어가 오르고 HP를 조금 회복한다.'},
     'evade': {'name': '회피 기동', 'type': 'air', 'cat': 'st', 'acc': 0, 'pp': 15, 'self': {'def': 1, 'spd': 1}, 'heal': 0.2, 'fx': 'buff', 'desc': '급선회로 적의 조준을 흐트러뜨린다. 방어와 속도가 오르고 HP를 조금 회복한다.'},
@@ -272,13 +274,22 @@ def subtype(u):
     return 'attack'
 
 
+ELEM_FX_SET = {'flame', 'fireball', 'napalm', 'ice', 'icebeam', 'blizzard', 'spark', 'thunder'}
+
+
+def elemental_weapon(u):
+    """고유 공격기 연출이 모두 속성 연출이면 속성 자체가 무기다 (화염방사기·냉각포·전격봉 등)."""
+    fxs = [x['fx'] for x in u['skills'][:2] if x['kind'] == 'atk']
+    return bool(fxs) and all(f in ELEM_FX_SET for f in fxs)
+
+
 def learnset(u, elem, fam, has3):
     role, cls, key = u['role'], u['cls'], u['key']
     w = WEAPON[(cls, fam)]
     e = ELEM_MOVES.get(elem)
     n_el = sum(1 for x in u['skills'][:2] if x.get('elem') not in (None, 'none'))
     e2 = e if n_el >= 2 else None  # 두 액티브 모두 속성일 때만 속성 기술로 채운다
-    if e2: w = list(e2)  # 화염방사기·냉기·전격 유닛은 무기 자체가 속성이다
+    if e2 and elemental_weapon(u): w = list(e2)  # 화염방사기·냉기·전격이 무기 자체인 유닛
     mid = e2[1] if e2 else w[1]
     ult = e[2] if e else w[2]
     s1, s2, s3 = f'sig_{key}_1', f'sig_{key}_2', f'sig_{key}_3'
@@ -303,14 +314,16 @@ def learnset(u, elem, fam, has3):
     else:
         sniper = any(x['fx'] == 'snipe' for x in u['skills'][:2])
         if fam == 'gun': crit = 'snipe' if sniper else {'light': 'lpierce', 'heavy': 'hpierce', 'air': 'apierce'}[cls]
-        elif cls == 'light': crit = 'vital' if fam == 'blade' else 'lpierce'
-        else: crit = {'heavy': 'hpierce', 'air': 'apierce'}[cls]
+        elif fam == 'blade': crit = {'light': 'vital', 'heavy': 'hcrush', 'air': 'aslash'}[cls]
+        elif fam == 'melee': crit = {'light': 'vital', 'heavy': 'hcrush', 'air': 'aslash'}[cls]
+        elif fam == 'energy': crit = {'light': 'lbeam2', 'heavy': 'hpierce', 'air': 'apierce'}[cls]
+        else: crit = {'light': 'lpierce', 'heavy': 'hpierce', 'air': 'apierce'}[cls]
         prep = {'gun': 'aimed', 'blast': 'aimed', 'blade': 'quick' if cls == 'light' else 'rally', 'energy': 'charge', 'melee': 'rally', 'chem': 'aimed'}[fam]
         ls = [[1, s1], [1, w[0]], [6, prep], [11, w[1] if not e2 else e[0]], [16, s2], [21, crit], [27, mid], [40, ult]]
     if cls == 'air' and not e:
         fxs = {x['fx'] for x in u['skills'][:2]}
         if 'bombs' in fxs: ls = [[lv, 'bomb' if m == ult else m] for lv, m in ls]
-        elif 'barrage' in fxs or 'shell' in fxs: ls = [[lv, 'amissile' if m == ult else m] for lv, m in ls] + [[40, 'bomb']]
+        elif 'barrage' in fxs or 'shell' in fxs: ls = [[lv, 'bomb' if m == ult else m] for lv, m in ls]
         elif 'beam' in fxs or 'plasma' in fxs: ls = [[lv, 'abeam2' if m == ult else m] for lv, m in ls]
     if fam not in ('gun', 'blast'):
         ls = [[lv, 'menace' if m == 'taunt' else m] for lv, m in ls]
@@ -350,6 +363,7 @@ def tidy(u, ls, moves, elems):
     pool = [x for x in (e or []) if x not in [m for _, m in ls]]
     out = []
     def_up = sum(1 for m in sigs if m in moves and (moves[m].get('self') or {}).get('def', 0) > 0 and not moves[m].get('foe'))
+    sig_def = def_up > 0
     atk_up = sum(1 for m in sigs if m in moves and moves[m].get('cat') == 'st' and (moves[m].get('self') or {}).get('atk', 0) > 0)
     heals = sum(1 for m in sigs if m in moves and moves[m].get('heal'))
     heal_cap = 2 if subtype(u) == 'heal' else 1
@@ -359,7 +373,7 @@ def tidy(u, ls, moves, elems):
             if d.get('cat') == 'st' and effect_key(d) in sig_keys:
                 continue  # 고유 기술이 같은 일을 한다
             if (d.get('self') or {}).get('def', 0) > 0 and not d.get('foe'):  # 순수 방어 강화만 센다 (도발은 제외)
-                if def_up >= 2:
+                if def_up >= (1 if sig_def else 2):
                     if u['role'] == '보호기' and 'provoke' not in [x for _, x in ls] + [x for _, x in out]:
                         out.append([lv, 'provoke'])  # 버티기는 고유 기술이 맡으니 끌어들이기를 준다
                     continue
@@ -370,7 +384,7 @@ def tidy(u, ls, moves, elems):
             if d.get('cat') == 'st' and (d.get('self') or {}).get('atk', 0) > 0:
                 if atk_up >= 2: continue
                 atk_up += 1
-            if e and m in GUNLIKE:  # 화염방사기·냉기·전격이 무기인 유닛
+            if e and m in GUNLIKE and elemental_weapon(u):  # 화염방사기·냉기·전격이 무기인 유닛
                 if not pool: continue
                 m = pool.pop(0)
             if u['role'] == '지원기' and lv >= 40:
