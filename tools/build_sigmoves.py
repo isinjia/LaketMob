@@ -199,7 +199,7 @@ def sig_move(u, i, s):
         kind = 'guard' if role == '보호기' else 'buff'
     if kind == 'atk':
         # 1번은 레벨 1부터 쓰는 주력기라 초반 기본기 수준, 2번은 16레벨에 배우는 필살기
-        if i == 1: pow_ = {'공격기': 60, '보호기': 50, '지원기': 45}[role] + RANK_BONUS[rank] * 3 // 5
+        if i == 1: pow_ = {'공격기': 72, '보호기': 58, '지원기': 52}[role] + RANK_BONUS[rank] * 3 // 5  # 대표 무기라 공용 기본기보다 세게
         else: pow_ = {'공격기': 105, '보호기': 90, '지원기': 88}[role] + RANK_BONUS[rank] * 4 // 5
         m.update(cat='atk', acc=100, pp=20 if i == 1 else (5 if rank == 'SS' and role == '공격기' else 10))
         if s.get('aoe'):
@@ -561,7 +561,7 @@ def tidy(u, ls, moves, elems):
             if e and m in GUNLIKE and (elemental_weapon(u) or (sig_elem and sig_elem == sum(1 for x in sigs if x in moves and moves[x].get('cat') == 'atk'))):  # 화염방사기·냉기·전격이 무기인 유닛
                 if not pool: continue
                 m = pool.pop(0)
-            if u['role'] == '지원기' and d.get('cat') == 'atk' and (has(m).get('pow') or 0) > 60:
+            if u['role'] == '지원기' and d.get('cat') == 'atk' and (has(m).get('pow') or 0) > 55:
                 continue  # 지원기의 공용 공격은 기본기만
             if u['role'] == '지원기' and lv >= 40:
                 continue  # 지원기는 공격 마무리기 대신 고유 기술과 지원기로 싸운다
@@ -574,7 +574,7 @@ def tidy(u, ls, moves, elems):
     for fill, lv in zip(basics(u, elems), (1, 11, 11, 11)):
         if len(atks) >= 2: break
         fd = has(fill)
-        if ((fd.get('pow') or 0) > 55 and eff_pow(fd) > sig_max * 0.9) or (u['role'] == '지원기' and (fd.get('pow') or 0) > 60): continue
+        if ((fd.get('pow') or 0) > 55 and eff_pow(fd) > sig_max * 0.9) or (u['role'] == '지원기' and (fd.get('pow') or 0) > 55): continue
         if fill not in seen: res.append([lv, fill]); seen.add(fill); atks.append(fill)
     has = lambda mid: (moves.get(mid) or BASE_MOVES.get(mid) or {})
     if u['role'] == '보호기' and not any((has(m).get('foe') or {}).get('atk', 0) < 0 or 'foeAtk' in (has(m).get('eff') or {}) for _, m in res):
@@ -720,7 +720,7 @@ for m in moves.values():
 HAND = {
     'lemondelta': {
         'moves': {
-            'sig_lemondelta_1': {'name': '인형 부대 돌격', 'type': 'air', 'cat': 'atk', 'pow': 30, 'hits': [2, 4], 'acc': 100, 'pp': 20, 'fx': 'slash3', 'desc': '마리오네트 인형 부대를 일제히 날려 보내 2~4회 연달아 할퀸다.'},
+            'sig_lemondelta_1': {'name': '인형 부대 돌격', 'type': 'air', 'cat': 'atk', 'pow': 38, 'hits': [2, 4], 'acc': 100, 'pp': 20, 'fx': 'slash3', 'desc': '마리오네트 인형 부대를 일제히 날려 보내 2~4회 연달아 할퀸다.'},
             'sig_lemondelta_2': {'name': '질투의 업화', 'type': 'fire', 'cat': 'atk', 'pow': 95, 'acc': 100, 'pp': 10, 'area': 1, 'eff': {'burn': 0.3}, 'fx': 'napalm', 'desc': '질투가 폭발하면 무대가 불바다가 된다. 일대를 태우고 화상을 입힐 때가 있다.'},
             'sig_lemondelta_3': {'name': '무대 의상 교체', 'type': 'phys', 'cat': 'st', 'acc': 0, 'pp': 10, 'self': {'atk': 1, 'spd': 1}, 'heal': 0.2, 'fx': 'buff', 'desc': '최신작 드레스로 갈아입고 무대에 다시 선다. 공격과 속도가 오르고 HP를 조금 회복한다.'},
         },
@@ -736,11 +736,12 @@ HAND = {
     },
     'lemonomega': {
         'moves': {
+            'sig_lemonomega_1': {'name': '절대 명령: 일제 포격', 'type': 'heavy', 'cat': 'atk', 'pow': 80, 'acc': 100, 'pp': 15, 'eff': {'foeDef': 0.3}, 'fx': 'barrage', 'desc': '절대 명령 한마디에 모든 포문이 한꺼번에 불을 뿜는다. 상대의 방어를 떨어뜨릴 때가 있다.'},
             'sig_lemonomega_2': {'name': '오메가 섬멸 포격', 'type': 'heavy', 'cat': 'atk', 'pow': 110, 'acc': 90, 'pp': 5, 'pierce': 1, 'fx': 'beam', 'desc': '모든 포문의 출력을 하나로 모아 꿰뚫는다. 상대의 방어 강화를 무시한다.'},
             'sig_lemonomega_3': {'name': '챔피언의 위엄', 'type': 'phys', 'cat': 'st', 'acc': 0, 'pp': 10, 'self': {'atk': 1, 'spd': 1}, 'fx': 'buff', 'desc': '자매들의 정점에 선 자의 여유로 전장을 내려다본다. 공격과 속도가 오른다.'},
         },
         'desc': '레모네이드 자매의 정점에 선 리더이자 리그 챔피언. 절대 명령 한마디로 자매들을 움직이며, 오만해 보여도 자매들에게는 누구보다 정이 깊다.',
-        'learn': [[1, 'order'], [1, 'shell'], [11, 'guard'], [16, 'sig_lemonomega_2'], [21, 'plasma'], [26, 'hcannon'], [30, 'sig_lemonomega_3']],
+        'learn': [[1, 'sig_lemonomega_1'], [1, 'order'], [11, 'guard'], [16, 'sig_lemonomega_2'], [21, 'plasma'], [30, 'sig_lemonomega_3']],
     },
 }
 for k, h in HAND.items():
@@ -751,6 +752,9 @@ for k, h in HAND.items():
 
 for m in moves.values():
     m['desc'] = fix_words(m['desc'])
+    if m.get('cat') == 'st' or m.get('heal'):
+        for a, b in (('아군 전체의', '자신의'), ('아군 전원의', '자신의'), ('아군 전체를', '자신을'), ('아군 전체', '자신'), ('아군들의', '자신의'), ('아군의', '자신의'), ('아군을', '자신을'), ('아군에게', '자신에게'), ('아군이', '자신이'), ('아군', '자신')):
+            m['desc'] = m['desc'].replace(a, b)
     if m.get('sig') and m.get('cat') == 'st' and 'self' in m:
         d = m['desc']
         if any(w in d for w in ('오르', '올린', '올라', '높', '끌어올')):
