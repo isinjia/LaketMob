@@ -50,7 +50,7 @@ FAMILY = {'bullet': 'gun', 'bullets': 'gun', 'snipe': 'gun', 'acid': 'chem', 'sm
 # (병종, 계열) -> 기본 · 중급 · 마무리
 WEAPON = {
     ('light', 'gun'): ['lshot', 'suppress', 'lfocus'], ('light', 'blade'): ['quick', 'blade', 'flash'],
-    ('light', 'blast'): ['lshot', 'lgrenade', 'lfocus'], ('light', 'energy'): ['lshot', 'lbeam', 'lbeam2'],
+    ('light', 'blast'): ['lshot', 'lgrenade', 'lfocus'], ('light', 'energy'): ['lray', 'lbeam', 'lbeam2'],
     ('light', 'melee'): ['quick', 'rush', 'lbreak'],
     ('heavy', 'gun'): ['hmg', 'hmgburst', 'hmgfull'], ('heavy', 'blade'): ['hsmash', 'hcrush', 'hbreak'],
     ('heavy', 'blast'): ['shell', 'barrage', 'railgun'], ('heavy', 'energy'): ['shell', 'hbeam', 'railgun'],
@@ -62,6 +62,7 @@ WEAPON = {
 }
 # 계열별 공용 기술 (위 표에서 쓰는 것 중 아직 없던 것). 타입은 병종이라 자속이 붙는다.
 GENERIC = {
+    'lray': {'name': '광선 사격', 'type': 'light', 'cat': 'atk', 'pow': 55, 'acc': 100, 'pp': 30, 'fx': 'beam', 'desc': '손에 모은 에너지를 가늘게 쏘아 보낸다.'},
     'lshot': {'name': '정밀 사격', 'type': 'light', 'cat': 'atk', 'pow': 55, 'acc': 100, 'pp': 30, 'fx': 'bullet', 'desc': '개인 화기로 한 발씩 정확하게 쏜다.'},
     'lfocus': {'name': '집중 사격', 'type': 'light', 'cat': 'atk', 'pow': 105, 'acc': 90, 'pp': 5, 'crit': 2, 'fx': 'bullets', 'desc': '탄창을 비울 각오로 한 점에 화력을 쏟아붓는다. 치명타가 나기 쉽다.'},
     'lgrenade': {'name': '유탄 발사', 'type': 'light', 'cat': 'atk', 'pow': 80, 'acc': 95, 'pp': 15, 'area': 1, 'fx': 'shell', 'desc': '총열 아래 유탄을 쏘아 일대를 휩쓴다.'},
@@ -140,7 +141,7 @@ def elem_of(u):
     return max(set(es), key=es.count) if es else None
 
 
-FAMILY_FIX = {'harpy': 'gun'}  # P-22 공대공 스텔스 전투기: 폭격기가 아니다
+FAMILY_FIX = {'harpy': 'gun', 'circe': 'energy'}  # P-22 공대공 스텔스 전투기: 폭격기가 아니다
 
 
 def family_of(u):
@@ -166,7 +167,7 @@ def apply_extra(m, extra):
     elif extra == 'taunt': m['self'] = {'def': 1}; m['eff'] = {'foeAtk': 0.5}
 
 
-SKILL_FIX = {('goltarion', 2): {'kind': 'atk', 'extra': 'selfAtk', 'fx': 'bombs', 'desc': '데모닉 웨폰을 소환해 전장에 투하한다. 일대를 덮치고 자신의 공격이 오른다.'}}
+SKILL_FIX = {}
 
 
 NAME_FX = [('클로', 'slash'), ('포격', 'shell'), ('포탄', 'shell'), ('캐논', 'shell'), ('폭격', 'bombs'), ('저격', 'snipe'), ('미사일', 'shell'), ('기관총', 'bullets'), ('기관포', 'bullets')]
@@ -320,8 +321,8 @@ MECH_FIX = {
 }
 
 
-AGGRESSIVE = ('포식', '반격', '추격', '사냥', '물어', '송곳니', '공격', '사격', '포격', '폭격', '베기', '일격', '처형', '저격', '돌격', '폭군',
-              '역습', '응징', '난사', '섬멸', '파괴', '격파', '참격', '타격', '발톱', '사살', '포효', '분노', '광폭', '학살', '가학', '추적', '포획', '흡혈')
+AGGRESSIVE = ('포식', '반격', '추격', '사냥', '물어', '송곳니', '공격', '사격', '포격', '폭격', '베기', '일격', '처형', '저격', '돌격',
+              '역습', '응징', '난사', '섬멸', '격파', '참격', '타격', '발톱', '사살', '포효', '광폭', '학살', '추적', '포획', '흡혈')
 
 
 def aggressive(name, desc=''):
@@ -471,6 +472,20 @@ def atk_key(m):
                        sorted((m.get('eff') or {}).keys()), bool(m.get('drain'))])
 
 
+BASIC = {'gun': {'light': ['lshot', 'lpierce'], 'heavy': ['hmg', 'hshellap'], 'air': ['ashot', 'strafe']},
+         'blast': {'light': ['lshot', 'lgrenade'], 'heavy': ['hshellap', 'hmg'], 'air': ['ashot', 'amissile']},
+         'blade': {'light': ['lunge', 'bleed'], 'heavy': ['hsmash', 'hstomp'], 'air': ['dive', 'aslash']},
+         'melee': {'light': ['lunge', 'ldrill'], 'heavy': ['hsmash', 'hstomp'], 'air': ['dive', 'aslash']},
+         'energy': {'light': ['lray', 'lbeam'], 'heavy': ['hbeam', 'hsmash'], 'air': ['aray', 'abeam']},
+         'chem': {'light': ['lchem', 'lunge'], 'heavy': ['hchem', 'hsmash'], 'air': ['achem', 'dive']}}
+
+
+def basics(u, elems):
+    b = list(BASIC.get(family_of(u), BASIC['melee'])[u['cls']])
+    if elems: b = [ELEM_MOVES[elems[0]][0], ELEM_MOVES[elems[0]][1]] + b
+    return b
+
+
 def tidy(u, ls, moves, elems):
     """키트 정리: 고유 기술과 효과가 같은 공용 변화기 빼기, 방어 강화·회복 겹침 줄이기,
     속성 무기 유닛의 총·미사일 공용기를 속성 기술로, 지원기의 공격 마무리기를 빼기."""
@@ -535,7 +550,7 @@ def tidy(u, ls, moves, elems):
             if d.get('cat') == 'st' and (d.get('self') or {}).get('atk', 0) > 0:
                 if atk_up >= 2: continue
                 atk_up += 1
-            if e and m in GUNLIKE and elemental_weapon(u):  # 화염방사기·냉기·전격이 무기인 유닛
+            if e and m in GUNLIKE and (elemental_weapon(u) or (sig_elem and sig_elem == sum(1 for x in sigs if x in moves and moves[x].get('cat') == 'atk'))):  # 화염방사기·냉기·전격이 무기인 유닛
                 if not pool: continue
                 m = pool.pop(0)
             if u['role'] == '지원기' and lv >= 40:
@@ -545,7 +560,7 @@ def tidy(u, ls, moves, elems):
     for lv, m in out:
         if m not in seen: seen.add(m); res.append([lv, m])
     atks = [m for _, m in res if (moves.get(m) or BASE_MOVES.get(m) or {}).get('cat') == 'atk']
-    for fill, lv in (({'light': 'lshot', 'heavy': 'hshellap', 'air': 'ashot'}[u['cls']], 1), ({'light': 'lunge', 'heavy': 'hshellap', 'air': 'aburst'}[u['cls']], 11)):
+    for fill, lv in zip(basics(u, elems), (1, 11, 11, 11)):
         if len(atks) >= 2: break
         if fill not in seen: res.append([lv, fill]); seen.add(fill); atks.append(fill)
     has = lambda mid: (moves.get(mid) or BASE_MOVES.get(mid) or {})
@@ -553,7 +568,7 @@ def tidy(u, ls, moves, elems):
         for cand in ('provoke', 'menace', 'challenge'):
             if cand not in seen: res.append([11, cand]); seen.add(cand); break
     pad = {'보호기': ['brace', 'menace', 'challenge'], '지원기': ['orders', 'analyze', 'flare'],
-           '공격기': [{'light': 'lunge', 'heavy': 'hshellap', 'air': 'aburst'}[u['cls']], 'steady', 'quickstep']}[u['role']]
+           '공격기': [basics(u, elems)[0], 'steady', 'quickstep']}[u['role']]
     for cand in pad:
         if len(res) >= 5: break
         d = has(cand)
