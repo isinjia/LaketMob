@@ -42,7 +42,7 @@ class Battle {
     this.trV = { x: 420, a: 0 };
     this.cmdV = { x: -420, a: 1 };
     this.hudFoe = { a: 0, hp: 0 }; this.hudMe = { a: 0, hp: 0, exp: 0 };
-    this.ball = null;
+    this.ball = null; this.link = null;
     this.runTries = 0;
     this.t = 0;
     this.lowT = 0;
@@ -521,59 +521,120 @@ class Battle {
     let shakes = 0;
     if (a >= 255) shakes = 4;
     else { const b = 65536 / Math.pow(255 / Math.max(1, a), 0.1875); for (let i = 0; i < 4; i++) { if (Math.random() * 65536 < b) shakes++; else break; } }
-    // 투척 연출
-    await this.throwCore({ x: 120, y: ME_BOX.base - 12 }, { x: FOE_BOX.cx, y: FOE_BOX.base - 140 }, id, 520);
-    Audio2.sfx('shine', 0.7);
-    FX.doFlash('#bff6ff', 0.6);
-    this.burst({ x: FOE_BOX.cx, y: FOE_BOX.base - 140 }, ['#5ff4ff', '#fff'], 30, 260);
-    await Promise.all([tween(this.foeV, { sc: 0.05, a: 0 }, 360, Ease.inQuad), tween(this.ball, { y: FOE_BOX.base - 140 }, 200)]);
-    this.foeV.show = false;
-    await tween(this.ball, { y: FOE_BOX.base - 20 }, 360, Ease.outBounce || Ease.inQuad);
-    Audio2.ballClick();
-    await wait(380);
+    // 투척 연출: 코어가 빛 꼬리를 끌며 날아가 대상 앞에 멈춰 뜬다 (대상을 빨아들이지 않는다)
+    const fr = BattleArt.frame(this, 'foe'), cx = fr.x + fr.w / 2, cy = fr.y + fr.h * 0.42;
+    const hover = { x: cx - Math.min(110, fr.w * 0.45), y: cy - 10 };
+    await this.throwCore({ x: 120, y: ME_BOX.base - 12 }, hover, id, 380, 90, true);
+    Audio2.sfx('shine', 0.6); FX.doFlash('#bff6ff', 0.35);
+    this.burst(hover, ['#5ff4ff', '#fff'], 18, 200);
+    // 링크 장치 전개: 구속 고리가 몸을 감싸고 코어와 대상이 빛줄기로 이어진다
+    const L = this.link = { cx, cy, fr, a: 0, prog: 0, shown: 0, pulse: 0, state: 'sync', t: 0 };
+    this.ball.hover = true;
+    Audio2.sfx('charge', 0.45);
+    await tween(L, { a: 1 }, 320, Ease.outCubic);
+    const th = [0.34, 0.67, 0.92];
     for (let i = 0; i < Math.min(3, shakes); i++) {
-      Audio2.ballShake();
-      await tween(this.ball, { rot: 0.45 }, 120); await tween(this.ball, { rot: -0.45 }, 200); await tween(this.ball, { rot: 0 }, 120);
-      await wait(450);
+      Audio2.tone(520 + i * 200, 0.14, 'sine', 0.16, 260);
+      L.pulse = 1; tween(L, { pulse: 0 }, 420);
+      await Promise.all([tween(L, { prog: th[i] }, 520, Ease.outCubic), this.struggle(i)]);
+      await wait(220);
     }
     if (shakes >= 4) {
-      Audio2.ballClick();
-      Audio2.sfx(this.o.legend ? 'catch_ss' : 'catch', 0.8);
-      for (let i = 0; i < 3; i++) Particles.add({ x: this.ball.x, y: this.ball.y, vx: (i - 1) * 90, vy: -160, g: 300, life: 0.9, size: 9, color: '#ffe14d', shape: 'star', rot: 0, vr: 6 });
-      this.ball.glow = 1;
-      await wait(500);
+      Audio2.tone(1180, 0.25, 'sine', 0.2, 400);
+      await tween(L, { prog: 1 }, 380, Ease.outCubic);
+      L.state = 'ok'; L.pulse = 1; tween(L, { pulse: 0 }, 600);
+      Audio2.sfx(this.o.legend ? 'catch_ss' : 'catch', 0.8); FX.doFlash('#e8fdff', 0.45);
+      // 대상이 빛 입자로 풀려 코어로 흘러 들어간다
+      for (let k = 0; k < 46; k++) {
+        const px = fr.x + Math.random() * fr.w, py = fr.y + fr.h * (0.1 + Math.random() * 0.8), d = 0.35 + Math.random() * 0.35;
+        Particles.add({ x: px, y: py, vx: (hover.x - px) / d, vy: (hover.y - py) / d, life: d, size: 3 + Math.random() * 4, color: k % 3 ? '#5ff4ff' : '#ffffff', add: true });
+      }
+      await Promise.all([tween(this.foeV, { a: 0, sc: 0.92 }, 520, Ease.inQuad), tween(L, { a: 0 }, 600)]);
+      this.foeV.show = false; this.link = null;
+      if (!this.ball) this.ball = { x: hover.x, y: hover.y, id, rot: 0, t: 0 };
+      this.ball.glow = 1; this.ball.hover = false;
+      await wait(250);
+      // 링크가 끝난 코어가 사령관에게 돌아온다
+      await this.throwCore({ x: this.ball.x, y: this.ball.y }, { x: 140, y: ME_BOX.base - 40 }, id, 420, 60, true, true);
       Audio2.voice(f.key, 'join');
-      await say('좋아! ' + J(f.name, '과') + ' 링크했다!', { auto: 1500 });
+      await say('링크 완료! ' + J(f.name, '과') + ' 링크했다!', { auto: 1500 });
       Game.markCaught(f.key);
       f.hp = Math.max(1, f.hp); f.ot = '사령관';
       await this.giveExp(f, true);
       const where = Game.addMon(f);
       if (where === 'box') await say('부대가 가득 차서 ' + J(f.name, '은') + ' 오르카 격납고로 보내졌다.', { auto: 1400 });
-      this.ball = null;
+      this.ball = null; this.foeV.sc = 1;
       return 'caught';
     }
-    // 실패
-    Audio2.sfx('shield', 0.6);
-    this.burst({ x: this.ball.x, y: this.ball.y }, ['#5ff4ff', '#fff'], 30, 260);
-    this.ball = null;
-    this.foeV.show = true;
-    await tween(this.foeV, { sc: 1, a: 1 }, 260, Ease.outBack);
-    const msgs = ['앗! 링크가 바로 끊어졌다!', '아깝다! 링크에 거의 성공했는데!', '으윽! 조금만 더 하면 됐는데!', '안타깝다! 거의 다 됐는데!'];
+    // 실패: 게이지가 붉게 깨지고 연결선이 끊기며 구속 고리가 부서진다
+    L.state = 'fail'; L.pulse = 1;
+    Audio2.tone(240, 0.3, 'sawtooth', 0.16, -160); Audio2.sfx('shield', 0.6);
+    await Promise.all([this.struggle(3), tween(L, { prog: Math.max(0, L.prog - 0.25) }, 260)]);
+    FX.doShake(8, 0.25);
+    this.burst({ x: cx, y: cy }, ['#ff5a6a', '#fff', '#5ff4ff'], 34, 320);
+    this.burst(this.ball || hover, ['#5ff4ff', '#fff'], 20, 220);
+    this.foeV.flash = 1; tween(this.foeV, { flash: 0 }, 350);
+    await tween(L, { a: 0 }, 260);
+    this.link = null; this.ball = null;
+    const msgs = ['링크가 바로 거부당했다!', '동기화 34%에서 링크가 끊어졌다!', '동기화 67%... 조금만 더 하면 됐는데!', '동기화 92%! 거의 다 됐는데!'];
     await say(msgs[Math.min(3, shakes)], { auto: 1000 });
     return null;
   }
-  throwCore(from, to, id, ms) {
-    this.ball = { x: from.x, y: from.y, id, rot: 0, t: 0 };
+  throwCore(from, to, id, ms, arc = 180, trail = false, back = false) {
+    if (!back || !this.ball) this.ball = { x: from.x, y: from.y, id, rot: 0, t: 0 };
     Audio2.sfx('whoosh', 0.6);
     const b = this.ball, sx = from.x, sy = from.y;
     return new Promise(res => {
       let t = 0;
       Tick.add(dt => {
-        t += dt * 1000; const p = clamp(t / ms, 0, 1);
-        b.x = lerp(sx, to.x, p); b.y = lerp(sy, to.y, p) - Math.sin(p * Math.PI) * 180; b.rot += dt * 14;
-        if (p >= 1) { b.rot = 0; res(); return false; }
+        t += dt * 1000; const p = clamp(t / ms, 0, 1), e = back ? Ease.inQuad(p) : Ease.outCubic(p);
+        b.x = lerp(sx, to.x, e); b.y = lerp(sy, to.y, e) - Math.sin(p * Math.PI) * arc; b.rot += dt * (trail ? 6 : 14);
+        // 링크 코어는 빛 꼬리를 남긴다
+        if (trail) for (let k = 0; k < 2; k++) Particles.add({ x: b.x + (Math.random() - 0.5) * 8, y: b.y + (Math.random() - 0.5) * 8, life: 0.28, size: 5 - k * 2, color: k ? '#ffffff' : '#5ff4ff', add: true, drag: 0.9 });
+        if (p >= 1) { b.rot = 0; if (back) this.ball = null; res(); return false; }
       });
     });
+  }
+  // 링크에 저항하며 버둥거린다 (단계가 오를수록 세게)
+  struggle(i) { const v = this.foeV, k = 6 + i * 3; return (async () => { for (let j = 0; j < 3; j++) { await tween(v, { x: k }, 50); await tween(v, { x: -k }, 70); } await tween(v, { x: 0 }, 50); })(); }
+  // 구속 고리 · 연결선 · 동기화 게이지
+  drawLink() {
+    const L = this.link; if (!L || L.a <= 0) return;
+    L.t += FRAME_DT;
+    const { cx, cy, fr } = L, fail = L.state === 'fail', ok = L.state === 'ok';
+    const col = fail ? '255,90,106' : ok ? '255,236,140' : '95,244,255';
+    ctx.save(); ctx.globalCompositeOperation = 'lighter';
+    // 몸을 감싸는 고리 세 개: 동기화가 오를수록 조여 들고, 서로 반대로 돈다
+    const rw = fr.w * (0.62 - 0.14 * L.prog), rh = rw * 0.22;
+    for (let k = 0; k < 3; k++) {
+      const yy = fr.y + fr.h * (0.28 + k * 0.22), rot = L.t * (k % 2 ? -1.6 : 1.3);
+      ctx.save(); ctx.translate(cx, yy); ctx.globalAlpha = L.a * (0.55 + 0.45 * L.pulse);
+      ctx.strokeStyle = 'rgba(' + col + ',0.95)'; ctx.lineWidth = 2.5 + 2 * L.pulse; ctx.setLineDash([22, 10]); ctx.lineDashOffset = rot * 40;
+      ctx.beginPath(); ctx.ellipse(0, 0, rw * (1 - k * 0.08), rh, 0, 0, 7); ctx.stroke();
+      ctx.setLineDash([]); ctx.globalAlpha = L.a * 0.18; ctx.lineWidth = 9; ctx.stroke(); ctx.restore();
+    }
+    // 코어 → 대상 빛줄기 (데이터가 흘러 들어가는 점선)
+    const b = this.ball;
+    if (b && !fail) {
+      ctx.globalAlpha = L.a; ctx.strokeStyle = 'rgba(' + col + ',0.9)'; ctx.lineWidth = 3;
+      ctx.setLineDash([6, 9]); ctx.lineDashOffset = -L.t * 120;
+      ctx.beginPath(); ctx.moveTo(b.x, b.y); ctx.lineTo(cx, cy); ctx.stroke(); ctx.setLineDash([]);
+      ctx.globalAlpha = L.a * 0.25; ctx.lineWidth = 10; ctx.stroke();
+    }
+    ctx.restore();
+    // 동기화 게이지 (대상 머리 위)
+    L.shown += (L.prog - L.shown) * Math.min(1, FRAME_DT * 10);
+    const gw = 190, gx = cx - gw / 2, gy = Math.max(70, fr.y - 18);
+    ctx.save(); ctx.globalAlpha = L.a;
+    ctx.fillStyle = 'rgba(4,14,28,0.82)'; ctx.fillRect(gx - 8, gy - 26, gw + 16, 44);
+    ctx.strokeStyle = 'rgba(' + col + ',0.8)'; ctx.lineWidth = 1.5; ctx.strokeRect(gx - 8, gy - 26, gw + 16, 44);
+    const label = fail ? 'LINK LOST' : ok ? 'LINK ESTABLISHED' : 'LINK SYNC';
+    txt(label, gx, gy - 8, { size: 14, weight: 900, color: 'rgb(' + col + ')' });
+    txt(Math.round(L.shown * 100) + '%', gx + gw, gy - 8, { size: 14, weight: 900, align: 'right', color: '#fff' });
+    ctx.fillStyle = 'rgba(255,255,255,0.12)'; ctx.fillRect(gx, gy, gw, 8);
+    const jit = fail ? (Math.random() - 0.5) * 10 : 0;
+    ctx.fillStyle = 'rgb(' + col + ')'; ctx.fillRect(gx + jit, gy, gw * L.shown, 8);
+    ctx.restore();
   }
 
   // ---------------- 경험치 / 레벨업 ----------------
@@ -873,9 +934,10 @@ class Battle {
     }
     if (this.cmdV.x > -440) drawCommanderBig(ME_BOX.cx - 10 + this.cmdV.x, H + 30, 1.3, 'back');
     // 코어
+    this.drawLink();
     if (this.ball) {
-      ctx.save(); ctx.translate(this.ball.x, this.ball.y); ctx.rotate(this.ball.rot || 0);
-      if (this.ball.glow) { ctx.shadowColor = '#ffe14d'; ctx.shadowBlur = 20; }
+      ctx.save(); ctx.translate(this.ball.x, this.ball.y + (this.ball.hover ? Math.sin(Tick.time * 5) * 4 : 0)); ctx.rotate(this.ball.rot || 0);
+      if (this.ball.glow || this.ball.hover) { ctx.shadowColor = this.ball.glow ? '#ffe14d' : '#5ff4ff'; ctx.shadowBlur = 22; }
       itemIcon(this.ball.id, 0, 0, 34); ctx.restore();
     }
     this.drawShapes();
