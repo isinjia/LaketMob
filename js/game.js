@@ -471,7 +471,7 @@ const Scripts = {
     Audio2.sfx('shine', 0.6);
     UI.push(new StarterPreview(sp));
     Audio2.voice(sp.key, 'start');
-    await say('조금 시끄럽지만 정의감만큼은 누구에게도 지지 않아요. 제가 있으니까 너무 걱정 마세요.', o);
+    await say('조금 시끄럽지만 정의감만큼은 누구에게도 지지 않아요. 제가 있으니까 너무 걱정 마세요.', { speaker: '라비아타' }); // 소개 화면 위에서는 라비아타 그림을 띄우지 않는다
     UI.close(UI.stack.find(w => w instanceof StarterPreview));
     await this.joinStarter(sp);
     await this.starterGifts(o);
