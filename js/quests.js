@@ -172,11 +172,11 @@
 
   // ===== 서브: 남부 항구 마을 =====
   sideQ({ id: 's_merlin', title: '숲의 이상 현상', giver: ['harbor', 'merlin'], area: '남부 항구 마을', avail: () => badge('beta'),
-    offer: ['오호, 사령관. 요즘 폭주한 바이오로이드가 늘었다는 보고가 있어.', '레모네이드의 제어 신호가 원인인지 확인해야 해. 폭주체를 열다섯 기만 진정시켜 줘. 데이터는 내가 알아서 모을게!'],
+    offer: ['히힛, 아서. 요즘 폭주한 바이오로이드가 늘었다는 보고가 있어.', '레모네이드의 제어 신호가 원인인지 확인해야 해. 폭주체를 열다섯 기만 진정시켜 줘. 데이터는 내가 알아서 모을게!'],
     summary: '멀린이 폭주 바이오로이드 증가 원인을 조사하고 있다. 전투에서 상대를 쓰러뜨리자.',
     steps: [{ goal: '상대 유닛 15기 쓰러뜨리기', check: s => (Game.stats.knockouts || 0) - (s.base || 0) >= 15, prog: s => Math.min(15, (Game.stats.knockouts || 0) - (s.base || 0)) + ' / 15',
       onStart: s => { s.base = Game.stats.knockouts || 0; }, at: ['harbor', 'merlin'],
-      talk: async o => lines(o, ['역시! 폭주체들의 링크 파형에 배지와 같은 주파수가 섞여 있어.', '이건... 아니, 과학자는 확신 없이 말하지 않는 법이야. 수고비로 에너지 셀 줄게, 사령관!']) }],
+      talk: async o => lines(o, ['역시! 폭주체들의 링크 파형에 배지와 같은 주파수가 섞여 있어.', '이건... 아니, 천재는 확신 없이 말하지 않는 법이야. 수고비로 에너지 셀 줄게, 아서!']) }],
     reward: { money: 800, items: { cell: 3 } } });
   sideQ({ id: 's_tomoe', title: '수련의 상대', giver: ['harbor', 'tomoe'], area: '남부 항구 마을', avail: () => badge('delta'),
     offer: ['사령관, 친구 토모는 더 강한 상대 이야기가 듣고 싶어!', '폐허 해안의 레이븐이랑 케시크가 실력자래. 둘 다 이기고 와서 얘기해 줘! 내 지성미로 분석해 줄게!'],

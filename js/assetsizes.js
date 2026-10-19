@@ -89,4 +89,6 @@ const ASSET_SIZES = {
   rhode: [720, 601],
   lamparion: [638, 720],
   ireina: [720, 663],
+  shepherd: [417, 720],
+  hestia: [720, 693],
 };

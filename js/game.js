@@ -519,12 +519,12 @@ const Scripts = {
     const o = { speaker: '멀린', portrait: 'merlin' };
     Audio2.voice('merlin', 'talk', 0.8);
     if (!Game.flags.merlinGift) {
-      await say('오호, 당신이 소문의 사령관? 숲 지나오느라 고생했겠네. 마법... 아니, 과학의 선물을 줄게!', o);
+      await say('히힛, 네가 소문의 오르카 사령관? 오늘부터 아서라고 부를게! 숲 지나오느라 고생했으니 천재 멀린이 선물을 주지!', o);
       Game.addItem('cell', 2); Game.addItem('core2', 2); Game.flags.merlinGift = 1;
       Audio2.sfx('item_get', 0.8);
       await say('사령관은 에너지 셀 ×2, 고급 링크 코어 ×2를 받았다!');
-      await say('에너지 셀은 기술 에너지(EN)를 회복해 줘. 강한 기술은 EN이 적으니까 아껴 써, 사령관.', o);
-    } else await say('해안의 폭주 바이오로이드들은 숲과는 차원이 달라. 수복실에서 충분히 정비하고 가.', o);
+      await say('에너지 셀은 기술 에너지(EN)를 회복해 줘. 강한 기술은 EN이 적으니까 아껴 써, 아서.', o);
+    } else await say('해안의 폭주 바이오로이드들은 숲과는 차원이 달라. 수복실에서 충분히 정비하고 가, 아서.', o);
   },
   async obj_pc(e) { Audio2.sfx('stage_in', 0.6); await say('사령관은 격납고 단말기를 켰다.', { auto: 700 }); await UI.push(new PCScreen()); },
   async obj_healpod(e) {

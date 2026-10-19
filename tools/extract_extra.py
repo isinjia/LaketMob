@@ -36,12 +36,17 @@ UNITS = {
     'lamparion': (['FullbodyIMG_AGS_Rampart_NS1.png'], 'InvenIcon_AGS_Rampart_NS1.png', 'RampartNS1'),
     # 엡실론 체육관 관원 (펜리르 대신). 트레이너 초상화·SD 용
     'ireina': (['FullbodyIMG_PECS_Ireina_N_part1.png', 'FullbodyIMG_PECS_Ireina_N_part2.png', 'FullbodyIMG_PECS_Ireina_N_part3.png'], 'InvenIcon_PECS_Ireina_N.png', 'Ireina'),
+    # 체육관 부관 (원작 설정): 베타의 잉글리쉬 셰퍼드, 제타의 헤스티아 (델타의 테일러 리스트컷은 2D 모델 그림만 있어 따로 만든다)
+    'shepherd': (['FullbodyIMG_PECS_Shepherd_N.png'], 'InvenIcon_PECS_Shepherd_N.png', 'Shepherd'),
+    'hestia': (['FullbodyIMG_PECS_Hestia_N_Part1.png', 'FullbodyIMG_PECS_Hestia_N_Part2.png', 'FullbodyIMG_PECS_Hestia_N_Part3.png'], 'InvenIcon_PECS_Hestia_N.png', 'Hestia'),
 }
 
 
 def main():
     sizes = {}
+    only = set(__import__('sys').argv[1:])  # 키를 주면 그 유닛만 다시 뽑는다
     for key, (parts, ic, vo) in UNITS.items():
+        if only and key not in only: continue
         ims = [Image.open(os.path.join(FB, p)).convert('RGBA') for p in reversed(parts)]
         base = Image.new('RGBA', ims[0].size)
         for im in ims:

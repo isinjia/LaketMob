@@ -17,8 +17,8 @@
   const L = (k) => 'lemon' + k;
   Object.assign(TRAINERS, {
     // 1. 감마 체육관 (1번 폐도로)
-    tomoe: { name: '토모', title: '감마 체육관 관원', portrait: 'tomoe', team: [['hyena', 8], ['gremlin', 9]], prize: 520,
-      intro: '자, 친구 토모 등장! 감마 관장한테 도전하려면 나부터 넘어가야 해. 내 지성미, 각오해!', lose: '으으... 이게 바로 ‘금상첨화’라는 거구나... 어? 아닌가?', after: '감마 관장은 정면 승부를 좋아해. 피하지 말고 맞서, 사령관! 그게 바로 ‘우유부단’... 아니, 아무튼 그거야!', rematch: ['사령관! 친구 토모가 그동안 지성미를 갈고닦았어. 한 판 더 하자!', '이번엔 ‘백전백패’... 아니, 백전백승이다!', '으으... 이게 바로 ‘전화위복’이지? 다음엔 진짜 이긴다!'] },
+    shepherd: { name: '잉글리쉬 셰퍼드', title: '베타 체육관 부관', portrait: 'shepherd', team: [['pixie', 13], ['nymph', 13]], prize: 900,
+      intro: '여! 반가워 사령관. 난 잉글리쉬 셰퍼드, 레모네이드 베타의 부관이야. 베타 만나려면 나부터 이기고 가.', lose: '쓰읍.. 생각보다 하는데? 에이, 졌다 졌어.', after: '베타는 겁이 많아서 말이야. 너무 몰아붙이진 마, 사령관.', rematch: ['또 왔네, 사령관? 좋아, 한 판 더 붙자.', '이번엔 안 봐준다?', '쓰읍.. 또 졌네. 너 진짜 세다.'] },
     gamma: { name: '레모네이드 감마', title: '감마 체육관 관장', portrait: L('gamma'), team: [['brownie', 5], ['sylphid', 6], [L('gamma'), 8]], prize: 2000, boss: true, badge: 'gamma', bgm: 'boss', voice: L('gamma'),
       intro: '', lose: '', after: '하하하! 언제든 다시 오게, 오르카의 사령관. 이 몸이 상대해 주지!' },
     // 2. 베타 체육관 (엘프의 숲)
@@ -27,13 +27,11 @@
     beta: { name: '레모네이드 베타', title: '베타 체육관 관장', portrait: L('beta'), team: [['undine', 14], ['nymph', 14], [L('beta'), 16]], prize: 2600, boss: true, badge: 'beta', bgm: 'boss', voice: L('beta'),
       intro: '', lose: '', after: '주, 주인님... 다음에도 또 와 주실 거죠...?' },
     // 3. 델타 체육관 (항구 마을)
-    johanna: { name: '요안나', title: '델타 체육관 호위 기사', portrait: 'johanna', team: [['impet', 17], ['talonfeather', 17]], prize: 1300,
-      intro: '무대에 함부로 오르려 하는가? 기사의 예법대로, 승부로 입장료를 치르게나!', lose: '...훌륭하군, 주군. 오늘 무대의 주인공은 주군일세. 시라도 한 수 바치고 싶군.', after: '델타 앞에서 감마 이야기는 꺼내지 말게나. 진심으로 하는 충고일세.', rematch: ['주군, 다시 왔는가. 기사의 검은 녹슬지 않는 법이지. 한 번 더 겨뤄 보겠나?', '이번엔 내 검의 진가를 보여 주겠네!', '...훌륭하네, 주군. 이 승부도 시로 남겨 두겠네.'] },
     delta: { name: '레모네이드 델타', title: '델타 체육관 관장', portrait: L('delta'), team: [['miho', 17], ['talonfeather', 17], ['lindwurm', 18], [L('delta'), 19]], prize: 3200, boss: true, badge: 'delta', bgm: 'boss', voice: L('delta'),
       intro: '', lose: '', after: '유세떨기는. 다음엔 내 마리오네트가 널 무대 밖으로 끌어낼 거야.' },
     // 4. 제타 체육관 (폐허 해안)
-    atalanta: { name: '아탈란테', title: '제타 연구소 경비', portrait: 'atalanta', team: [['gigantes', 21], ['valkyrie', 21]], prize: 1600,
-      intro: '연구소 출입은 실험 협조자만 가능하답니다. 마침 사냥감이 없어 무료하던 참인데... 그대가 협조해 주시겠어요?', lose: '후후... 제법이군요. 관측 결과는 그대로 보고하지요.', after: '제타는 상금을 줄 때 꼭 깎는답니다... 비효율적이라나요. 참 무료한 분이에요.', rematch: ['그대였군요. 무료하던 참이에요. 한 번 더 사냥을 즐겨 볼까요?', '이번엔 제가 사냥꾼이에요.', '후후... 역시 그대는 쉬운 사냥감이 아니군요.'] },
+    hestia: { name: '헤스티아', title: '제타 연구소 부관', portrait: 'hestia', team: [['gigantes', 21], ['valkyrie', 21]], prize: 1600,
+      intro: '다시 만났군요, 오르카의 사령관. 어머니의 연구소에 들어오시려면 먼저 제 평가를 통과하셔야 합니다.', lose: '...솔직한 평가를 말씀드리면, 훌륭했습니다. 착각하지 말아주시기를. 칭찬이 아니라 관측 결과입니다.', after: '어머니는 상금을 깎으실 겁니다. 비효율적이라시면서요... 저는 그 점이 마음에 들지 않습니다.', rematch: ['또 오셨군요, 오르카의 사령관. 재평가를 원하십니까?', '이번에는 전력으로 상대하겠습니다.', '...역시 당신이군요. 인정하겠습니다.'] },
     zeta: { name: '레모네이드 제타', title: '제타 체육관 관장', portrait: L('zeta'), team: [['gigantes', 21], ['goltarion', 22], ['valkyrie', 22], [L('zeta'), 24]], prize: 1200, boss: true, badge: 'zeta', bgm: 'boss', voice: 'mpzeta',
       intro: '', lose: '', after: '관측은 계속돼요. 당신은 여전히 흥미로운 표본이군요.' },
     // 5. 엡실론 체육관 (폐공장 지대)
@@ -50,6 +48,8 @@
     // 7. 챔피언 오메가 (레모네이드 리조트)
     omega: { name: '레모네이드 오메가', title: '레모네이드 리그 챔피언', portrait: L('omega'), team: [['tyrant', 31], ['fafnir', 31], ['leona', 33], ['valkyrie', 32], [L('omega'), 36]], prize: 9999, boss: true, badge: 'omega', bgm: 'final',
       intro: '', lose: '', after: '...한 번 더요? 사양할게요, 인간님. 오늘은 술이나 마실 거니까요.' },
+    yumi: { name: '커넥터 유미', title: '챔피언 홀 비서', portrait: 'bs', team: [['phantom', 32], ['valkyrie', 32]], prize: 2400,
+      intro: '앗, 사령관님! 오메가 님을 만나시려면 비서인 저를 먼저 거치셔야 해요. 쬐~끔 힘들어도 일은 일이니까요!', lose: '꺅... 졌네요. 헤헷, 그래도 나름 보람 있는 승부였답니다?', after: '오메가 님 앞에서는 조심하세요. 저는... 이제 퇴근하고 싶어요. 하암.', rematch: ['절 찾으셨어요? 오늘 야근이라 쬐~끔 예민하답니다?', '헤헷, 제가 안 가면 누가 가겠어요!', '하암... 졌어요. 퇴근하고 맥주나 마셔야겠어요.'] },
     // 사령관 독점단
     dok1: { name: '사령관 독점단 브라우니', title: '사령관 독점단 (마스코트)', portrait: 'brownie', team: [['brownie', 6], ['brownie', 7], ['brownie', 7]], prize: 300,
       intro: '', lose: '', after: '브, 브라우니는 아직 포기 안 했지 말입니다!', rematch: ['거기 서십쇼, 사령관님! 브라우니 부대, 재출격하지 말입니다!', '이번엔 진짜 안 지지 말입니다!', '또 졌지 말입니다아아~!'] },
@@ -89,17 +89,25 @@
       ],
     };
   }
-  makeGym('gym_gamma', '감마 체육관', { id: 'gamma', sprite: L('gamma') }, { id: 'tomoe', sprite: 'tomoe' }, ['route1', 5, 5, 'down']);
-  makeGym('gym_beta', '베타 체육관', { id: 'beta', sprite: L('beta') }, { id: 'merlin', sprite: 'merlin' }, ['forest', 30, 12, 'down']);
-  makeGym('gym_delta', '델타 체육관', { id: 'delta', sprite: L('delta') }, { id: 'johanna', sprite: 'johanna' }, ['harbor', 11, 5, 'down']);
-  makeGym('gym_zeta', '제타 체육관', { id: 'zeta', sprite: L('zeta') }, { id: 'atalanta', sprite: 'atalanta' }, ['coast', 35, 10, 'down']);
+  makeGym('gym_gamma', '감마 체육관', { id: 'gamma', sprite: L('gamma') }, { id: 'merlin', sprite: 'merlin' }, ['route1', 5, 5, 'down']);
+  makeGym('gym_beta', '베타 체육관', { id: 'beta', sprite: L('beta') }, { id: 'shepherd', sprite: 'shepherd' }, ['forest', 30, 12, 'down']);
+  makeGym('gym_delta', '델타 체육관', { id: 'delta', sprite: L('delta') }, { id: 'none', sprite: '' }, ['harbor', 11, 5, 'down']);
+  MAPS.gym_delta.objects = MAPS.gym_delta.objects.filter(o => o.id !== 'none'); // 델타는 부관 없이 혼자 무대를 지킨다
+  makeGym('gym_zeta', '제타 체육관', { id: 'zeta', sprite: L('zeta') }, { id: 'hestia', sprite: 'hestia' }, ['coast', 35, 10, 'down']);
   makeGym('gym_epsilon', '엡실론 체육관', { id: 'epsilon', sprite: L('epsilon') }, { id: 'ireina', sprite: 'ireina' }, ['factory', 23, 6, 'down']);
   // 엡실론 체육관 관원이 펜리르에서 이레이나로 바뀌었다: 예전 세이브의 승리 기록을 이어 간다
   const loadBeforeIreina = Game.load;
   Game.load = function () { const ok = loadBeforeIreina.apply(this, arguments); if (ok && this.flags.beat_fenrir) this.flags.beat_ireina = 1; return ok; };
+  // 체육관 관원을 원작 부관으로 바꿨다 (감마 토모→멀린, 베타 멀린→잉글리쉬 셰퍼드, 제타 아탈란테→헤스티아): 예전 승리 기록을 옮긴다
+  const loadBeforeAdjutants = Game.load, resetBeforeAdjutants = Game.reset;
+  Game.reset = function () { const r = resetBeforeAdjutants.apply(this, arguments); this.flags.staff2 = 1; return r; };
+  Game.load = function () {
+    const ok = loadBeforeAdjutants.apply(this, arguments), f = this.flags;
+    if (ok && !f.staff2) { const old = { t: f.beat_tomoe, m: f.beat_merlin, a: f.beat_atalanta }; delete f.beat_merlin; if (old.t) f.beat_merlin = 1; if (old.m) f.beat_shepherd = 1; if (old.a) f.beat_hestia = 1; f.staff2 = 1; }
+    return ok;
+  };
   makeGym('gym_alpha', '알파 체육관', { id: 'alpha', sprite: L('alpha') }, { id: 'shirayuri', sprite: 'shirayuri' }, ['snowfield', 8, 8, 'down']);
-  makeGym('gym_omega', '챔피언 홀', { id: 'omega', sprite: L('omega') }, { id: 'none', sprite: '' }, ['resort', 13, 9, 'down'], 'boss');
-  MAPS.gym_omega.objects = MAPS.gym_omega.objects.filter(o => o.id !== 'none');
+  makeGym('gym_omega', '챔피언 홀', { id: 'omega', sprite: L('omega') }, { id: 'yumi', sprite: 'bs' }, ['resort', 13, 9, 'down'], 'boss');
 
   // ---------------------------------------------------------------
   //  기존 맵 수정: 체육관 건물 · 길막이 · 독점단
