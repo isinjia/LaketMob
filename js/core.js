@@ -374,7 +374,7 @@ function lazyImg(cat, name) {
   return null;
 }
 function loadImage(src) {
-  return new Promise(res => { const i = new Image(); i.onload = () => res(i); i.onerror = () => { i._bad = true; res(i); }; i.src = src; });
+  return new Promise(res => { const i = new Image(); i.onload = () => res(i); i.onerror = () => { i._bad = true; res(i); }; if (window.PACKED) PACKED.setSrc(i, src); else i.src = src; });
 }
 async function loadAssets(onProgress) {
   const jobs = [];

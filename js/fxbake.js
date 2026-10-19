@@ -24,7 +24,7 @@
   function loadImage(url) {
     const im = new Image();
     const loaded = new Promise((r) => { im.onload = () => r(im); im.onerror = () => r(null); });
-    im.src = url;
+    if (window.PACKED) PACKED.setSrc(im, url); else im.src = url;
     return Promise.race([im.decode().then(() => im, () => loaded), loaded.then((x) => new Promise((r) => setTimeout(() => r(x), 250)))])
       .then((x) => (x && x.naturalWidth ? x : null));
   }

@@ -11,3 +11,8 @@ __pycache__/
 *.pyc
 Thumbs.db
 desktop.ini
+
+# 배포 빌드 산출물 (GitHub Actions 가 만든다)
+dist/
+node_modules/
+.wrangler/

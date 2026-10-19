@@ -221,7 +221,7 @@
     }
     const im = new Image();
     const loaded = new Promise((r) => { im.onload = im.onerror = r; });
-    im.src = a.u;
+    if (window.PACKED) PACKED.setSrc(im, a.u); else im.src = a.u; // 배포판: 마스킹한 .pak 을 되돌려 그린다
     // decode() decodes off the main thread, but may wait indefinitely in a hidden tab: whichever settles first
     await Promise.race([im.decode().catch(() => loaded), loaded.then(() => new Promise((r) => setTimeout(r, 250)))]);
     if (!im.naturalWidth) { if (a.v) a.u = undefined; return null; } // undecodable: refetch on retry

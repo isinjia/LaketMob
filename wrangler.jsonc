@@ -1,0 +1,14 @@
+// Cloudflare Workers 정적 배포 (main 에 푸시할 때마다 Workers Builds 가 `npx wrangler deploy` 실행).
+// 빌드 단계(tools/build_dist.mjs)가 게임 파일만 dist/ 에 담고, 스크립트를 압축·이름 줄이기 하고, 이미지를 마스킹(.pak)한다.
+// 저장소에는 읽을 수 있는 원본이 그대로 남는다.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "laketmob",
+  "compatibility_date": "2026-10-12",
+  "build": {
+    "command": "node tools/build_dist.mjs"
+  },
+  "assets": {
+    "directory": "./dist"
+  }
+}

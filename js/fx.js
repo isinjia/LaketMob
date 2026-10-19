@@ -581,7 +581,7 @@ window.__initFX = function () {
   }
 
   window.FX = {
-    L, tex, init, update, clear, particle, sprite, kill, setTex, setBudget, draw: drawParticles, sparks, hit, explosion, ring, lightning, beam, slash, flame, wave, frost, holy,
+    L, tex, sheets, ribbon, jagged, init, update, clear, particle, sprite, kill, setTex, setBudget, draw: drawParticles, sparks, hit, explosion, ring, lightning, beam, slash, flame, wave, frost, holy,
     trail, muzzle, muzzleFlash, summonBurst, mergeFx, deathFx, goldPop, meteor, pillar, orbital, thunderBolt, freezeAll,
     shake, flash, later: setTimeout0, state, rnd,
   };
