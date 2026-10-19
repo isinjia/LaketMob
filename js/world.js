@@ -363,6 +363,7 @@ const World = {
     const p = this.player;
     for (const e of this.ents) {
       if (e.kind !== 'trainer' || !this.entActive(e) || Game.flags['beat_' + e.o.id]) continue;
+      if (window.Quests && Quests.gymLocked(e.o.id)) continue; // 퀘스트를 받기 전에는 관장이 먼저 싸움을 걸지 않는다
       let seen = false;
       if (e.o.zone) { const [zx, zy, zw, zh] = e.o.zone; seen = p.x >= zx && p.x < zx + zw && p.y >= zy && p.y < zy + zh; }
       else {
@@ -390,6 +391,13 @@ const World = {
   },
   async trainerBattle(e, spotted) {
     const o = e.o, T = TRAINERS[o.id], p = this.player;
+    const lockQ = window.Quests && Quests.gymLocked(o.id);
+    if (lockQ) {
+      // 아직 그 관장에게 도전하라는 메인 퀘스트를 받지 않았다: 누구에게 먼저 가야 하는지 알려 준다
+      const g = lockQ.giver, who = g ? Quests.npcName(g) + '(' + ((MAPS[g[0]] && MAPS[g[0]].name) || '') + ')' : '';
+      await say('(관장 협회의 정식 도전 절차를 아직 밟지 않았다.' + (who ? ' 먼저 ' + who + '에게 이야기를 들어 보자.' : ' 먼저 이전 관장에게 이야기를 들어 보자.') + ')');
+      return;
+    }
     if (spotted) {
       Audio2.exclaim(); e.exclaim = 0.9;
       if (T.boss) Audio2.stopBgm(400); else Audio2.bgm('trainer', { fadeIn: 200 });
