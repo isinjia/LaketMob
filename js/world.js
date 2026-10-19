@@ -25,7 +25,7 @@ const ROOMS = {
   center2: { img: 'train_0', fl: 365, wall: ['#5d6580', '#a3abc6'], rug: ['#3d4f86', '#9fb8ff'], floor: ['#bcc1d0', '#b1b7c7', '#8a93ab'], props: { healer: 'andr1_1' }, extra: [['iron1_5', 2, 1, 1], ['andr1_6', 7, 1, 1]] },
   shop1:   { img: 'cafe4_0', fl: 268, floorTint: 'rgba(120,95,70,0.12)', wall: ['#8f877a', '#ece7de'], rug: ['#8a5a3a', '#e8c28a'], floor: ['#eeece8', '#e3e0db', '#c4bfb6'], props: { shelf: 'iron1_6' }, extra: [['cafe5_1', 4, 1, 4]] },
   shop2:   { img: 'cafe4_0', fl: 268, floorTint: 'rgba(120,95,70,0.12)', wall: ['#8f877a', '#ece7de'], rug: ['#8a5a3a', '#e8c28a'], floor: ['#eeece8', '#e3e0db', '#c4bfb6'], props: { shelf: 'iron1_6' }, extra: [['cafe5_1', 4, 1, 4]] },
-  home:    { img: 'rein1_0', fl: 358, wall: ['#6b463f', '#b07e72'], rug: ['#6e2f35', '#e0a96d'], floor: ['#d8d2cd', '#cec7c1', '#a89c92'], props: { shelf: 'mk4_1', desk: 'iron1_9' }, extra: [['mk0_6', 3, 1, 1], ['mk0_6', 6, 1, 1]] },
+  home:    { img: 'rein1_0', fl: 358, wall: ['#6b463f', '#b07e72'], rug: ['#6e2f35', '#e0a96d'], floor: ['#d8d2cd', '#cec7c1', '#a89c92'], props: { shelf: 'mk4_1', desk: 'iron1_9' } },
 };
 function roomImg(name) { return IMG.room[name] || lazyImg('room', name); }
 // 방 바닥: 원작 방 그림의 바닥 부분을 방 크기에 맞춰 깐다 (레이어보다 먼저)
@@ -363,6 +363,7 @@ const World = {
     const p = this.player;
     for (const e of this.ents) {
       if (e.kind !== 'trainer' || !this.entActive(e) || Game.flags['beat_' + e.o.id]) continue;
+      if (window.Quests && Quests.gymLocked(e.o.id)) continue; // 퀘스트를 받기 전에는 관장이 먼저 싸움을 걸지 않는다
       let seen = false;
       if (e.o.zone) { const [zx, zy, zw, zh] = e.o.zone; seen = p.x >= zx && p.x < zx + zw && p.y >= zy && p.y < zy + zh; }
       else {
@@ -390,6 +391,13 @@ const World = {
   },
   async trainerBattle(e, spotted) {
     const o = e.o, T = TRAINERS[o.id], p = this.player;
+    const lockQ = window.Quests && Quests.gymLocked(o.id);
+    if (lockQ) {
+      // 아직 그 관장에게 도전하라는 메인 퀘스트를 받지 않았다: 누구에게 먼저 가야 하는지 알려 준다
+      const g = lockQ.giver, who = g ? Quests.npcName(g) + '(' + ((MAPS[g[0]] && MAPS[g[0]].name) || '') + ')' : '';
+      await say('(관장 협회의 정식 도전 절차를 아직 밟지 않았다.' + (who ? ' 먼저 ' + who + '에게 이야기를 들어 보자.' : ' 먼저 이전 관장에게 이야기를 들어 보자.') + ')');
+      return;
+    }
     if (spotted) {
       Audio2.exclaim(); e.exclaim = 0.9;
       if (T.boss) Audio2.stopBgm(400); else Audio2.bgm('trainer', { fadeIn: 200 });

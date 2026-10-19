@@ -517,6 +517,13 @@
       ctx.restore();
     },
   };
+  // 관장 잠금: 그 관장을 이기는 메인 퀘스트를 받기 전에는 관장이 전투를 걸지 않는다 (이미 이겼으면 잠그지 않음)
+  Quests.gymQuest = (id) => QUESTS.find(q => q.type === 'main' && q.steps.some(s => s.at && s.at[1] === id && (String(s.check).match(/beat_\w+/g) || []).includes('beat_' + id)));
+  Quests.gymLocked = (id) => {
+    if (Game.flags['beat_' + id]) return null;
+    const q = Quests.gymQuest(id);
+    return q && !Quests.active(q.id) && !Quests.done(q.id) ? q : null;
+  };
   window.Quests = Quests;
   window.QUESTS = QUESTS;
 
