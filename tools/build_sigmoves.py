@@ -33,7 +33,7 @@ RANK_MULT = {'B': 1.0, 'A': 1.12, 'S': 1.25, 'SS': 1.4}
 # 서사·진행 보정: 전설(사이드 스토리에서 만나는 존재)과 저항군 지도자는 더 강하게.
 # 레모네이드 관장은 체육관 순서에 맞춘다 — 첫 관장 감마와 여섯째 알파는 같은 레벨대 부대가 넘을 수 있게 SS 하단으로
 # (tools/balancetest.js 의 관장 승률 검사 기준)
-STORY_BONUS = {'blacklilith': 25, 'eternity': 10, 'phoenix': 10, 'hongryun': 10, 'labiata': 10, 'harpy': 15, 'sleipnir': 10, 'cheona': 10,
+STORY_BONUS = {'blacklilith': 25, 'eternity': 10, 'phoenix': 10, 'hongryun': 10, 'labiata': 10, 'harpy': 15, 'leona': 15, 'alexandra': 15, 'sleipnir': 10, 'cheona': 10,
                'lemongamma': -25, 'lemonbeta': 15, 'lemonepsilon': 15, 'lemonalpha': 20}
 LEGENDS = {'blacklilith', 'eternity', 'phoenix', 'hongryun'}
 # 시작 유닛은 등급과 무관하게 실전 능력치(합계 × 등급 배율)를 같게, 같은 B급 야생(230)보다 조금 높게
@@ -436,11 +436,19 @@ def variant(key, m):
     return ALT[m] if h % 2 else m
 
 
+def atk_key(m):
+    """공격기의 성격: 타입·연타·치명·관통·광역·부가효과가 같으면 같은 일을 하는 공격으로 본다."""
+    return json.dumps([m.get('cat'), m.get('type'), bool(m.get('hits')), bool(m.get('crit')), bool(m.get('pierce')), bool(m.get('area')),
+                       sorted((m.get('eff') or {}).keys()), bool(m.get('drain'))])
+
+
 def tidy(u, ls, moves, elems):
     """키트 정리: 고유 기술과 효과가 같은 공용 변화기 빼기, 방어 강화·회복 겹침 줄이기,
     속성 무기 유닛의 총·미사일 공용기를 속성 기술로, 지원기의 공격 마무리기를 빼기."""
     sigs = [m for _, m in ls if m.startswith('sig_')]
     sig_keys = {effect_key(moves[m]) for m in sigs if m in moves}
+    sig_atk = {atk_key(moves[m]) for m in sigs if m in moves and moves[m].get('cat') == 'atk'}
+    spd_up = sum(1 for m in sigs if m in moves and (moves[m].get('self') or {}).get('spd', 0) > 0)
     e = ELEM_MOVES.get(elems[0]) if elems else None
     pool = [x for x in (e or []) if x not in [m for _, m in ls]]
     out = []
@@ -454,6 +462,11 @@ def tidy(u, ls, moves, elems):
         if not m.startswith('sig_'):
             if d.get('cat') == 'st' and effect_key(d) in sig_keys:
                 continue  # 고유 기술이 같은 일을 한다
+            if d.get('cat') == 'atk' and lv < 40 and atk_key(dict(d, **(moves.get(variant(u['key'], m)) or {}))) in sig_atk:
+                continue  # 같은 성격의 고유 공격기가 있다
+            if (d.get('self') or {}).get('spd', 0) > 0:
+                if spd_up >= 2: continue
+                spd_up += 1
             if (d.get('self') or {}).get('def', 0) > 0 and not d.get('foe'):  # 순수 방어 강화만 센다 (도발은 제외)
                 if def_up >= (1 if sig_def else 2):
                     if u['role'] == '보호기' and 'provoke' not in [x for _, x in ls] + [x for _, x in out]:
@@ -501,6 +514,10 @@ def base_stats(u, med, zrank):
     if u['key'] in STARTERS:  # 시작 유닛은 성향을 4분의 1만 살려 한쪽으로 치우치지 않게
         b = [x * 0.25 + total / 4 * 0.75 for x in b]
     if u['role'] == '공격기' and b[2] > b[1]: b[1], b[2] = b[2], b[1]  # 공격기는 공격이 방어 이상
+    if u['role'] == '보호기':
+        if b[1] > b[2]: b[1], b[2] = b[2], b[1]  # 보호기는 방어가 공격 이상
+        need = total / 4 - b[2]
+        if need > 0: b[2] += need; b[3] -= need  # 회피형도 방어가 평균 아래로 내려가지 않게 (속도에서 옮긴다)
     b = [min(150, max(25, x)) for x in b]
     k = total / sum(b)
     return [round(x * k) for x in b]
@@ -534,6 +551,13 @@ for u in units:
     p = passive_move(u)
     if p: moves[f"sig_{u['key']}_3"] = p
     p4 = mech_move(u, u['passive2']) if (u.get('passive2') or {}).get('mech') else None
+    if p4:
+        others = [moves.get(f"sig_{u['key']}_{i}") for i in (1, 2, 3)]
+        others = [o for o in others if o]
+        same = any(atk_key(o) == atk_key(p4) if p4['cat'] == 'atk' else effect_key(o) == effect_key(p4) for o in others)
+        def_stack = (p4.get('self') or {}).get('def', 0) > 0 and sum(1 for o in others if (o.get('self') or {}).get('def', 0) > 0) >= 2
+        spd_stack = (p4.get('self') or {}).get('spd', 0) > 0 and sum(1 for o in others if (o.get('self') or {}).get('spd', 0) > 0) >= 1
+        if same or def_stack or spd_stack: p4 = None
     if p4: moves[f"sig_{u['key']}_4"] = p4
     elems = [e for e in dict.fromkeys(x.get('elem') for x in u['skills'][:2]) if e not in (None, 'none')]
     sp = {'types': [u['cls']] + elems, 'moves': tidy(u, learnset(u, elem, fam, bool(p), bool(p4)), moves, elems), 'desc': u['desc']}
