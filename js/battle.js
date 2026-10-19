@@ -860,7 +860,7 @@ class Battle {
     this.platform(FOE_BOX.cx + this.foeV.x * 0, FOE_BOX.base, 210, 46, this.introT);
     this.platform(ME_BOX.cx, ME_BOX.base - 90, 250, 54, this.introT);
     // 트레이너
-    if (this.trainer && this.trV.a > 0) drawFit(IMG.full[this.trainer.portrait], FOE_BOX.cx - 190 + this.trV.x, FOE_BOX.base - 288, 380, 300, { anchor: 'bottom', alpha: this.trV.a, flip: typeof artFlip === 'function' && artFlip(this.trainer.portrait, 'L') });
+    if (this.trainer && this.trV.a > 0) drawFit(IMG.full[this.trainer.portrait], FOE_BOX.cx - FOE_BOX.w / 2 + this.trV.x, FOE_BOX.base + 18 - FOE_BOX.h, FOE_BOX.w, FOE_BOX.h, { anchor: 'bottom', alpha: this.trV.a, flip: typeof artFlip === 'function' && artFlip(this.trainer.portrait, 'L') });
     // 유닛
     if(this._fxActor==='foe') {
       if(this.me) this.drawMon(this.me,this.meV,ME_BOX,true);
