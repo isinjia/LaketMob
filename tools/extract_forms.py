@@ -45,7 +45,8 @@ def compose(base, skin, dam):
     if not ims:
         return None
     out = Image.new('RGBA', (2048, 2048))
-    for im in ims:
+    # part1 이 맨 앞(인물), 번호가 클수록 뒤쪽 레이어(장비·배경)라 역순으로 깐다
+    for im in reversed(ims):
         out.alpha_composite(im)
     return out
 
