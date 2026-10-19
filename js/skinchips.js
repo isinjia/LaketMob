@@ -130,7 +130,22 @@
     for (let k = 0; k <= f.forms.length; k++) if (!(bits & (1 << k))) return k;
     return 0; // 모든 모습을 잡았으면 다시 기본 모습으로
   };
+  // 아주 드물게(조우 0.3%) 아직 잡지 않은 전설 바이오로이드가 수풀에서 나타난다 (램파리온은 라비아타의 선물이라 제외)
+  const WILD_LEGENDS = ['phoenix', 'hongryun', 'blacklilith', 'eternity'], LEGEND_RATE = 0.003;
+  async function legendEncounter(world, table) {
+    const pool = WILD_LEGENDS.filter(k => SPECIES[k] && !Game.dex.caught[k]);
+    if (!pool.length) return false;
+    const key = pool[Math.floor(Math.random() * pool.length)], lv = Math.max(table.lv[1] + 8, 18);
+    world.locked = true;
+    try {
+      Audio2.stopBgm(300); FX.doFlash('#ffffff', 0.6);
+      await say('...!! 수풀 너머에서 강렬한 링크 반응이 느껴진다!');
+      await startBattle({ kind: 'wild', foes: [new Mon(key, lv, { trainer: true })], bg: world.def.bg, bgm: 'legend', legend: true, expMul: table.expMul || 1 });
+    } finally { world.locked = false; world.encCool = 1.2; }
+    return true;
+  }
   World.wildBattle = async function (table) {
+    if (Math.random() < LEGEND_RATE && await legendEncounter(this, table)) return;
     const list = table.list.map(([k, w]) => { const s = nextStage(k); return [k, w * Math.pow(STAGE_MUL, s), s]; });
     let total = list.reduce((s, x) => s + x[1], 0), r = Math.random() * total, pick = list[0];
     for (const x of list) { if ((r -= x[1]) < 0) { pick = x; break; } }
