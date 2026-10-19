@@ -1,8 +1,8 @@
 // =====================================================================
-//  스킨 데이터 칩: 레벨이 아니라 칩으로 모습(스킨)이 바뀐다 (이브이의 진화의 돌처럼)
-//  - 칩마다 테마가 있고, 그 테마의 스킨을 가진 유닛에게 쓰면 그 모습으로 바뀐다 (어느 모습에서든)
+//  스킨 데이터 칩 (이브이의 진화의 돌처럼)
+//  - 모든 캐릭터는 레벨(랭크)로 다음 모습으로 진화한다. 진화하기 전에 묻고, 거부할 수 있다
+//  - 갈래가 있는 캐릭터(LRL·발키리·홍련 등)와 럼버제인은 칩으로 원하는 모습을 고를 수도 있다
 //  - LRL은 칩에 따라 빨간 두건 · 마왕 · 수영복으로 갈라진다
-//  - 랭크 승급(B→A→S)은 그대로 레벨로 오른다
 //  - 야생: 도감에 잡은 모습이 있으면 다음 모습으로 나오고, 단계가 높을수록 훨씬 드물다
 //  game.js · world.js · data.js 다음에 로드한다.
 // =====================================================================
@@ -63,9 +63,25 @@
   window.chipEvolver = chipEvolver;
   window.skinChipFor = (artKey) => THEME[artKey] && chipEvolver(artKey.replace(/_\d+$/, '')) ? 'sc_' + THEME[artKey] : null;
 
-  // 레벨 진화는 칩 진화 캐릭터에게만 끈다 (랭크 승급은 모두 레벨로)
+  // 레벨(랭크) 진화는 모든 캐릭터가 한다. 다만 진화를 거부하면 그 레벨에서는 다시 묻지 않는다 (다음 레벨업 때 다시 묻는다)
   const baseCanEvolve = Mon.prototype.canEvolve;
-  Mon.prototype.canEvolve = function () { return chipEvolver(this.key) ? false : baseCanEvolve.call(this); };
+  Mon.prototype.canEvolve = function () { return this.evoRefuse !== this.level && baseCanEvolve.call(this); };
+  // 진화하기 전에 진화할지 묻는다. 거부해도 랭크 승급(능력치)은 그대로 오른다
+  window.runPromotions = async function () {
+    for (const m of [...Game.pendingPromote]) {
+      Game.pendingPromote.delete(m);
+      if (!Game.party.includes(m) && !Game.box.includes(m)) continue;
+      while (m.canPromote() || m.canEvolve()) {
+        if (m.canEvolve()) {
+          const nx = m.key + '_' + ((m.form || 0) + 1), sn = typeof SKIN_NAMES !== 'undefined' && SKIN_NAMES[nx];
+          lazyImg('full', nx);
+          const c = await ask('어라...? ' + J(m.name, '의') + ' 모습이 바뀌려 한다!' + (sn ? ' (「' + sn + '」)' : '') + ' 진화시킬까?', ['진화한다', '그만둔다']);
+          if (c !== 0) { m.evoRefuse = m.level; await say(J(m.name, '은') + ' 지금 모습 그대로 남았다.'); if (!m.canPromote()) break; }
+        }
+        await UI.push(new PromotionScreen(m));
+      }
+    }
+  };
 
   // 칩 사용: 그 테마의 모습이 있고 지금 모습과 다르면 바뀐다. 전투 중에는 못 쓴다
   const baseCan = Game.canUseItem.bind(Game), baseApply = Game.applyItem.bind(Game);
