@@ -84,7 +84,7 @@ const MOVES = {
   rush:     { name: '돌격', type: 'light', cat: 'atk', pow: 85, acc: 95, pp: 15, fx: 'dash', desc: '전력으로 돌격해 들이친다.' },
   flash:    { name: '섬광 연격', type: 'light', cat: 'atk', pow: 110, acc: 85, pp: 5, fx: 'slash3', desc: '눈에 보이지 않는 속도로 연속 공격한다.' },
   steelwill:{ name: '강철의 의지', type: 'light', cat: 'atk', pow: 90, acc: 100, pp: 10, self: { def: 1 }, fx: 'slash3', desc: '스틸라인의 긍지. 공격 후 방어가 오른다.' },
-  execute:  { name: '처형', type: 'light', cat: 'atk', pow: 130, acc: 95, pp: 5, crit: 2, fx: 'slash3', desc: '블랙 릴리스의 일격. 급소에 맞기 쉽다.' },
+  execute:  { name: '처형', type: 'light', cat: 'atk', pow: 130, acc: 95, pp: 5, crit: 2, fx: 'slash3', desc: '블랙 리리스의 일격. 급소에 맞기 쉽다.' },
   expose:   { name: '약점 노출', type: 'light', cat: 'atk', pow: 55, acc: 100, pp: 15, eff: { foeDef: 0.3 }, fx: 'snipe', desc: '장갑의 이음새를 노린다. 30% 확률로 상대의 방어를 떨어뜨린다.' },
   // 중장
   shell:    { name: '포격', type: 'heavy', cat: 'atk', pow: 60, acc: 95, pp: 25, fx: 'shell', desc: '포탄을 쏘아 공격한다.' },
@@ -234,7 +234,7 @@ const SPECIES_LIST = [
     moves: [[1, 'blade'], [1, 'coldshot'], [22, 'rush'], [27, 'steelwill'], [33, 'command'], [40, 'absolute']],
     desc: '스틸라인의 총사령관. 엄격하고 강인한 지도자로, 그녀가 서 있는 곳이 곧 최전선이다.' },
   // 전설
-  { key: 'blacklilith', name: '블랙 릴리스', types: ['light', 'ice'], base: [92, 124, 80, 112], rank: 'SS', catch: 5, exp: 250, kind: 'bio', faction: '삼안 산업', legend: true,
+  { key: 'blacklilith', name: '블랙 리리스', types: ['light', 'ice'], base: [92, 124, 80, 112], rank: 'SS', catch: 5, exp: 250, kind: 'bio', faction: '삼안 산업', legend: true,
     moves: [[1, 'blade'], [1, 'smoke'], [30, 'cryo'], [35, 'flash'], [40, 'execute'], [45, 'absolute']],
     desc: '삼안 산업이 만든 최강의 경호원. 사령관 이외의 모든 것을 적으로 간주하는, 위험한 사랑의 소유자.' },
   { key: 'eternity', name: '이터니티', types: ['air', 'elec'], base: [96, 118, 86, 106], rank: 'SS', catch: 5, exp: 250, kind: 'bio', faction: '삼안 산업', legend: true,

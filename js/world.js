@@ -329,15 +329,16 @@ const World = {
     if (e.kind === 'trainer') {
       const T = TRAINERS[o.id];
       if (Game.flags['beat_' + o.id] && Game.flags.cleared && !T.boss) {
-        const c = await ask('사령관님, 한 번 더 승부해 주시겠어요? 저희도 훨씬 강해졌다구요!', ['승부한다', '다음에'], { speaker: T.name, portrait: T.portrait });
+        const R = T.rematch || [];
+        const c = await ask(R[0] || '사령관님, 한 번 더 승부해 주시겠어요? 저희도 훨씬 강해졌다구요!', ['승부한다', '다음에'], { speaker: T.name, portrait: T.portrait });
         if (c === 0) {
           // 재대결: 원래 레벨 +18, 그리고 내 부대 최고 레벨 근처까지 따라온다 (최대 70)
           const top = Math.max(...Game.party.map(m => m.level));
           const foes = T.team.map(([k, lv]) => new Mon(k, Math.min(70, Math.max(lv + 18, top - 2 + Math.round(lv / 20))), { trainer: true }));
-          await say('이번엔 지지 않을 거예요!', { speaker: T.name, portrait: T.portrait });
+          await say(R[1] || '이번엔 지지 않을 거예요!', { speaker: T.name, portrait: T.portrait });
           // 재대결 상금은 원래 상금 그대로 (무한 반복으로 자원을 불리지 않도록)
-          const res = await startBattle({ kind: 'trainer', foes, trainer: Object.assign({}, T, { intro: '' }), bg: this.def.bg, bgm: 'trainer', noRun: true });
-          if (res === 'win') await say(T.lose || T.after || '...다음엔 꼭 이길 거예요!', { speaker: T.name, portrait: T.portrait });
+          const res = await startBattle({ kind: 'trainer', foes, trainer: Object.assign({}, T, { intro: '', lose: R[2] ? '' : T.lose }), bg: this.def.bg, bgm: 'trainer', noRun: true });
+          if (res === 'win') await say(R[2] || T.lose || T.after || '...다음엔 꼭 이길 거예요!', { speaker: T.name, portrait: T.portrait });
         }
         return;
       }

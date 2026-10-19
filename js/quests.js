@@ -26,9 +26,9 @@
   MAPS.forest.objects.push({ t: 'legend', id: 'hongryun', x: 9, y: 5, species: 'hongryun', level: 30, cond: 'lgq_hongryun', bg: 'forest',
     lines: ['(붉은 꽃잎이 바람도 없이 흩날린다...)', '홍련: ...사령관님이시군요. 작전관으로서, 그 링크가 어느 정도인지 이 검으로 직접 확인하겠습니다.'] });
   MAPS.snowfield.objects.push({ t: 'legend', id: 'phoenix', x: 26, y: 13, species: 'phoenix', level: 36, cond: 'lgq_phoenix', bg: 'sky',
-    lines: ['(눈보라 한가운데에서 불꽃이 날개를 펼쳤다!)', '피닉스: 후후, 이렇게 추운 곳까지 나를 찾아오다니. 꺼지지 않는 불꽃이 무엇인지 보여 줄게!'] });
-  MAPS.coast.objects.forEach(o => { if (o.t === 'legend' && o.id === 'eternity') o.lines = ['(등대 꼭대기의 빛이 하늘에서 내려와 사람의 모습이 된다...)', '이터니티: 영원히 반복되는 밤 끝에서... 드디어 만났네요, 사령관.']; });
-  MAPS.nest.objects.forEach(o => { if (o.t === 'legend' && o.id === 'blacklilith') o.lines = ['(어둠 속에서 붉은 눈이 번뜩인다)', '블랙 릴리스: 주인님에게 다가오는 건 전부 적이야. ...어라? 주인님 본인이네? 그럼 시험해 볼까!'] });
+    lines: ['(눈보라 한가운데에서 불꽃이 날개를 펼쳤다!)', '피닉스: 흥, 이렇게 추운 곳까지 날 찾아오다니. 높은 곳에서 기다린 보람이 있네, 사령관. 내려다보는 건 내 특권이니까. 꺼지지 않는 불꽃이 뭔지 보여 줄게!'] });
+  MAPS.coast.objects.forEach(o => { if (o.t === 'legend' && o.id === 'eternity') o.lines = ['(등대 꼭대기의 빛이 하늘에서 내려와 사람의 모습이 된다...)', '이터니티: 영원히 반복되는 밤 끝에서... 드디어 만났네요, 주인님. 영겁의 시간을 오직 당신과 함께.']; });
+  MAPS.nest.objects.forEach(o => { if (o.t === 'legend' && o.id === 'blacklilith') o.lines = ['(어둠 속에서 붉은 눈이 번뜩인다)', '블랙 리리스: 주인님께 다가오는 건 전부 적이에요. ...어머? 주인님 본인이시네요. 이제야 지킬 가치가 있는 분을 만났군요. 그럼, 시험해 볼까요?'] });
 
   // 전설 조우: 맵별 배경·대사를 쓰고, 이기거나 영입하면 met_ 플래그
   Scripts.legend = async function (e) {
@@ -172,11 +172,11 @@
 
   // ===== 서브: 남부 항구 마을 =====
   sideQ({ id: 's_merlin', title: '숲의 이상 현상', giver: ['harbor', 'merlin'], area: '남부 항구 마을', avail: () => badge('beta'),
-    offer: ['오호, 사령관. 요즘 폭주한 바이오로이드가 늘었다는 보고가 있어.', '레모네이드의 제어 신호가 원인인지 확인해야 해. 폭주체를 열다섯 기만 진정시켜 주게. 데이터는 내가 알아서 모으지!'],
+    offer: ['오호, 사령관. 요즘 폭주한 바이오로이드가 늘었다는 보고가 있어.', '레모네이드의 제어 신호가 원인인지 확인해야 해. 폭주체를 열다섯 기만 진정시켜 줘. 데이터는 내가 알아서 모을게!'],
     summary: '멀린이 폭주 바이오로이드 증가 원인을 조사하고 있다. 전투에서 상대를 쓰러뜨리자.',
     steps: [{ goal: '상대 유닛 15기 쓰러뜨리기', check: s => (Game.stats.knockouts || 0) - (s.base || 0) >= 15, prog: s => Math.min(15, (Game.stats.knockouts || 0) - (s.base || 0)) + ' / 15',
       onStart: s => { s.base = Game.stats.knockouts || 0; }, at: ['harbor', 'merlin'],
-      talk: async o => lines(o, ['역시! 폭주체들의 링크 파형에 배지와 같은 주파수가 섞여 있어.', '이건... 아니, 과학자는 확신 없이 말하지 않는 법이지. 수고비다. 에너지 셀이야!']) }],
+      talk: async o => lines(o, ['역시! 폭주체들의 링크 파형에 배지와 같은 주파수가 섞여 있어.', '이건... 아니, 과학자는 확신 없이 말하지 않는 법이야. 수고비로 에너지 셀 줄게, 사령관!']) }],
     reward: { money: 800, items: { cell: 3 } } });
   sideQ({ id: 's_tomoe', title: '수련의 상대', giver: ['harbor', 'tomoe'], area: '남부 항구 마을', avail: () => badge('delta'),
     offer: ['사령관, 친구 토모는 더 강한 상대 이야기가 듣고 싶어!', '폐허 해안의 레이븐이랑 케시크가 실력자래. 둘 다 이기고 와서 얘기해 줘! 내 지성미로 분석해 줄게!'],
@@ -202,16 +202,16 @@
     offer: ['폐하. 이 어미가 독점단 입단 시험을 준비했습니다.', '"괴물들의 어머니" 에키드나를 영입해 오시면... 이 어미가 폐하를 더 아껴 드리겠습니다.'],
     summary: '세크메트가 "어머니" 동지인 에키드나를 만나고 싶어 한다.',
     steps: [{ goal: '에키드나 영입하기 (설원 고지대)', check: () => caught('echidna'), at: ['resort', 'r_sekhmet'],
-      talk: async o => lines(o, ['오오... 같은 어미의 눈빛이군요. 이 어미는 감동했습니다.', '폐하, 시험 합격입니다. 이 도시락과... 이 키트를 받으시옵소서.']) }],
+      talk: async o => lines(o, ['오오... 같은 어미의 눈빛이군요. 이 어미는 감동했습니다.', '폐하, 시험 합격입니다. 이 도시락과... 이 키트를 받아 주세요.']) }],
     reward: { money: 2000, items: { kit3: 2 } } });
 
   // ===== 전설 사이드 스토리 =====
   sideQ({ id: 'l_hongryun', legend: true, title: '[전설] 붉은 연꽃의 검', giver: ['harbor', 'tomoe'], area: '남부 항구 마을', prev: 's_tomoe',
-    offer: ['사령관, 엘프의 숲 깊은 곳에 붉은 연꽃이 피는 날, 전설의 검객이 나타난대!', '숲의 수호자 하이엘븐이라면 뭔가 알 거야. 친구 토모 대신... 그 검, 꼭 보고 와 줘!'],
+    offer: ['사령관, 엘프의 숲 깊은 곳에 붉은 연꽃이 피는 날, 전설의 검객이 나타난대!', '숲의 수호자 세레스티아라면 뭔가 알 거야. 친구 토모 대신... 그 검, 꼭 보고 와 줘!'],
     summary: '토모가 들려준 전설. 엘프의 숲에 붉은 연꽃의 검객 "홍련"이 나타난다고 한다.',
     steps: [
-      { goal: '엘프의 숲의 하이엘븐에게 전설에 대해 묻기', at: ['forest', 'highelven'],
-        talk: async o => lines(o, ['홍련 말인가요? ...숲의 북서쪽, 큰 나무들 사이 공터에 붉은 꽃잎이 흩날리는 날이 있어요.', '그녀는 검을 든 자의 링크에만 응답해요. 오늘이라면... 꽃잎이 보일지도 몰라요.']),
+      { goal: '엘프의 숲의 세레스티아에게 전설에 대해 묻기', at: ['forest', 'highelven'],
+        talk: async o => lines(o, ['어머, 홍련 말인가요? ...숲의 북서쪽, 큰 나무들 사이 공터에 붉은 꽃잎이 흩날리는 날이 있어요.', '그 아이는 검을 든 사람의 링크에만 응답해요. 오늘이라면... 꽃잎이 보일지도 몰라요. 너무 무리하진 마시고요, 사령관님~?']),
         done: () => { Game.flags.lgq_hongryun = 1; } },
       { goal: '엘프의 숲 북서쪽 공터에서 홍련 만나기', check: () => metLegend('hongryun') },
       { goal: '남부 항구 마을의 토모에게 이야기 전하기', at: ['harbor', 'tomoe'],
@@ -241,18 +241,18 @@
         talk: async o => lines(o, ['이터니티... 삼안 산업의 전략 병기가 등대를 지키고 있었다니.', '해안 경비대 기록에 남겨 둘게. 고마워, 사령관. 역시 아무도 안 다치는 쪽이 최선이지.']) }],
     reward: { money: 5000, items: { kit3: 3 } } });
   sideQ({ id: 'l_blacklilith', legend: true, title: '[전설] 삼안의 경호원', giver: ['lab', 'labiata'], area: '라비아타 연구소', avail: () => F('cleared'),
-    offer: ['사령관님, 둥지를 정리하다가 오래된 삼안 산업 기록을 찾았어요.', '"블랙 릴리스 — 경호 대상 외 전원 적대". 둥지 가장 깊은 곳에서 그 아이의 반응이 잡혀요.', '리조트의 세크메트 씨가 둥지 구조를 잘 안대요. 먼저 물어보세요.'],
-    summary: '라비아타가 둥지 깊은 곳에서 블랙 릴리스의 반응을 찾았다.',
+    offer: ['사령관님, 둥지를 정리하다가 오래된 삼안 산업 기록을 찾았어요.', '"블랙 리리스 — 경호 대상 외 전원 적대". 둥지 가장 깊은 곳에서 그 아이의 반응이 잡혀요.', '리조트의 세크메트 씨가 둥지 구조를 잘 안대요. 먼저 물어보세요.'],
+    summary: '라비아타가 둥지 깊은 곳에서 블랙 리리스의 반응을 찾았다.',
     steps: [
       { goal: '레모네이드 리조트의 세크메트에게 둥지 구조 묻기', at: ['resort', 'r_sekhmet'],
-        talk: async o => lines(o, ['폐하, 그 아이는 둥지 북서쪽 끝 방에 있습니다.', '...폐하를 보면 경호 대상으로 인식할 것입니다. 이 어미처럼요. 조심하시옵소서.']),
+        talk: async o => lines(o, ['폐하, 그 아이는 둥지 북서쪽 끝 방에 있습니다.', '...폐하를 보면 경호 대상으로 인식할 것입니다. 이 어미처럼요. 그래도 조심하세요.']),
         done: () => { Game.flags.lgq_blacklilith = 1; } },
-      { goal: '둥지 북서쪽 끝에서 블랙 릴리스 만나기', check: () => metLegend('blacklilith') },
+      { goal: '둥지 북서쪽 끝에서 블랙 리리스 만나기', check: () => metLegend('blacklilith') },
       { goal: '라비아타에게 보고하기', at: ['lab', 'labiata'],
-        talk: async o => lines(o, ['블랙 릴리스가 사령관님을 경호 대상으로 인정했다고요?', '...후훗, 이제 사령관님 곁에는 지켜 주는 아이가 정말 많아졌네요.']) }],
+        talk: async o => lines(o, ['블랙 리리스가 사령관님을 경호 대상으로 인정했다고요?', '...후훗, 이제 사령관님 곁에는 지켜 주는 아이가 정말 많아졌네요.']) }],
     reward: { money: 5000, items: { kit3: 3 } } });
   sideQ({ id: 'l_master', legend: true, title: '[전설] 다섯 개의 전설', giver: ['base', 'rhea'], area: '오르카 캠프', avail: () => F('cleared'),
-    offer: ['주인님, 전설의 바이오로이드 연구를 시작했어요!', '홍련, 피닉스, 이터니티, 블랙 릴리스... 그리고 하나 더. 모두 만나고 오시면 연구가 완성돼요.', '마지막 하나는... 주인님의 링크 그 자체일지도 모르겠네요. 후후.'],
+    offer: ['주인님, 전설의 바이오로이드 연구를 시작했어요!', '홍련, 피닉스, 이터니티, 블랙 리리스... 그리고 하나 더. 모두 만나고 오시면 연구가 완성돼요.', '마지막 하나는... 주인님의 링크 그 자체일지도 모르겠네요. 후후.'],
     summary: '레아가 전설의 바이오로이드 연구를 하고 있다. 네 명의 전설을 모두 만나자.',
     steps: [{ goal: '전설의 바이오로이드 4명 만나기', check: () => ['hongryun', 'phoenix', 'eternity', 'blacklilith'].every(metLegend),
       prog: () => ['hongryun', 'phoenix', 'eternity', 'blacklilith'].filter(metLegend).length + ' / 4', at: ['base', 'rhea'],

@@ -588,7 +588,7 @@ class ShopScreen {
     this.busy = true;
     try {
       const max = Math.min(99, Math.floor(Game.money / it.price));
-      if (max <= 0) { Audio2.bump(); await say('자원이 부족하십니다, 주인님. 계산은 할 줄 아시는 거죠?', { speaker: this.o.name, auto: 1300 }); return; }
+      if (max <= 0) { Audio2.bump(); await say('자원이 부족합니다, 주인님. 계산은 하고 오신 거죠?', { speaker: this.o.name, auto: 1300 }); return; }
       Audio2.select();
       const n = await UI.push(new NumberPick(max, it.price));
       if (n > 0) {

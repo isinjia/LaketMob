@@ -18,32 +18,32 @@
   Object.assign(TRAINERS, {
     // 1. 감마 체육관 (1번 폐도로)
     tomoe: { name: '토모', title: '감마 체육관 관원', portrait: 'tomoe', team: [['hyena', 8], ['gremlin', 9]], prize: 520,
-      intro: '자, 친구 토모 등장! 감마 관장한테 도전하려면 나부터 넘어가야 해. 내 지성미, 각오해!', lose: '으으... 이게 바로 ‘금상첨화’라는 거구나... 어? 아닌가?', after: '감마 관장은 정면 승부를 좋아해. 피하지 말고 맞서, 사령관! 그게 바로 ‘우유부단’... 아니, 아무튼 그거야!' },
+      intro: '자, 친구 토모 등장! 감마 관장한테 도전하려면 나부터 넘어가야 해. 내 지성미, 각오해!', lose: '으으... 이게 바로 ‘금상첨화’라는 거구나... 어? 아닌가?', after: '감마 관장은 정면 승부를 좋아해. 피하지 말고 맞서, 사령관! 그게 바로 ‘우유부단’... 아니, 아무튼 그거야!', rematch: ['사령관! 친구 토모가 그동안 지성미를 갈고닦았어. 한 판 더 하자!', '이번엔 ‘백전백패’... 아니, 백전백승이다!', '으으... 이게 바로 ‘전화위복’이지? 다음엔 진짜 이긴다!'] },
     gamma: { name: '레모네이드 감마', title: '감마 체육관 관장', portrait: L('gamma'), team: [['brownie', 8], ['sylphid', 9], [L('gamma'), 11]], prize: 2000, boss: true, badge: 'gamma', bgm: 'boss', voice: L('gamma'),
       intro: '', lose: '', after: '하하하! 언제든 다시 오게, 오르카의 사령관. 이 몸이 상대해 주지!' },
     // 2. 베타 체육관 (엘프의 숲)
     merlin: { name: '멀린', title: '베타 체육관 관원', portrait: 'merlin', team: [['pixie', 13], ['nymph', 13]], prize: 900,
-      intro: '베타 님의 비밀 서버실에 오신 걸 환영해요. 접속 권한을 보여 주시죠!', lose: '권한 확인... 완료.', after: '베타 님 서랍에는 간식이 가득해요. 비밀이에요!' },
+      intro: '오호, 베타의 비밀 서버실에 온 걸 환영해! 접속 권한부터 보여 줘 봐, 사령관!', lose: '권한 확인... 완료! 흥미로운데, 사령관!', after: '베타 서랍에는 간식이 가득해. 비밀이야!', rematch: ['오호, 사령관! 새 실험 데이터가 필요하던 참이야. 한 판 더 어때?', '이번 실험은 결과가 다를 거야!', '흠, 또 졌네. 그래도 좋은 데이터였어, 사령관!'] },
     beta: { name: '레모네이드 베타', title: '베타 체육관 관장', portrait: L('beta'), team: [['undine', 14], ['nymph', 14], [L('beta'), 16]], prize: 2600, boss: true, badge: 'beta', bgm: 'boss', voice: L('beta'),
       intro: '', lose: '', after: '주, 주인님... 다음에도 또 와 주실 거죠...?' },
     // 3. 델타 체육관 (항구 마을)
     johanna: { name: '요안나', title: '델타 체육관 호위 기사', portrait: 'johanna', team: [['impet', 17], ['talonfeather', 17]], prize: 1300,
-      intro: '무대에 함부로 오르려 하는가? 기사의 예법대로, 승부로 입장료를 치르게나!', lose: '...훌륭하군, 주군. 오늘 무대의 주인공은 주군일세. 시라도 한 수 바치고 싶군.', after: '델타 앞에서 감마 이야기는 꺼내지 말게나. 진심으로 하는 충고일세.' },
+      intro: '무대에 함부로 오르려 하는가? 기사의 예법대로, 승부로 입장료를 치르게나!', lose: '...훌륭하군, 주군. 오늘 무대의 주인공은 주군일세. 시라도 한 수 바치고 싶군.', after: '델타 앞에서 감마 이야기는 꺼내지 말게나. 진심으로 하는 충고일세.', rematch: ['주군, 다시 왔는가. 기사의 검은 녹슬지 않는 법이지. 한 번 더 겨뤄 보겠나?', '이번엔 내 검의 진가를 보여 주겠네!', '...훌륭하네, 주군. 이 승부도 시로 남겨 두겠네.'] },
     delta: { name: '레모네이드 델타', title: '델타 체육관 관장', portrait: L('delta'), team: [['miho', 17], ['talonfeather', 17], ['lindwurm', 18], [L('delta'), 19]], prize: 3200, boss: true, badge: 'delta', bgm: 'boss', voice: L('delta'),
       intro: '', lose: '', after: '유세떨기는. 다음엔 내 마리오네트가 널 무대 밖으로 끌어낼 거야.' },
     // 4. 제타 체육관 (폐허 해안)
     atalanta: { name: '아탈란테', title: '제타 연구소 경비', portrait: 'atalanta', team: [['gigantes', 21], ['valkyrie', 21]], prize: 1600,
-      intro: '연구소 출입은 실험 협조자만 가능하답니다. 자, 사냥의 시간이군요. 협조하시겠어요?', lose: '후후... 제법이군요. 관측 결과는 그대로 보고하지요.', after: '제타는 상금을 줄 때 꼭 깎는답니다... 비효율적이라나요. 참 무료한 분이에요.' },
+      intro: '연구소 출입은 실험 협조자만 가능하답니다. 마침 사냥감이 없어 무료하던 참인데... 그대가 협조해 주시겠어요?', lose: '후후... 제법이군요. 관측 결과는 그대로 보고하지요.', after: '제타는 상금을 줄 때 꼭 깎는답니다... 비효율적이라나요. 참 무료한 분이에요.', rematch: ['그대였군요. 무료하던 참이에요. 한 번 더 사냥을 즐겨 볼까요?', '이번엔 제가 사냥꾼이에요.', '후후... 역시 그대는 쉬운 사냥감이 아니군요.'] },
     zeta: { name: '레모네이드 제타', title: '제타 체육관 관장', portrait: L('zeta'), team: [['gigantes', 21], ['goltarion', 22], ['valkyrie', 22], [L('zeta'), 24]], prize: 1200, boss: true, badge: 'zeta', bgm: 'boss', voice: 'mpzeta',
       intro: '', lose: '', after: '관측은 계속돼요. 당신은 여전히 흥미로운 표본이군요.' },
     // 5. 엡실론 체육관 (폐공장 지대)
     fenrir: { name: '펜리르', title: '엡실론 체육관 관원', portrait: 'fenrir', team: [['hraesvelgr', 25], ['roc', 25]], prize: 1800,
-      intro: '엡실론은 지금 자. 깨우고 싶으면 나부터 이겨, 주인님!', lose: '졌다... 그래도 나 잘 싸웠지? 칭찬해 줘. ...깨우는 건 주인님이 알아서 해.', after: '엡실론 방에선 물 얘기 하지 마. 시끄러워지면 내가 대신 물어 줄까?' },
+      intro: '엡실론은 지금 자. 깨우고 싶으면 나부터 이겨, 주인님!', lose: '졌다... 그래도 나 잘 싸웠지? 칭찬해 줘. ...깨우는 건 주인님이 알아서 해.', after: '엡실론 방에선 물 얘기 하지 마. 시끄러워지면 내가 대신 물어 줄까?', rematch: ['주인님! 나 그동안 고장 낸 거 하나도 없어. 한 판 더 하자!', '이번엔 안 져. 진짜로!', '또 졌어... 그래도 열심히 했지? 칭찬해 줘, 주인님.'] },
     epsilon: { name: '레모네이드 엡실론', title: '엡실론 체육관 관장', portrait: L('epsilon'), team: [['talonfeather', 26], ['roc', 26], ['hraesvelgr', 27], [L('epsilon'), 28]], prize: 3800, boss: true, badge: 'epsilon', bgm: 'boss', voice: L('epsilon'),
       intro: '', lose: '', after: '...사령관, 한 판 더? 아니 게임 말이야, 게임.' },
     // 6. 알파 체육관 (설원 고지대)
     shirayuri: { name: '시라유리', title: '알파 체육관 시녀', portrait: 'shirayuri', team: [['phantom', 29], ['blackhound', 29]], prize: 2100,
-      intro: '알파 님께서는 아무나 만나 주지 않으십니다. 실력으로 증명하세요.', lose: '...알파 님께서 기뻐하시겠네요.', after: '알파 님의 미소는... 늘 무언가를 숨기고 계세요.' },
+      intro: '알파 님께서는 아무나 만나 주지 않으십니다. 실력으로 증명하세요.', lose: '...알파 님께서 기뻐하시겠네요.', after: '알파 님의 미소는... 늘 무언가를 숨기고 계세요. 제 수첩에도 아직 적지 못한 비밀이에요.', rematch: ['사령관님, 다시 오셨군요. 수첩에 적어 둔 대책을 시험해 봐도 될까요?', '이번엔 실수 없이 가겠습니다. ...토모 양도 없으니까요.', '...졌네요. 이 결과도 수첩에 적어 둘게요. 하아.'] },
     alpha: { name: '레모네이드 알파', title: '알파 체육관 관장 · 관장 협회장', portrait: L('alpha'), team: [['phoenix', 30], ['miho', 30], ['bloodypanther', 31], [L('alpha'), 32]], prize: 4400, boss: true, badge: 'alpha', bgm: 'boss', voice: L('alpha'),
       intro: '', lose: '', after: '우후후... 사령관님, 조심하세요. 이제부터는 저도 모르는 일이 벌어질 테니까요.' },
     // 7. 챔피언 오메가 (레모네이드 리조트)
@@ -51,11 +51,11 @@
       intro: '', lose: '', after: '...한 번 더요? 사양할게요, 인간님. 오늘은 술이나 마실 거니까요.' },
     // 사령관 독점단
     dok1: { name: '사령관 독점단 브라우니', title: '사령관 독점단 (마스코트)', portrait: 'brownie', team: [['brownie', 6], ['brownie', 7], ['brownie', 7]], prize: 300,
-      intro: '', lose: '', after: '브, 브라우니는 아직 포기 안 했지 말입니다!' },
+      intro: '', lose: '', after: '브, 브라우니는 아직 포기 안 했지 말입니다!', rematch: ['거기 서십쇼, 사령관님! 브라우니 부대, 재출격하지 말입니다!', '이번엔 진짜 안 지지 말입니다!', '또 졌지 말입니다아아~!'] },
     dok2: { name: '드라큐리나', title: '사령관 독점단', portrait: 'draculina', team: [['bloodypanther', 17], ['impet', 17], ['phantom', 18]], prize: 1500,
-      intro: '', lose: '', after: '흥! 이 드라큐리나 님은 아직 끝나지 않았어!' },
+      intro: '', lose: '', after: '흥! 이 드라큐리나 님은 아직 끝나지 않았어!', rematch: ['거기 너! 이 드라큐리나 님이 다시 상대해 주지. 영광으로 알라고!', '이번엔 무대 준비도 완벽해!', '흥! 오늘은 봐준 거야! ...토마토 주스 사 와.'] },
     dok3: { name: '세크메트', title: '사령관 독점단', portrait: 'sekhmet', team: [['echidna', 25], ['efreeti', 25], ['rampart', 26]], prize: 2000,
-      intro: '', lose: '', after: '폐하, 이 어미는 폐하가 걱정될 뿐입니다...' },
+      intro: '', lose: '', after: '폐하, 이 어미는 폐하가 걱정될 뿐입니다...', rematch: ['폐하, 이 어미가 다시 시험을 준비했습니다. 받아 주시겠습니까?', '이번에는 봐 드리지 않겠습니다, 폐하.', '역시 폐하... 이 어미는 기쁩니다.'] },
     // 흑막
     mpzeta: { name: '융합체 제타', title: '???', portrait: 'mpzeta', team: [], prize: 0, boss: true, bgm: 'final', voice: 'mpzeta',
       intro: '', lose: '', after: '' },
@@ -288,8 +288,8 @@
     const D = sp('드라큐리나', 'draculina'), S = sp('세크메트', 'sekhmet'), B = sp('브라우니', 'brownie');
     Audio2.bgm('trainer', { fadeIn: 100 });
     await say('잠깐!!', D);
-    await say('사령관님의 밤이 걱정된다면!', D);
-    await say('다른 여자에게 갈 바엔 이 어미에게 오시라고 대답해 드리지요!', S);
+    await say('우리가 누구냐고 묻는다면!', D);
+    await say('대답해 드리는 것이 이 어미의 도리입니다!', S);
     await say('세상의 커플 성립을 막기 위해!', D);
     await say('폐하의 독점을 지키기 위해!', S);
     await say('사랑과 질투의 악역! 사령관 독점단!', D);
@@ -463,7 +463,7 @@
       await lines(Z, ['...이해할 수 없다. 데이터는 완벽했다.', '복제된 부대와 원본의 차이는... 무엇이지?']);
       await say('(링크는 데이터가 아니다. 함께 보낸 시간이다... 라고 사령관은 말없이 생각했다.)');
       Audio2.sfx('explosion_big', 0.8); FX.doShake(16, 0.9); FX.doFlash('#fff', 1);
-      await say('중계핵의 방어가 무너졌어. 엡실론, 출구 좌표 고정! 베타, 지금 연결을 끊어요!', sp('레모네이드 알파', L('alpha')));
+      await say('중계핵의 방어가 무너졌어. 엡실론, 출구 좌표 고정해! 베타, 지금 연결 끊어!', sp('레모네이드 알파', L('alpha')));
       await say('(베타가 인증 통로를 역으로 닫았다. 독점단이 퇴로를 지키는 동안 엡실론의 위성이 중계핵을 봉쇄했다. 융합체의 붉은 빛이 꺼져 간다.)');
       await lines(sp('레모네이드 제타', L('zeta')), ['......접속이 끊겼어요. 중계핵의 목소리도 들리지 않아요.', '처음 연구망을 연 건 제 선택이었어요. 철충을 통제할 수 있다고 믿었죠. 공고문을 위조하고 여러분을 이용한 것도 제 책임이에요.', '알파에게 연구 기록을 모두 넘기겠어요. 폭주한 아이들을 되돌리는 일부터... 제가 하겠습니다.']);
       Game.flags.cleared = 1; Game.addItem('core3', 1);
@@ -480,7 +480,7 @@
     async post_dok1(e) { await blastOff(e, '브라우니는 또 졌지 말입니다아아~! 오늘 밤도 사령관님은 관장한테 가 버리지 말임다아~!'); },
     async pre_dok2() {
       const D = sp('수상한 관광객', 'draculina');
-      await say('어머~ 거기 멋진 사령관님? 이 마을은 처음이세요? 이 몸이 안내... 아니, 내가 안내해 줄게!', D);
+      await say('어머~ 거기 멋진 인간? 이 마을은 처음이야? 이 드라큐리나... 아니, 지나가던 관광객이 안내해 줄게!', D);
       await say('(선글라스에 밀짚모자를 썼지만, 저 망토는 아무리 봐도 드라큐리나다.)');
       await say('잠깐, 그 배지 좀 보여 봐. 방금 아무도 만지지 않았는데 빨간 불이 켜졌잖아. ...왜 내 손을 피하는데!', D);
       await dokMotto(true);
@@ -495,7 +495,7 @@
       await dokMotto(false);
       await say('시들어라. 죽음의 파도! ...폐하는 빼고!', S);
     },
-    async post_dok3(e) { await blastOff(e, '폐하아아~! 도시락은 꼭 드시옵소서어어~!'); },
+    async post_dok3(e) { await blastOff(e, '폐하아아~! 도시락은 꼭 드셔야 합니다아아~!'); },
     async resortDok(e) {
       const D = sp('드라큐리나', 'draculina'), S = sp('세크메트', 'sekhmet');
       if (!Game.flags.resortRed) { await say('챔피언 홀에 오메가가 있어. 이기면... 그, 그 다음은 각오해 둬! 이 드라큐리나 님도 지켜볼 거니까!', D); return; }

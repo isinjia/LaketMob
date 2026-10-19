@@ -64,7 +64,7 @@ class Mon {
 //  게임 상태
 // ---------------------------------------------------------------------
 const SAVE_KEY = 'racketmon_save_v1';
-const GAME_VERSION = 'v0.41';
+const GAME_VERSION = 'v0.42';
 const Game = {
   party: [], box: [], bag: {}, money: 3000, dex: { seen: {}, caught: {} }, flags: {}, badges: [], stats: {}, taken: {}, quests: {},
   map: 'lab', px: 6, py: 6, dir: 'up', playTime: 0, lastHeal: ['center1', 7, 7, 'up'], pendingPromote: new Set(),
@@ -407,7 +407,7 @@ const Scripts = {
     const o = { speaker: '다프네', portrait: 'daphne' };
     Audio2.voice('daphne', 'talk', 0.8);
     const c = await ask('아, 주인님... 어서 오세요. 부대원들을 쉬게 해 드릴까요?', ['부탁해요', '괜찮아요'], o);
-    if (c !== 0) { await say('그, 그럼... 언제든 다시 들러 주세요.', o); return; }
+    if (c !== 0) { await say('그럼... 언제든 다시 들러 주세요, 주인님.', o); return; }
     await say('그럼 잠시만... 맡아 둘게요.', Object.assign({ auto: 700 }, o));
     Audio2.setDuck(0.2);
     const notes = [659, 784, 988, 784, 1047, 1319];
@@ -422,7 +422,7 @@ const Scripts = {
   async shop(e) {
     const o = { speaker: e.o.name, portrait: e.o.sprite };
     Audio2.voice(e.o.sprite, 'talk', 0.8);
-    await say('오셨습니까, 주인님. 필요한 물건이라도 있으십니까?', o);
+    await say('오셨습니까, 주인님. 무엇이 필요하십니까?', o);
     let stock = e.o.stock;
     if (World.id === 'shop1' && Game.badges.length) stock = ['core', 'core2', 'kit', 'kit2', 'chip', 'revive'];
     if (World.id === 'shop1' && Game.badges.length >= 2) stock = ITEM_ORDER.filter(k => k !== 'core3');
@@ -433,11 +433,11 @@ const Scripts = {
     const o = { speaker: '멀린', portrait: 'merlin' };
     Audio2.voice('merlin', 'talk', 0.8);
     if (!Game.flags.merlinGift) {
-      await say('오호, 당신이 소문의 사령관? 숲을 지나오느라 고생했겠군. 마법... 아니, 과학의 선물을 주지!', o);
+      await say('오호, 당신이 소문의 사령관? 숲 지나오느라 고생했겠네. 마법... 아니, 과학의 선물을 줄게!', o);
       Game.addItem('cell', 2); Game.addItem('core2', 2); Game.flags.merlinGift = 1;
       Audio2.sfx('item_get', 0.8);
       await say('사령관은 에너지 셀 ×2, 고급 링크 코어 ×2를 받았다!');
-      await say('에너지 셀은 기술 PP를 회복해 주지. 강한 기술은 PP가 적으니 아껴 쓰라고.', o);
+      await say('에너지 셀은 기술 PP를 회복해 줘. 강한 기술은 PP가 적으니까 아껴 써, 사령관.', o);
     } else await say('해안의 폭주 바이오로이드들은 숲과는 차원이 달라. 수복실에서 충분히 정비하고 가.', o);
   },
   async obj_pc(e) { Audio2.sfx('stage_in', 0.6); await say('사령관은 격납고 단말기를 켰다.', { auto: 700 }); await UI.push(new PCScreen()); },
