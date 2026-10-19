@@ -230,24 +230,28 @@
   //  연출 도우미
   // ---------------------------------------------------------------
   class NightScene {
-    constructor(who) { this.who = who; this.t = 0; }
+    constructor(who) { this.who = who; this.t = 0; this.fillScreen = true; } // 타이틀처럼 화면 전체를 쓴다 (titlelayout.js)
     update(dt) { this.t += dt; }
     draw() {
       ctx.fillStyle = '#05060c'; ctx.fillRect(0, 0, W, H);
-      const a = Math.min(1, this.t / 1.2);
+      const a = Math.min(1, this.t / 1.2), tall = H > W;
+      // 세로 화면: 달을 위쪽 가운데로, 가로: 기존처럼 오른쪽 위
+      const mx = tall ? W / 2 + 70 : W / 2 + 180, my = tall ? H * 0.2 : 150;
       ctx.save(); ctx.globalAlpha = a;
       // 달과 창문
-      const g = ctx.createRadialGradient(W / 2 + 180, 150, 10, W / 2 + 180, 150, 140); g.addColorStop(0, 'rgba(255,240,200,0.35)'); g.addColorStop(1, 'rgba(255,240,200,0)');
+      const g = ctx.createRadialGradient(mx, my, 10, mx, my, 140); g.addColorStop(0, 'rgba(255,240,200,0.35)'); g.addColorStop(1, 'rgba(255,240,200,0)');
       ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-      ctx.fillStyle = '#f6efd2'; ctx.beginPath(); ctx.arc(W / 2 + 180, 150, 34, 0, 7); ctx.fill();
-      ctx.fillStyle = '#05060c'; ctx.beginPath(); ctx.arc(W / 2 + 194, 142, 30, 0, 7); ctx.fill();
-      for (let k = 0; k < 40; k++) { ctx.fillStyle = 'rgba(200,220,255,' + (0.2 + 0.4 * hash2(k, 7)) + ')'; ctx.fillRect(hash2(k, 1) * W, hash2(k, 2) * 300, 2, 2); }
+      ctx.fillStyle = '#f6efd2'; ctx.beginPath(); ctx.arc(mx, my, 34, 0, 7); ctx.fill();
+      ctx.fillStyle = '#05060c'; ctx.beginPath(); ctx.arc(mx + 14, my - 8, 30, 0, 7); ctx.fill();
+      for (let k = 0; k < 70; k++) { ctx.fillStyle = 'rgba(200,220,255,' + (0.2 + 0.4 * hash2(k, 7)) + ')'; ctx.fillRect(hash2(k, 1) * W, hash2(k, 2) * H * 0.6, 2, 2); }
       // 하트
       const hb = 1 + 0.08 * Math.sin(this.t * 4);
-      ctx.translate(W / 2 - 160, 260); ctx.scale(hb, hb); ctx.fillStyle = 'rgba(255,110,160,0.85)';
+      ctx.translate(tall ? W / 2 - 130 : W / 2 - 160, my + 110); ctx.scale(hb, hb); ctx.fillStyle = 'rgba(255,110,160,0.85)';
       ctx.beginPath(); ctx.moveTo(0, 18); ctx.bezierCurveTo(-30, -6, -18, -30, 0, -14); ctx.bezierCurveTo(18, -30, 30, -6, 0, 18); ctx.fill();
       ctx.restore();
-      txt('— 그날 밤 —', W / 2 + 180, 240, { size: 30, weight: 900, align: 'center', color: '#ffd6e6', family: TITLE_FONT });
+      txt('— 그날 밤 —', mx, my + 90, { size: 30, weight: 900, align: 'center', color: '#ffd6e6', family: TITLE_FONT });
+      // 세로 대화창은 인물 그림을 그리지 않으므로, 장면이 관장 일러스트를 대화창 위에 직접 그린다
+      if (tall && this.who) drawFit(IMG.full[this.who] || lazyImg('full', this.who), W / 2 - 300, H * 0.34, 600, H * 0.36, { anchor: 'bottom', alpha: a });
     }
   }
   const sp = (name, portrait) => ({ speaker: name, portrait });
