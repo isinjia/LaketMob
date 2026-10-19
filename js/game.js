@@ -163,32 +163,91 @@ const Game = {
   async learnMovesAt(m, lv) {
     for (const [l, id] of m.species.moves) {
       if (l !== lv || m.moves.some(x => x.id === id)) continue;
-      const mv = MOVES[id];
+      const mv = MOVES[id], q = (n, p) => '「' + n + '」' + J(n, p).slice(n.length);
+      // 새 기술의 위력·명중·EN·효과를 카드로 먼저 보여 준다
+      Audio2.jingle([784, 988, 1175, 1568], 0.09, 'square', 0.06);
+      await UI.push(new SkillCardScreen(m, id, m.moves.length < 4 ? '새 기술 습득' : '새 기술 습득 가능'));
       if (m.moves.length < 4) {
         m.moves.push({ id, pp: mv.pp });
-        Audio2.jingle([784, 988, 1175, 1568], 0.09, 'square', 0.06);
-        await say(J(m.name, '은') + ' 새로 ' + J(mv.name, '을') + ' 배웠다!');
+        await say(m.name + '의 전투 데이터에 ' + q(mv.name, '이') + ' 기록되었다!');
         continue;
       }
-      await say(J(m.name, '은') + ' ' + J(mv.name, '을') + ' 배우려 하고 있다. 하지만 기술은 4개까지만 기억할 수 있다.');
-      const c = await ask('다른 기술을 잊게 하고 ' + J(mv.name, '을') + ' 배우게 할까?', ['잊게 한다', '배우지 않는다']);
+      await say(J(m.name, '은') + ' ' + q(mv.name, '을') + ' 익힐 수 있다. 하지만 기술 슬롯은 4개뿐이다.');
+      const c = await ask('기존 기술 하나를 지우고 ' + q(mv.name, '을') + ' 기록할까?', ['교체한다', '기록하지 않는다']);
       if (c === 0) {
         const k = await UI.push(new MoveForgetScreen(m, id));
         if (k >= 0 && k < 4) {
           const old = MOVES[m.moves[k].id].name;
           m.moves[k] = { id, pp: mv.pp };
-          await say('1, 2의... 짠! ' + J(m.name, '은') + ' ' + J(old, '을') + ' 깨끗이 잊었다!');
           Audio2.jingle([784, 988, 1175, 1568], 0.09, 'square', 0.06);
-          await say('그리고 새로 ' + J(mv.name, '을') + ' 배웠다!');
+          await say(q(old, '을') + ' 지우고 ' + q(mv.name, '을') + ' 기록했다!');
           continue;
         }
       }
-      await say(J(m.name, '은') + ' ' + J(mv.name, '을') + ' 배우지 않았다.');
+      await say(q(mv.name, '은') + ' 기록하지 않았다.');
     }
   },
 };
 
-// 기술 잊기 화면
+// 기술 정보를 빠짐없이 문장으로 (위력·명중 외의 효과)
+function moveFacts(d) {
+  const out = [], pc = v => Math.round(v * 100) + '%';
+  const stg = (o, who) => Object.entries(o).map(([k, v]) => who + ' ' + (STAGE_NAME[k] || k) + ' ' + (v > 0 ? '+' : '') + v + '단계');
+  if (d.sig) out.push('고유 기술');
+  if (d.prio) out.push('선제 행동: 속도와 상관없이 먼저 행동');
+  if (d.hits) out.push(d.hits[0] + '~' + d.hits[1] + '회 연속 공격');
+  if (d.area) out.push('광역: 명중률 변화·회피의 영향을 받지 않음');
+  if (d.pierce) out.push('관통: 방어 강화를 무시하고 장갑 일부를 뚫음');
+  if (d.crit) out.push('치명타 확률 ' + d.crit + '배');
+  if (d.drain) out.push('준 피해의 ' + pc(d.drain) + '만큼 HP 회복');
+  if (d.recoil) out.push('준 피해의 ' + pc(d.recoil) + '만큼 반동 피해');
+  if (d.heal) out.push('최대 HP의 ' + pc(d.heal) + ' 회복');
+  if (d.self) out.push(...stg(d.self, '자신'));
+  if (d.foe) out.push(...stg(d.foe, '상대'));
+  if (d.status && STATUS[d.status]) out.push('상대를 ' + STATUS[d.status].name + ' 상태로 만듦');
+  const effName = { foeDef: '상대 방어 -1단계', foeSpd: '상대 속도 -1단계', foeAtk: '상대 공격 -1단계', foeAcc: '상대 명중률 -1단계' };
+  if (d.eff) for (const [k, v] of Object.entries(d.eff)) out.push(pc(v) + ' 확률로 ' + (effName[k] || ((STATUS[k] ? STATUS[k].name : k) + ' 부여')));
+  return out;
+}
+// 기술 카드: 이름·속성·분류·위력·명중·EN·설명·효과 (x, y, 폭 w 안에 그리고, 끝난 y를 돌려준다)
+function drawSkillCard(d, x, y, w, o = {}) {
+  const s = o.size || 18;
+  typeBadge(d.type, x, y, 68, 26, 15);
+  txt(d.cat === 'atk' ? '공격 기술' : '변화 기술', x + 80, y + 20, { size: 16, weight: 800, color: d.cat === 'atk' ? '#ffb38a' : UI_COL.accent });
+  if (o.isNew) txt('NEW', x + w, y + 20, { size: 16, weight: 900, align: 'right', color: UI_COL.accent });
+  y += 34;
+  wrapText(d.name, w, s + 10, 900).forEach(l => { txt(l, x, y + s + 6, { size: s + 10, weight: 900 }); y += s + 16; });
+  y += 8;
+  const cells = [['위력', d.cat === 'atk' && d.pow ? String(d.pow) : '—'], ['명중', d.acc ? d.acc + '%' : '필중'], ['EN', String(d.pp)]];
+  const cw = w / 3;
+  cells.forEach(([k, v], i) => {
+    ctx.fillStyle = 'rgba(56,225,255,0.08)'; ctx.fillRect(x + i * cw + 2, y, cw - 4, 56);
+    txt(k, x + i * cw + cw / 2, y + 20, { size: 14, align: 'center', color: UI_COL.sub });
+    txt(v, x + i * cw + cw / 2, y + 46, { size: 22, weight: 900, align: 'center' });
+  });
+  y += 70;
+  wrapText(d.desc || '', w, s, 600).forEach(l => { txt(l, x, y + s, { size: s, color: '#cfe6f5' }); y += s + 8; });
+  const facts = moveFacts(d);
+  if (facts.length) {
+    y += 6; ctx.fillStyle = 'rgba(56,225,255,0.25)'; ctx.fillRect(x, y, w, 1); y += 10;
+    facts.forEach(f => wrapText('◆ ' + f, w, s - 2, 700).forEach(l => { txt(l, x, y + s - 2, { size: s - 2, weight: 700, color: UI_COL.accent }); y += s + 6; }));
+  }
+  return y;
+}
+// 새 기술 정보 확인 화면 (결정·취소·터치로 닫는다)
+class SkillCardScreen {
+  constructor(m, id, title) { this.m = m; this.id = id; this.title = title; }
+  update() { if (Input.pressed.a || Input.pressed.b || Input.mouse.click) { Audio2.select(); UI.close(this); } }
+  draw() {
+    screenBG(this.title, this.m.name + '  Lv.' + this.m.level);
+    drawFit(this.m.art(), 560, 70, 380, 540, { anchor: 'bottom', alpha: 0.9 });
+    panel(40, 84, 500, 470);
+    drawSkillCard(MOVES[this.id], 66, 104, 448, { isNew: true });
+    helpLine('Z / 터치: 확인');
+  }
+}
+
+// 기술 교체 화면 (오른쪽에 고른 기술의 전체 정보)
 class MoveForgetScreen {
   constructor(m, newId) { this.m = m; this.newId = newId; this.nav = new ListNav(5); }
   update(dt) {
@@ -197,8 +256,8 @@ class MoveForgetScreen {
     if (r === 'b') { Audio2.cancel(); UI.close(this, -1); }
   }
   draw() {
-    screenBG('어떤 기술을 잊게 할까?', this.m.name + '  Lv.' + this.m.level);
-    drawFit(this.m.art(), 560, 70, 380, 540, { anchor: 'bottom', alpha: 0.9 });
+    screenBG('지울 기술을 고르세요', this.m.name + '  Lv.' + this.m.level);
+    drawFit(this.m.art(), 600, 70, 340, 540, { anchor: 'bottom', alpha: 0.25 });
     this.nav.beginDraw();
     const list = [...this.m.moves.map(x => x.id), this.newId];
     list.forEach((id, i) => {
@@ -211,8 +270,9 @@ class MoveForgetScreen {
       txt('EN ' + d.pp, 510, y + 33, { size: 17, align: 'right', weight: 700 });
       if (i === 4) txt('NEW', 510, y + 60, { size: 15, align: 'right', weight: 900, color: UI_COL.accent });
     });
-    const d = MOVES[list[this.nav.i]];
-    helpLine(d.desc);
+    panel(550, 84, 380, 470);
+    drawSkillCard(MOVES[list[this.nav.i]], 570, 104, 340, { size: 16, isNew: this.nav.i === 4 });
+    helpLine(this.nav.i === 4 ? '이 줄을 고르면 새 기술을 기록하지 않습니다' : '고른 기술을 지우고 새 기술을 기록합니다');
   }
 }
 

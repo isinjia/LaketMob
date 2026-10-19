@@ -168,11 +168,15 @@ const PortraitUI = window.PortraitUI = {
     if(name==='ControlsScreen') {
       this.header('조작법','모바일 터치');const rows=[['필드 이동','화면을 드래그하면 이동합니다.'],['달리기','조이스틱을 멀리 밀면 달립니다.'],['대화 · 조사','대상 근처에서 이동 영역을 짧게 탭하세요.'],['메뉴','이동 영역을 길게 누르거나 ☰를 터치하세요.'],['대화 넘기기','화면 어디든 짧게 탭하세요.'],['목록 이동','항목 터치 · 위아래로 밀어 이동'],['설정 값 변경','설정의 − / + 버튼을 터치하세요.'],['기존 버튼 방식','설정 → 터치 조작에서 선택']];const rh=Math.min(118,(H-240)/rows.length);rows.forEach(([a,b],i)=>{const y=104+i*rh;panel(20,y,W-40,rh-8);txt(a,36,y+32,{size:22,weight:800});this.lines(b,36,y+60,W-72,18,1);});return true;
     }
+    if(name==='SkillCardScreen') {
+      this.header(w.title,w.m.name+' · Lv.'+w.m.level);panel(18,100,W-36,H-250);drawSkillCard(MOVES[w.id],40,124,W-80,{size:20,isNew:true});this.footer('화면을 누르면 확인');return true;
+    }
     if(name==='MoveForgetScreen') {
-      this.header('기술 교체',w.m.name+' · 잊을 기술을 선택하세요');
-      const list=[...w.m.moves.map(m=>m.id),w.newId],rh=Math.min(110,(H-370)/list.length);w.nav.beginDraw();
-      list.forEach((id,i)=>{const d=MOVES[id],y=108+i*rh;this.row(w.nav,i,20,y,W-40,rh-10);typeBadge(d.type,34,y+14,68,26,16);this.fit(d.name,120,y+35,W-260,24);txt('EN '+d.pp,W-36,y+35,{size:19,align:'right'});txt(i===list.length-1?'NEW · 새 기술을 배우지 않음':d.cat==='atk'?`위력 ${d.pow} · 명중 ${d.acc}`:'변화 기술',120,y+70,{size:17,color:i===list.length-1?UI_COL.accent:UI_COL.sub});});
-      this.lines(MOVES[list[w.nav.i]].desc,28,H-250,W-56,20,4);return true;
+      this.header('기술 교체',w.m.name+' · 지울 기술을 고르세요');
+      const list=[...w.m.moves.map(m=>m.id),w.newId],rh=Math.min(84,(H*0.42)/list.length);w.nav.beginDraw();
+      list.forEach((id,i)=>{const d=MOVES[id],y=100+i*rh;this.row(w.nav,i,20,y,W-40,rh-8);typeBadge(d.type,34,y+(rh-8)/2-13,64,26,15);this.fit(d.name,112,y+(rh-8)/2+8,W-240,22);txt(i===list.length-1?'NEW':'EN '+d.pp,W-36,y+(rh-8)/2+8,{size:18,align:'right',weight:800,color:i===list.length-1?UI_COL.accent:'#fff'});});
+      const y0=100+list.length*rh+10;panel(18,y0,W-36,H-y0-130);drawSkillCard(MOVES[list[w.nav.i]],38,y0+18,W-76,{size:18,isNew:w.nav.i===list.length-1});
+      this.footer(w.nav.i===list.length-1?'새 기술을 기록하지 않습니다':'고른 기술을 지우고 새 기술을 기록합니다');return true;
     }
     if(name==='StarterPreview') {
       const sp=w.sp;this.header('첫 부대원 선택',sp.name+' · '+sp.faction);
