@@ -434,7 +434,7 @@ class SummaryScreen {
         if (on) { ctx.strokeStyle = UI_COL.line; ctx.lineWidth = 2; ctx.stroke(); }
         typeBadge(d.type, px + 30, y + 10, 58, 22, 13);
         txt(d.name, px + 100, y + 29, { size: 21, weight: 800 });
-        txt('PP ' + mv.pp + '/' + d.pp, px + pw - 32, y + 29, { size: 17, align: 'right', weight: 700, color: mv.pp === 0 ? UI_COL.red : '#fff' });
+        txt('EN ' + mv.pp + '/' + d.pp, px + pw - 32, y + 29, { size: 17, align: 'right', weight: 700, color: mv.pp === 0 ? UI_COL.red : '#fff' });
         txt(d.cat === 'atk' ? '위력 ' + d.pow + '   명중 ' + d.acc : '변화 기술' + (d.acc ? '   명중 ' + d.acc : ''), px + 100, y + 54, { size: 14, color: UI_COL.sub });
       });
       const d = MOVES[m.moves[this.moveI].id];

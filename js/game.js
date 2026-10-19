@@ -64,7 +64,7 @@ class Mon {
 //  게임 상태
 // ---------------------------------------------------------------------
 const SAVE_KEY = 'racketmon_save_v1';
-const GAME_VERSION = 'v0.59';
+const GAME_VERSION = 'v0.60';
 const Game = {
   party: [], box: [], bag: {}, money: 3000, dex: { seen: {}, caught: {} }, flags: {}, badges: [], stats: {}, taken: {}, quests: {},
   map: 'lab', px: 6, py: 6, dir: 'up', playTime: 0, lastHeal: ['center1', 7, 7, 'up'], pendingPromote: new Set(),
@@ -150,7 +150,7 @@ const Game = {
     if (it.kind === 'heal') { const before = m.hp; m.hp = Math.min(m.maxHp, m.hp + it.heal); if (it.cure) m.status = null; return J(m.name, '의') + ' HP가 ' + (m.hp - before) + ' 회복되었다!'; }
     if (it.kind === 'cure') { m.status = null; return J(m.name, '의') + ' 상태이상이 치료되었다!'; }
     if (it.kind === 'revive') { m.hp = Math.floor(m.maxHp / 2); return J(m.name, '이') + ' 재기동되었다!'; }
-    if (it.kind === 'pp') { m.moves.forEach(x => x.pp = Math.min(MOVES[x.id].pp, x.pp + 10)); return J(m.name, '의') + ' 기술 PP가 회복되었다!'; }
+    if (it.kind === 'pp') { m.moves.forEach(x => x.pp = Math.min(MOVES[x.id].pp, x.pp + 10)); return J(m.name, '의') + ' 기술 에너지가 회복되었다!'; }
     return '';
   },
   async useItemField(id, m) {
@@ -208,7 +208,7 @@ class MoveForgetScreen {
       typeBadge(d.type, 46, y + 14, 60, 22, 13);
       txt(d.name, 120, y + 33, { size: 22, weight: 800 });
       txt(d.cat === 'atk' ? '위력 ' + d.pow + ' / 명중 ' + d.acc : '변화 기술', 120, y + 60, { size: 15, color: UI_COL.sub });
-      txt('PP ' + d.pp, 510, y + 33, { size: 17, align: 'right', weight: 700 });
+      txt('EN ' + d.pp, 510, y + 33, { size: 17, align: 'right', weight: 700 });
       if (i === 4) txt('NEW', 510, y + 60, { size: 15, align: 'right', weight: 900, color: UI_COL.accent });
     });
     const d = MOVES[list[this.nav.i]];
@@ -463,7 +463,7 @@ const Scripts = {
       Game.addItem('cell', 2); Game.addItem('core2', 2); Game.flags.merlinGift = 1;
       Audio2.sfx('item_get', 0.8);
       await say('사령관은 에너지 셀 ×2, 고급 링크 코어 ×2를 받았다!');
-      await say('에너지 셀은 기술 PP를 회복해 줘. 강한 기술은 PP가 적으니까 아껴 써, 사령관.', o);
+      await say('에너지 셀은 기술 에너지(EN)를 회복해 줘. 강한 기술은 EN이 적으니까 아껴 써, 사령관.', o);
     } else await say('해안의 폭주 바이오로이드들은 숲과는 차원이 달라. 수복실에서 충분히 정비하고 가.', o);
   },
   async obj_pc(e) { Audio2.sfx('stage_in', 0.6); await say('사령관은 격납고 단말기를 켰다.', { auto: 700 }); await UI.push(new PCScreen()); },
@@ -475,7 +475,7 @@ const Scripts = {
     Game.healAll();
     Game.lastHeal = [World.id, e.x, e.y + 1, 'up'];
     await wait(500);
-    await say('부대원들의 HP와 PP가 모두 회복되었다!');
+    await say('부대원들의 HP와 EN이 모두 회복되었다!');
   },
   async obj_bed(e) {
     const c = await ask('사령관의 침대다. 잠시 쉴까?', ['쉰다', '그만둔다']);
@@ -542,7 +542,7 @@ class TitleScene {
     if (this.stage === 0) {
       if (Input.anyPressed || Input.mouse.click) {
         Audio2.unlock(); Audio2.bgm('title', { fadeIn: 800 }); Audio2.select();
-        this.stage = 1; this.opts = Game.hasSave() ? ['이어하기', '새로 시작', '설정'] : ['새로 시작', '설정'];
+        this.stage = 1; this.opts = Game.hasSave() ? ['이어하기', '새로 시작', '설정', '패치노트'] : ['새로 시작', '설정', '패치노트'];
         this.nav = new ListNav(this.opts.length);
         Input.endFrame();
       }
@@ -553,6 +553,7 @@ class TitleScene {
     Audio2.select();
     const k = this.opts[this.nav.i];
     if (k === '설정') UI.push(new SettingsScreen());
+    else if (k === '패치노트') UI.push(new PatchNotesScreen());
     else if (k === '이어하기') continueGame();
     else if (k === '새로 시작') {
       if (Game.hasSave()) ask('저장된 기록이 있습니다. 새로 시작하면 덮어쓰게 됩니다. 계속할까요?', ['새로 시작', '취소']).then(c => { if (c === 0) newGame(); });

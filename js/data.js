@@ -15,8 +15,8 @@ const TYPES = {
 const TYPE_ORDER = ['light', 'heavy', 'air', 'phys', 'fire', 'ice', 'elec'];
 // 특성: 병종(경장/중장/기동)에 따른 패시브 + 공통 '분전'(HP 1/3 이하에서 자기 타입 기술 위력 1.3배)
 const TRAITS = {
-  light: { name: '급소 포착', desc: '급소에 맞힐 확률이 2배가 된다.' },
-  heavy: { name: '중장갑', desc: '효과가 굉장한 공격의 피해를 25% 줄인다.' },
+  light: { name: '약점 포착', desc: '치명타 확률이 2배가 된다.' },
+  heavy: { name: '중장갑', desc: '상성이 불리한 공격의 피해를 25% 줄인다.' },
   air:   { name: '회피 기동', desc: '상대 기술의 명중률을 10% 낮춘다.' },
   rally: { name: '분전', desc: 'HP가 1/3 이하일 때 자기 타입 기술의 위력이 1.3배가 된다.' },
 };
@@ -66,10 +66,10 @@ const EVOLVE_LV = [16, 30, 44, 52, 58]; // 스킨 진화 레벨 (스킨 1번째,
 const MOVES = {
   // 물리
   shot:     { name: '사격', type: 'phys', cat: 'atk', pow: 40, acc: 100, pp: 35, fx: 'bullet', desc: '기본 화기로 적을 사격한다.' },
-  tackle:   { name: '몸통 박치기', type: 'phys', cat: 'atk', pow: 40, acc: 100, pp: 35, fx: 'smash', desc: '몸을 던져 들이받는다.' },
+  tackle:   { name: '근접 타격', type: 'phys', cat: 'atk', pow: 40, acc: 100, pp: 35, fx: 'smash', desc: '거리를 좁혀 무기와 주먹으로 후려친다.' },
   burst:    { name: '연속 사격', type: 'phys', cat: 'atk', pow: 18, acc: 95, pp: 20, hits: [2, 5], fx: 'bullets', desc: '2~5회 연속으로 사격한다.' },
   strike:   { name: '개머리판 강타', type: 'phys', cat: 'atk', pow: 70, acc: 100, pp: 20, fx: 'smash', desc: '총의 개머리판으로 후려친다.' },
-  snipe:    { name: '저격', type: 'phys', cat: 'atk', pow: 90, acc: 90, pp: 10, crit: 2, fx: 'snipe', desc: '급소를 노려 저격한다. 급소에 맞기 쉽다.' },
+  snipe:    { name: '저격', type: 'phys', cat: 'atk', pow: 90, acc: 90, pp: 10, crit: 2, fx: 'snipe', desc: '약점을 노려 저격한다. 치명타가 나기 쉽다.' },
   overload: { name: '오버로드', type: 'phys', cat: 'atk', pow: 120, acc: 100, pp: 5, recoil: 0.33, fx: 'smash', desc: '출력을 한계까지 올려 공격한다. 반동을 받는다.' },
   aimed:    { name: '정조준', type: 'phys', cat: 'st', acc: 0, pp: 20, self: { atk: 2 }, fx: 'buff', desc: '조준을 가다듬어 공격이 크게 오른다.' },
   guard:    { name: '방어 태세', type: 'phys', cat: 'st', acc: 0, pp: 20, self: { def: 2 }, fx: 'shield', desc: '방어 태세를 갖춰 방어가 크게 오른다.' },
@@ -84,7 +84,7 @@ const MOVES = {
   rush:     { name: '돌격', type: 'light', cat: 'atk', pow: 85, acc: 95, pp: 15, fx: 'dash', desc: '전력으로 돌격해 들이친다.' },
   flash:    { name: '섬광 연격', type: 'light', cat: 'atk', pow: 110, acc: 85, pp: 5, fx: 'slash3', desc: '눈에 보이지 않는 속도로 연속 공격한다.' },
   steelwill:{ name: '강철의 의지', type: 'light', cat: 'atk', pow: 90, acc: 100, pp: 10, self: { def: 1 }, fx: 'slash3', desc: '스틸라인의 긍지. 공격 후 방어가 오른다.' },
-  execute:  { name: '처형', type: 'light', cat: 'atk', pow: 130, acc: 95, pp: 5, crit: 2, fx: 'slash3', desc: '블랙 리리스의 일격. 급소에 맞기 쉽다.' },
+  execute:  { name: '처형', type: 'light', cat: 'atk', pow: 130, acc: 95, pp: 5, crit: 2, fx: 'slash3', desc: '블랙 리리스의 일격. 치명타가 나기 쉽다.' },
   expose:   { name: '약점 노출', type: 'light', cat: 'atk', pow: 55, acc: 100, pp: 15, eff: { foeDef: 0.3 }, fx: 'snipe', desc: '장갑의 이음새를 노린다. 30% 확률로 상대의 방어를 떨어뜨린다.' },
   // 중장
   shell:    { name: '포격', type: 'heavy', cat: 'atk', pow: 60, acc: 95, pp: 25, fx: 'shell', desc: '포탄을 쏘아 공격한다.' },
@@ -118,7 +118,7 @@ const MOVES = {
   // 램파리온 전용 (용자 로봇)
   knuckle:  { name: '브로큰 너클', type: 'light', cat: 'atk', pow: 75, acc: 100, pp: 15, fx: 'dash', desc: '회전하는 주먹을 로켓처럼 쏘아 보내 꿰뚫는다. 주먹은 날아서 돌아온다.' },
   protect:  { name: '프로텍트 월', type: 'light', cat: 'st', acc: 0, pp: 10, self: { def: 2 }, heal: 0.2, fx: 'shield', desc: '왼팔에 방어장을 펼쳐 공격을 받아낸다. 방어가 크게 오르고 HP를 조금 회복.' },
-  drillknee:{ name: '드릴 니', type: 'light', cat: 'atk', pow: 85, acc: 95, pp: 10, crit: 2, fx: 'smash', desc: '무릎의 드릴로 장갑을 뚫는다. 급소에 맞기 쉽다.' },
+  drillknee:{ name: '드릴 니', type: 'light', cat: 'atk', pow: 85, acc: 95, pp: 10, crit: 2, fx: 'smash', desc: '무릎의 드릴로 장갑을 뚫는다. 치명타가 나기 쉽다.' },
   bravefuse:{ name: '용자 합체', type: 'fire', cat: 'st', acc: 0, pp: 5, self: { atk: 1, def: 1, spd: 1 }, fx: 'buff', desc: '사자의 심장에 링크를 잇는 최종 합체. 공격·방어·속도가 모두 오른다.' },
   shining:  { name: '샤이닝 핸드', type: 'fire', cat: 'atk', pow: 110, acc: 95, pp: 5, eff: { burn: 0.3 }, fx: 'napalm', desc: '불타는 손바닥으로 상대를 움켜쥐고 폭발시킨다. 화상을 입히기 쉽다.' },
   heavenhell:{ name: '헤븐 앤 헬', type: 'light', cat: 'atk', pow: 150, acc: 95, pp: 3, recoil: 0.2, fx: 'thunder', desc: '파괴와 수호의 힘을 두 손에 모아 하나로 짓눌러 부순다. 램파리온 최강의 필살기. 반동을 받는다.' },
@@ -297,7 +297,7 @@ const ITEMS = {
   kit3:   { name: '완전 수복 키트', price: 1200, kind: 'heal', heal: 9999, cure: true, icon: 'kit3', desc: 'HP를 모두 회복하고 상태이상도 치료한다.' },
   chip:   { name: '정상화 칩', price: 250, kind: 'cure', icon: 'chip', desc: '화상·감전·동결·침식을 치료한다.' },
   revive: { name: '긴급 재기동', price: 1500, kind: 'revive', icon: 'revive', desc: '전투불능 유닛을 HP 절반으로 재기동한다.' },
-  cell:   { name: '에너지 셀', price: 700, kind: 'pp', icon: 'cell', desc: '유닛 1명의 모든 기술 PP를 10 회복한다.' },
+  cell:   { name: '에너지 셀', price: 700, kind: 'pp', icon: 'cell', desc: '유닛 1명의 모든 기술 에너지(EN)를 10 회복한다.' },
 };
 const ITEM_ORDER = ['core', 'core2', 'core3', 'kit', 'kit2', 'kit3', 'chip', 'revive', 'cell'];
 

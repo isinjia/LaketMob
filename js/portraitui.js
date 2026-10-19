@@ -116,7 +116,7 @@ const PortraitUI = window.PortraitUI = {
         const tk=traitOf(m);for(const t of [tk&&TRAITS[tk],TRAITS.rally].filter(Boolean)){txt('◆ '+t.name,36,y,{size:20,color:UI_COL.accent});y=this.lines(t.desc,36,y+28,W-72,17,2)+14;}
         y=this.lines(sp.desc,36,y,W-72,18,40);
       } else if(w.tab===1){[['HP',m.hp+' / '+m.maxHp,m.hp/m.maxHp],['공격',m.atk,m.atk/200],['방어',m.def,m.def/200],['속도',m.spd,m.spd/200]].forEach(([s,v,r])=>{txt(s,36,y+30,{size:22,color:UI_COL.sub});txt(String(v),W-38,y+30,{size:24,align:'right',weight:800});bar(36,y+47,W-72,13,r,['#ffd76a','#ff8a1a']);y+=88;});txt('종족 기본 능력',36,y+24,{size:20,color:UI_COL.sub});y+=58;sp.base.forEach((v,i)=>{txt(['HP','공격','방어','속도'][i],36,y,{size:17});bar(100,y-12,W-150,10,v/130,['#7cd9ff','#2a8bd8']);y+=34;});
-      }else{m.moves.forEach((mv,i)=>{const d=MOVES[mv.id];this.button(w,'',30,y,W-60,72,()=>w.moveI=i,i===w.moveI);typeBadge(d.type,42,y+10,64,23,14);this.fit(d.name,120,y+30,W-275,22);txt('PP '+mv.pp+'/'+d.pp,W-43,y+30,{size:18,align:'right'});txt(d.cat==='atk'?`위력 ${d.pow} · 명중 ${d.acc}`:'변화 기술',120,y+58,{size:17,color:UI_COL.sub});y+=82;});y=this.lines(MOVES[m.moves[w.moveI].id].desc,36,y+22,W-72,19,40);}
+      }else{m.moves.forEach((mv,i)=>{const d=MOVES[mv.id];this.button(w,'',30,y,W-60,72,()=>w.moveI=i,i===w.moveI);typeBadge(d.type,42,y+10,64,23,14);this.fit(d.name,120,y+30,W-275,22);txt('EN '+mv.pp+'/'+d.pp,W-43,y+30,{size:18,align:'right'});txt(d.cat==='atk'?`위력 ${d.pow} · 명중 ${d.acc}`:'변화 기술',120,y+58,{size:17,color:UI_COL.sub});y+=82;});y=this.lines(MOVES[m.moves[w.moveI].id].desc,36,y+22,W-72,19,40);}
       this.endScroll(w,y+12);this.button(w,'이전 유닛',20,H-176,150,48,()=>{w.i=(w.i+w.list.length-1)%w.list.length;w.moveI=0;w._detailScroll=0;});this.button(w,'다음 유닛',W-170,H-176,150,48,()=>{w.i=(w.i+1)%w.list.length;w.moveI=0;w._detailScroll=0;});return true;
     }
     if(name==='SettingsScreen') {
@@ -162,13 +162,16 @@ const PortraitUI = window.PortraitUI = {
       TYPE_ORDER.forEach((t,j)=>typeBadge(t,100+j*cw,112,cw-4,32,15));TYPE_ORDER.forEach((at,i)=>{typeBadge(at,16,y0+i*ch+12,76,30,16);TYPE_ORDER.forEach((dt,j)=>{const e=(EFF[at]&&EFF[at][dt])||1,x=100+j*cw,y=y0+i*ch;ctx.fillStyle=e>1?'#165c48':e<1?'#592436':'#15273b';ctx.fillRect(x+2,y+2,cw-4,ch-4);txt(e>1?'×2':e<1?'×½':'—',x+cw/2,y+ch/2+7,{size:20,align:'center',color:e>1?UI_COL.green:e<1?'#ff8a95':UI_COL.sub});});});
       this.lines('경장 → 기동 → 중장 → 경장\n화염 → 냉기 → 전기 → 화염\n기술과 자신의 타입이 같으면 위력 1.5배',24,y0+n*ch+46,W-48,21);return true;
     }
+    if(name==='PatchNotesScreen') {
+      this.header('패치노트','버전별 변경 내용');w.list(24,132,W-48,19,32,H-140);this.footer('화면을 누르면 닫기');return true;
+    }
     if(name==='ControlsScreen') {
       this.header('조작법','모바일 터치');const rows=[['필드 이동','화면을 드래그하면 이동합니다.'],['달리기','조이스틱을 멀리 밀면 달립니다.'],['대화 · 조사','대상 근처에서 이동 영역을 짧게 탭하세요.'],['메뉴','이동 영역을 길게 누르거나 ☰를 터치하세요.'],['대화 넘기기','화면 어디든 짧게 탭하세요.'],['목록 이동','항목 터치 · 위아래로 밀어 이동'],['설정 값 변경','설정의 − / + 버튼을 터치하세요.'],['기존 버튼 방식','설정 → 터치 조작에서 선택']];const rh=Math.min(118,(H-240)/rows.length);rows.forEach(([a,b],i)=>{const y=104+i*rh;panel(20,y,W-40,rh-8);txt(a,36,y+32,{size:22,weight:800});this.lines(b,36,y+60,W-72,18,1);});return true;
     }
     if(name==='MoveForgetScreen') {
       this.header('기술 교체',w.m.name+' · 잊을 기술을 선택하세요');
       const list=[...w.m.moves.map(m=>m.id),w.newId],rh=Math.min(110,(H-370)/list.length);w.nav.beginDraw();
-      list.forEach((id,i)=>{const d=MOVES[id],y=108+i*rh;this.row(w.nav,i,20,y,W-40,rh-10);typeBadge(d.type,34,y+14,68,26,16);this.fit(d.name,120,y+35,W-260,24);txt('PP '+d.pp,W-36,y+35,{size:19,align:'right'});txt(i===list.length-1?'NEW · 새 기술을 배우지 않음':d.cat==='atk'?`위력 ${d.pow} · 명중 ${d.acc}`:'변화 기술',120,y+70,{size:17,color:i===list.length-1?UI_COL.accent:UI_COL.sub});});
+      list.forEach((id,i)=>{const d=MOVES[id],y=108+i*rh;this.row(w.nav,i,20,y,W-40,rh-10);typeBadge(d.type,34,y+14,68,26,16);this.fit(d.name,120,y+35,W-260,24);txt('EN '+d.pp,W-36,y+35,{size:19,align:'right'});txt(i===list.length-1?'NEW · 새 기술을 배우지 않음':d.cat==='atk'?`위력 ${d.pow} · 명중 ${d.acc}`:'변화 기술',120,y+70,{size:17,color:i===list.length-1?UI_COL.accent:UI_COL.sub});});
       this.lines(MOVES[list[w.nav.i]].desc,28,H-250,W-56,20,4);return true;
     }
     if(name==='StarterPreview') {

@@ -285,7 +285,7 @@ makeShop('shop1', '오르카 보급소', ['base', 5, 13, 'down'], ['core', 'kit'
       { t: 'deco', kind: 'boat', x: 15, y: 18, w: 3, h: 2, block: 1 },
       { t: 'sign', x: 9, y: 11, text: '남부 항구 마을\n서쪽: 엘프의 숲  /  동쪽: 폐허 해안' },
       { t: 'npc', id: 'merlin', sprite: 'merlin', x: 14, y: 12, dir: 'down', name: '멀린', talk: 'merlin' },
-      { t: 'npc', id: 'shirayuri', sprite: 'shirayuri', x: 8, y: 15, dir: 'right', name: '시라유리', wander: 1, lines: ['사령관님, 폐허 해안의 등대 근처는 철충투성이예요. 토모 양이 혼자 뛰어들지 않게... 말려 주세요.', '화염 기술은 냉기형에게 효과가 굉장하답니다. 제 수첩에도 적어 둔 내용이에요.'] },
+      { t: 'npc', id: 'shirayuri', sprite: 'shirayuri', x: 8, y: 15, dir: 'right', name: '시라유리', wander: 1, lines: ['사령관님, 폐허 해안의 등대 근처는 철충투성이예요. 토모 양이 혼자 뛰어들지 않게... 말려 주세요.', '화염 기술은 냉기형에게 상성상 유리하답니다. 제 수첩에도 적어 둔 내용이에요.'] },
       { t: 'npc', id: 'tomoe', sprite: 'tomoe', x: 22, y: 8, dir: 'left', name: '토모', lines: ['사령관, 해안 너머 동굴에서 이상한 붉은 빛이 새어 나와. 친구 토모의 지성미로 추리하면... 철충 둥지야! 이게 바로 ‘일석이조’지!'] },
       { t: 'npc', id: 'johanna', sprite: 'johanna', x: 4, y: 12, dir: 'right', name: '요안나', wander: 1, lines: ['주군, 보급소에서 고급 링크 코어를 팔기 시작했다네. 성공률이 1.6배라더군.', '링크 코어를 10개 이상 사면 덤을 준다고 하네. 기억해 두게나.'] },
     ],

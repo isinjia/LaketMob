@@ -224,7 +224,7 @@
       ctx.fillStyle = g; ctx.fill(); ctx.strokeStyle = on ? t.color : t.color + '66'; ctx.lineWidth = on ? 2.5 : 1.3; ctx.stroke();
       ctx.fillStyle = t.color; ctx.fillRect(x + 3, y + 12, 6, bh - 24); ctx.restore();
       txt(d.name, x + 20, y + 34, { size: d.name.length > 6 ? 18 : 21, weight: 800, color: mv.pp === 0 ? '#777' : '#fff' });
-      txt('PP ' + mv.pp + '/' + d.pp, x + 20, y + 60, { size: 15, weight: 700, color: mv.pp === 0 ? UI_COL.red : mv.pp <= d.pp / 4 ? UI_COL.accent : UI_COL.sub });
+      txt('EN ' + mv.pp + '/' + d.pp, x + 20, y + 60, { size: 15, weight: 700, color: mv.pp === 0 ? UI_COL.red : mv.pp <= d.pp / 4 ? UI_COL.accent : UI_COL.sub });
       if (d.cat === 'atk' && b.foe) { const e = typeEff(d.type, b.foe.types); if (e !== 1) txt(e > 1 ? '▲' : '▼', x + bw - 16, y + 34, { size: 18, weight: 900, align: 'right', color: e > 1 ? UI_COL.green : '#ff8a95' }); }
     });
     // 사령관 지휘 (게이지가 찼을 때만): 패널 위에 넓은 버튼

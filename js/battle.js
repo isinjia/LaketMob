@@ -241,7 +241,7 @@ class Battle {
     const foeMove = this.foeAI();
     // 플레이어 비공격 행동 (우선 처리)
     if (act.type === 'run') {
-      if (this.kind !== 'wild' || this.o.noRun) { await say(this.o.noRun ? '도망칠 수 없다!' : '지휘관과의 승부에서 등을 보일 수는 없다!'); return null; }
+      if (this.kind !== 'wild' || this.o.noRun) { await say(this.o.noRun ? '전투에서 이탈할 수 없다!' : '지휘관과의 승부에서 등을 보일 수는 없다!'); return null; }
       this.runTries++;
       const a = this.speedOf('me'), b = this.speedOf('foe');
       const chance = a >= b ? 1 : (a * 128 / b + 30 * this.runTries) / 256;
@@ -346,7 +346,7 @@ class Battle {
     return result;
   }
   async withdraw() {
-    await say(J(this.me.name, '아') + ', 돌아와!', { auto: 600 });
+    await say(J(this.me.name, '아') + ', 후퇴해!', { auto: 600 });
     Audio2.sfx('whoosh', 0.5);
     await tween(this.meV, { a: 0, sc: 0.3 }, 280, Ease.inQuad);
     this.meV.show = false;
@@ -414,10 +414,10 @@ class Battle {
       await this.applyDamage(tSide, r.dmg, 260);
       if (nHits > 1) await wait(120);
     }
-    if (crit) await say('급소에 맞았다!', { auto: 650 });
+    if (crit) await say('치명타! 약점을 꿰뚫었다!', { auto: 650 });
     if (eff > 1 && side === 'me' && hits) this.cmdG = Math.min(3, (this.cmdG || 0) + 1);
-    if (eff > 1) await say('효과가 굉장했다!', { auto: 700 });
-    else if (eff < 1) await say('효과가 별로인 듯하다...', { auto: 700 });
+    if (eff > 1) await say('상성 우위! 큰 피해를 입혔다!', { auto: 700 });
+    else if (eff < 1) await say('상성 열세... 피해가 줄었다.', { auto: 700 });
     if (nHits > 1) await say(hits + '번 맞았다!', { auto: 650 });
     // 흡수/반동
     if (d.drain && total > 0 && user.hp > 0) {
