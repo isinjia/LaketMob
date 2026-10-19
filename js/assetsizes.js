@@ -63,7 +63,7 @@ const ASSET_SIZES = {
   highelven: [527, 720],
   calista: [720, 470],
   raven: [433, 720],
-  kheshig: [704, 720],
+  kheshig: [370, 720],
   mariagrace: [454, 720],
   tomoe: [440, 720],
   fortune: [338, 720],
