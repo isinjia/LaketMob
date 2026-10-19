@@ -48,7 +48,7 @@ const ASSET_SIZES = {
   metalguard: [586, 720],
   ironprince: [514, 720],
   azazelalter: [493, 720],
-  lemonbeta: [413, 720],
+  lemonbeta: [363, 720],
   mpzeta: [690, 720],
   mpomega: [248, 720],
   labiata: [631, 720],
