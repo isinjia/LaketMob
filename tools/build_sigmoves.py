@@ -151,7 +151,7 @@ def family_of(u):
 
 
 def apply_extra(m, extra):
-    if extra == 'multi': m['hits'] = [2, 3]; m['pow'] = round(m['pow'] / 2.2)
+    if extra == 'multi': m['hits'] = [2, 3]; m['pow'] = round(m['pow'] / 1.8)
     elif extra == 'crit': m['crit'] = 2
     elif extra == 'prio': m['prio'] = 1; m['pow'] -= 10
     elif extra == 'pierce': m['pierce'] = 1
@@ -187,7 +187,7 @@ def sig_move(u, i, s):
     if kind == 'atk':
         # 1번은 레벨 1부터 쓰는 주력기라 초반 기본기 수준, 2번은 16레벨에 배우는 필살기
         if i == 1: pow_ = {'공격기': 60, '보호기': 50, '지원기': 45}[role] + RANK_BONUS[rank] * 3 // 5
-        else: pow_ = {'공격기': 105, '보호기': 85, '지원기': 80}[role] + RANK_BONUS[rank] * 4 // 5
+        else: pow_ = {'공격기': 105, '보호기': 90, '지원기': 88}[role] + RANK_BONUS[rank] * 4 // 5
         m.update(cat='atk', acc=100, pp=20 if i == 1 else (5 if rank == 'SS' and role == '공격기' else 10))
         if s.get('aoe'):
             m['area'] = 1; pow_ = round(pow_ * 0.9)
@@ -454,10 +454,16 @@ def tidy(u, ls, moves, elems):
     sigs = [m for _, m in ls if m.startswith('sig_')]
     sig_keys = {effect_key(moves[m]) for m in sigs if m in moves}
     sig_atk = {atk_key(moves[m]) for m in sigs if m in moves and moves[m].get('cat') == 'atk'}
-    eff_pow = lambda d: (d.get('pow') or 0) * ((sum(d['hits']) / 2) if d.get('hits') else 1)
+    utypes = [u['cls']] + list(elems)
+    eff_pow = lambda d: (d.get('pow') or 0) * (d['hits'][0] if d.get('hits') else 1) * (1.5 if d.get('type') in utypes else 1)
     sig_max = max([eff_pow(moves[m]) for m in sigs if m in moves and moves[m].get('cat') == 'atk'] or [0])
     sig_elem = sum(1 for m in sigs if m in moves and moves[m].get('cat') == 'atk' and moves[m].get('type') in ('fire', 'ice', 'elec'))
     elem_shared = 0
+    stat_seen = set()
+    for m in sigs:
+        d0 = moves.get(m) or {}
+        if d0.get('cat') == 'st':
+            stat_seen.update('foe' + k for k, v in (d0.get('foe') or {}).items() if v < 0)
     spd_up = sum(1 for m in sigs if m in moves and (moves[m].get('self') or {}).get('spd', 0) > 0)
     e = ELEM_MOVES.get(elems[0]) if elems else None
     pool = [x for x in (e or []) if x not in [m for _, m in ls]]
@@ -472,10 +478,14 @@ def tidy(u, ls, moves, elems):
         if not m.startswith('sig_'):
             if d.get('cat') == 'st' and effect_key(d) in sig_keys:
                 continue  # 고유 기술이 같은 일을 한다
+            if d.get('cat') == 'st' and d.get('foe') and not d.get('self'):
+                ks = {'foe' + k for k, v in d['foe'].items() if v < 0}
+                if ks & stat_seen: continue  # 같은 약화가 이미 있다
+                stat_seen |= ks
             dv = dict(d, **(moves.get(variant(u['key'], m)) or {})) if d.get('cat') == 'atk' else d
             if d.get('cat') == 'atk' and lv < 40 and atk_key(dv) in sig_atk:
                 continue  # 같은 성격의 고유 공격기가 있다
-            if d.get('cat') == 'atk' and sig_max and eff_pow(dv) > max(sig_max, 60):  # 기본기(위력 60 이하)는 남긴다
+            if d.get('cat') == 'atk' and sig_max and (dv.get('pow') or 0) > 60 and eff_pow(dv) > sig_max:  # 기본기(위력 60 이하)는 남긴다
                 continue  # 본편 고유 기술보다 센 공용기는 두지 않는다
             if d.get('cat') == 'atk' and dv.get('type') in ('fire', 'ice', 'elec') and sig_elem >= 2:
                 if elem_shared >= 1: continue  # 속성 공격은 고유 기술이 이미 맡는다
@@ -504,6 +514,11 @@ def tidy(u, ls, moves, elems):
     seen, res = set(), []
     for lv, m in out:
         if m not in seen: seen.add(m); res.append([lv, m])
+    atks = [m for _, m in res if (moves.get(m) or BASE_MOVES.get(m) or {}).get('cat') == 'atk']
+    for fill, lv in (({'light': 'lshot', 'heavy': 'hsmash', 'air': 'ashot'}[u['cls']], 1), ({'light': 'lunge', 'heavy': 'hshellap', 'air': 'aburst'}[u['cls']], 11)):
+        if len(atks) >= 2: break
+        if fill not in seen: res.append([lv, fill]); seen.add(fill); atks.append(fill)
+    res.sort(key=lambda x: x[0])
     return res
 
 
