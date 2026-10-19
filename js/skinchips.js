@@ -130,10 +130,11 @@
     for (let k = 0; k <= f.forms.length; k++) if (!(bits & (1 << k))) return k;
     return 0; // 모든 모습을 잡았으면 다시 기본 모습으로
   };
-  // 아주 드물게(조우 0.3%) 아직 잡지 않은 전설 바이오로이드가 수풀에서 나타난다 (램파리온은 라비아타의 선물이라 제외)
-  const WILD_LEGENDS = ['phoenix', 'hongryun', 'blacklilith', 'eternity'], LEGEND_RATE = 0.003;
+  // 아주 드물게(조우 0.3%) 아직 잡지 않은 전설 바이오로이드가 수풀에서 나타난다
+  // 램파리온은 처음에 라비아타에게서 받지 않은 경우에만 나온다
+  const WILD_LEGENDS = ['phoenix', 'hongryun', 'blacklilith', 'eternity', 'lamparion'], LEGEND_RATE = 0.003;
   async function legendEncounter(world, table) {
-    const pool = WILD_LEGENDS.filter(k => SPECIES[k] && !Game.dex.caught[k]);
+    const pool = WILD_LEGENDS.filter(k => SPECIES[k] && !Game.dex.caught[k] && !(k === 'lamparion' && Game.flags.starterLamparion));
     if (!pool.length) return false;
     const key = pool[Math.floor(Math.random() * pool.length)], lv = Math.max(table.lv[1] + 8, 18);
     world.locked = true;

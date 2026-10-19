@@ -452,6 +452,7 @@ const Scripts = {
     m.ot = '사령관';
     Game.addMon(m); Game.markCaught(sp.key);
     Game.flags.gotStarter = 1; Game.flags.hasDex = 1;
+    if (sp.key === 'lamparion') Game.flags.starterLamparion = 1; // 처음에 받은 램파리온 (야생 전설 출현에서 제외)
     Audio2.voice(sp.key, 'join');
     Audio2.jingle([659, 784, 988, 1319, 0, 988, 1319], 0.12, 'square', 0.07);
     await say(J(sp.name, '이') + ' 사령관의 부대에 합류했다!');
