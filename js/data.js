@@ -282,7 +282,7 @@ const EXTRA_SPECIES = [
   { key: 'rhode', name: '로데', types: ['heavy'], base: [64, 54, 64, 42], rank: 'A', catch: 45, exp: 64, kind: 'bio', faction: '펙스 콘소시엄',
     moves: [[1, 'shot'], [1, 'guard'], [5, 'shell'], [7, 'repair'], [9, 'taunt'], [13, 'coverfire'], [17, 'fortify'], [22, 'barrage'], [27, 'command'], [33, 'railgun'], [39, 'overload']],
     desc: '양어깨에 함포 의장을 짊어진 중장형 지원기. 포격으로 전선을 받치고 동료를 수복한다.' },
-  { key: 'lamparion', name: '램파리온', types: ['light', 'fire'], base: [84, 92, 86, 58], rank: 'SS', catch: 5, exp: 250, kind: 'ags', faction: 'AGS', legend: true,
+  { key: 'lamparion', name: '램파리온', types: ['light', 'fire'], base: [82, 90, 84, 58], rank: 'SS', catch: 5, exp: 250, kind: 'ags', faction: 'AGS', legend: true,
     moves: [[1, 'tackle'], [1, 'protect'], [1, 'knuckle'], [8, 'drillknee'], [16, 'shining'], [24, 'bravefuse'], [30, 'heavenhell']],
     desc: '램파트의 전투 데이터로 깨어난 사자형 용자 로봇. 정의를 외치며 싸우고, 두 손으로 하늘과 지옥을 하나로 짓누른다.' },
 ];

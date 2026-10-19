@@ -33,7 +33,7 @@ RANK_MULT = {'B': 1.0, 'A': 1.12, 'S': 1.25, 'SS': 1.4}
 # 서사·진행 보정: 전설(사이드 스토리에서 만나는 존재)과 저항군 지도자는 더 강하게.
 # 레모네이드 관장은 체육관 순서에 맞춘다 — 첫 관장 감마와 여섯째 알파는 같은 레벨대 부대가 넘을 수 있게 SS 하단으로
 # (tools/balancetest.js 의 관장 승률 검사 기준)
-STORY_BONUS = {'blacklilith': 25, 'eternity': 10, 'phoenix': 10, 'hongryun': 10, 'labiata': 10, 'harpy': 15, 'leona': 15, 'alexandra': 15, 'sleipnir': 10, 'cheona': 10,
+STORY_BONUS = {'blacklilith': 25, 'eternity': 10, 'phoenix': 10, 'hongryun': 10, 'labiata': 10, 'harpy': 15, 'leona': 5, 'alexandra': 15, 'sleipnir': 10, 'cheona': 10,
                'lemongamma': -25, 'lemonbeta': 15, 'lemonepsilon': 15, 'lemonalpha': 20}
 LEGENDS = {'blacklilith', 'eternity', 'phoenix', 'hongryun'}
 # 시작 유닛은 등급과 무관하게 실전 능력치(합계 × 등급 배율)를 같게, 같은 B급 야생(230)보다 조금 높게
@@ -187,7 +187,7 @@ def sig_move(u, i, s):
     if kind == 'atk':
         # 1번은 레벨 1부터 쓰는 주력기라 초반 기본기 수준, 2번은 16레벨에 배우는 필살기
         if i == 1: pow_ = {'공격기': 60, '보호기': 50, '지원기': 45}[role] + RANK_BONUS[rank] * 3 // 5
-        else: pow_ = {'공격기': 95, '보호기': 80, '지원기': 75}[role] + RANK_BONUS[rank] * 4 // 5
+        else: pow_ = {'공격기': 105, '보호기': 85, '지원기': 80}[role] + RANK_BONUS[rank] * 4 // 5
         m.update(cat='atk', acc=100, pp=20 if i == 1 else (5 if rank == 'SS' and role == '공격기' else 10))
         if s.get('aoe'):
             m['area'] = 1; pow_ = round(pow_ * 0.9)
@@ -351,6 +351,8 @@ def elemental_weapon(u):
 def learnset(u, elem, fam, has3, has4=False):
     role, cls, key = u['role'], u['cls'], u['key']
     w = WEAPON[(cls, fam)]
+    if fam == 'gun' and any(x['fx'] == 'snipe' for x in u['skills'][:2]):
+        w = {'light': ['lshot', 'expose', 'snipe'], 'heavy': ['hmg', 'hcannon', 'snipe'], 'air': ['ashot', 'expose', 'snipe']}[cls]
     e = ELEM_MOVES.get(elem)
     n_el = sum(1 for x in u['skills'][:2] if x.get('elem') not in (None, 'none'))
     e2 = e if n_el >= 2 else None  # 두 액티브 모두 속성일 때만 속성 기술로 채운다
@@ -428,7 +430,11 @@ ALT = {'aimed': 'steady', 'apierce': 'arocket', 'provoke': 'challenge', 'command
        'ashot': 'aburst', 'bomb': 'carpet', 'strafe': 'aburst', 'hsmash': 'hstomp', 'shell': 'hshellap', 'barrage': 'hsalvo', 'hmgburst': 'hsalvo'}
 
 
+SNIPERS = set()
+
+
 def variant(key, m):
+    if key in SNIPERS and m in ('lshot', 'lfocus', 'suppress', 'ashot', 'hmg'): return m
     """같은 계열 유닛끼리 공용 세트가 똑같지 않게: 유닛 이름으로 정해지는 한쪽을 고른다."""
     if m not in ALT: return m
     import hashlib
@@ -448,6 +454,10 @@ def tidy(u, ls, moves, elems):
     sigs = [m for _, m in ls if m.startswith('sig_')]
     sig_keys = {effect_key(moves[m]) for m in sigs if m in moves}
     sig_atk = {atk_key(moves[m]) for m in sigs if m in moves and moves[m].get('cat') == 'atk'}
+    eff_pow = lambda d: (d.get('pow') or 0) * ((sum(d['hits']) / 2) if d.get('hits') else 1)
+    sig_max = max([eff_pow(moves[m]) for m in sigs if m in moves and moves[m].get('cat') == 'atk'] or [0])
+    sig_elem = sum(1 for m in sigs if m in moves and moves[m].get('cat') == 'atk' and moves[m].get('type') in ('fire', 'ice', 'elec'))
+    elem_shared = 0
     spd_up = sum(1 for m in sigs if m in moves and (moves[m].get('self') or {}).get('spd', 0) > 0)
     e = ELEM_MOVES.get(elems[0]) if elems else None
     pool = [x for x in (e or []) if x not in [m for _, m in ls]]
@@ -462,8 +472,14 @@ def tidy(u, ls, moves, elems):
         if not m.startswith('sig_'):
             if d.get('cat') == 'st' and effect_key(d) in sig_keys:
                 continue  # 고유 기술이 같은 일을 한다
-            if d.get('cat') == 'atk' and lv < 40 and atk_key(dict(d, **(moves.get(variant(u['key'], m)) or {}))) in sig_atk:
+            dv = dict(d, **(moves.get(variant(u['key'], m)) or {})) if d.get('cat') == 'atk' else d
+            if d.get('cat') == 'atk' and lv < 40 and atk_key(dv) in sig_atk:
                 continue  # 같은 성격의 고유 공격기가 있다
+            if d.get('cat') == 'atk' and sig_max and eff_pow(dv) > max(sig_max, 60):  # 기본기(위력 60 이하)는 남긴다
+                continue  # 본편 고유 기술보다 센 공용기는 두지 않는다
+            if d.get('cat') == 'atk' and dv.get('type') in ('fire', 'ice', 'elec') and sig_elem >= 2:
+                if elem_shared >= 1: continue  # 속성 공격은 고유 기술이 이미 맡는다
+                elem_shared += 1
             if (d.get('self') or {}).get('spd', 0) > 0:
                 if spd_up >= 2: continue
                 spd_up += 1
@@ -544,6 +560,7 @@ for _m in _re.finditer(r"^  (\w+):\s*\{ name: '[^']*', type: '(\w+)', cat: '(\w+
     if _h: _d['heal'] = float(_h.group(1))
     BASE_MOVES[_k] = _d
 moves, species = dict(GENERIC), {}
+SNIPERS.update(u['key'] for u in units if any(x['fx'] == 'snipe' for x in u['skills'][:2]))
 for u in units:
     elem, fam = elem_of(u), family_of(u)
     for i, s in enumerate(u['skills'][:2], 1):
