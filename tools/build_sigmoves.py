@@ -171,7 +171,7 @@ def apply_extra(m, extra):
 SKILL_FIX = {}
 
 
-NAME_FX = [('클로', 'slash'), ('포격', 'shell'), ('포탄', 'shell'), ('캐논', 'shell'), ('폭격', 'bombs'), ('저격', 'snipe'), ('미사일', 'shell'), ('기관총', 'bullets'), ('기관포', 'bullets')]
+NAME_FX = [('해킹', 'spark'), ('교화', 'wave'), ('투척', 'slash'), ('클로', 'slash'), ('포격', 'shell'), ('포탄', 'shell'), ('캐논', 'shell'), ('폭격', 'bombs'), ('저격', 'snipe'), ('미사일', 'shell'), ('기관총', 'bullets'), ('기관포', 'bullets')]
 
 
 def name_fx(name, fx):
@@ -564,7 +564,7 @@ def tidy(u, ls, moves, elems):
                 atk_up += 1
             if e and m in GUNLIKE and (elemental_weapon(u) or (sig_elem and sig_elem == sum(1 for x in sigs if x in moves and moves[x].get('cat') == 'atk'))):  # 화염방사기·냉기·전격이 무기인 유닛
                 if not pool: continue
-                m = pool.pop(0)
+                m = pool.pop(1 if lv >= 11 and len(pool) > 1 else 0)  # 늦게 배우는 자리는 더 센 속성기
             if u['role'] == '지원기' and d.get('cat') == 'atk' and (has(m).get('pow') or 0) > 55:
                 continue  # 지원기의 공용 공격은 기본기만
             if u['role'] == '지원기' and lv >= 40:
@@ -581,20 +581,23 @@ def tidy(u, ls, moves, elems):
         fd = has(fill)
         if ((fd.get('pow') or 0) > 55 and eff_pow(fd) > sig_max * 0.9) or (u['role'] == '지원기' and (fd.get('pow') or 0) > 55): continue
         if s1 and eff_pow(fd) >= eff_pow(s1): continue
+        if fx_count.get(fd.get('fx'), 0) >= 3: continue
         if fill not in seen: res.append([lv, fill]); seen.add(fill); atks.append(fill)
     if len(atks) < 2:
-        weak = min((x for x in basics(u, elems) if x not in seen), key=lambda x: eff_pow(has(x)), default=None)
+        pool2 = [x for x in basics(u, elems) + ['lshot', 'ashot', 'hpunch', 'lray', 'aray'] if x not in seen]
+        weak = min(pool2, key=lambda x: ((has(x).get('pow') or 0) > 55, fx_count.get(has(x).get('fx'), 0) >= 3, eff_pow(has(x))), default=None)
         if weak: res.append([1, weak]); seen.add(weak); atks.append(weak)
     has = lambda mid: (moves.get(mid) or BASE_MOVES.get(mid) or {})
-    if u['role'] == '보호기' and not any((has(m).get('foe') or {}).get('atk', 0) < 0 or 'foeAtk' in (has(m).get('eff') or {}) for _, m in res):
+    if u['role'] == '보호기' and not any((has(m).get('foe') or {}).get('atk', 0) < 0 for _, m in res):
         for cand in ('provoke', 'menace', 'challenge'):
             if cand not in seen: res.append([11, cand]); seen.add(cand); break
-    pad = {'보호기': ['brace', 'menace', 'challenge'], '지원기': ['orders', 'analyze', 'flare'],
-           '공격기': [basics(u, elems)[0], 'steady', 'quickstep']}[u['role']]
+    pad = {'보호기': ['brace', 'menace', 'challenge', 'guard', 'ironwall'], '지원기': ['orders', 'analyze', 'flare', 'smoke', 'jam', 'rally'],
+           '공격기': [basics(u, elems)[1 if elems else 0], 'steady', 'quickstep', 'aimed', 'charge']}[u['role']]
     for cand in pad:
         if len(res) >= 5: break
         d = has(cand)
         if cand in seen or (d.get('cat') == 'st' and effect_key(d) in sig_keys): continue
+        if d.get('cat') == 'atk' and sum(1 for _, x in res if has(x).get('cat') == 'atk' and has(x).get('fx') == d.get('fx')) >= 3: continue
         if d.get('cat') == 'atk' and (((d.get('pow') or 0) > 55 and eff_pow(d) > sig_max * 0.9) or any(d.get(f) for f in sig_flags)): continue
         if d.get('foe') and ({'foe' + k for k, v in d['foe'].items() if v < 0} & stat_seen): continue
         res.append([21, cand]); seen.add(cand)
@@ -762,6 +765,8 @@ for k, h in HAND.items():
 
 for m in moves.values():
     m['desc'] = fix_words(m['desc'])
+    if m.get('cat') == 'st' and m.get('fx') not in ('buff', 'debuff', 'shield', 'heal'):
+        m['fx'] = 'debuff' if m.get('foe') and not m.get('self') else ('heal' if m.get('heal') and not m.get('self') else 'buff')  # 변화기는 변화 연출
     if m.get('cat') == 'st' or m.get('heal'):
         for a, b in (('아군 전체의', '자신의'), ('아군 전원의', '자신의'), ('아군 전체를', '자신을'), ('아군 전체', '자신'), ('아군들의', '자신의'), ('아군의', '자신의'), ('아군을', '자신을'), ('아군에게', '자신에게'), ('아군이', '자신이'), ('아군', '자신')):
             m['desc'] = m['desc'].replace(a, b)
@@ -781,7 +786,7 @@ for u in units:
     m2, m3 = moves.get(f"sig_{u['key']}_2") or {}, moves.get(f"sig_{u['key']}_3") or {}
     if m2.get('cat') != 'st' or m3.get('cat') != 'st': continue
     s2, s3 = m2.get('self') or {}, m3.get('self') or {}
-    if s2.get('atk', 0) > 0 and s3.get('atk', 0) > 0 and 'def' not in s3:
+    if s2.get('atk', 0) > 0 and s3.get('atk', 0) > 0 and 'def' not in s3 and not any(w in m3.get('name', '') for w in ('지휘', '명령')):
         s3 = dict(s3); s3['def'] = s3.pop('atk'); m3['self'] = s3
         for x, y in (('공격과', '방어와'), ('공격이', '방어가'), ('공격을', '방어를'), ('공격·', '방어·'), ('화력을', '방어를')):
             m3['desc'] = m3['desc'].replace(x, y)
