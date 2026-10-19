@@ -33,7 +33,7 @@ RANK_MULT = {'B': 1.0, 'A': 1.12, 'S': 1.25, 'SS': 1.4}
 # 서사·진행 보정: 전설(사이드 스토리에서 만나는 존재)과 저항군 지도자는 더 강하게.
 # 레모네이드 관장은 체육관 순서에 맞춘다 — 첫 관장 감마와 여섯째 알파는 같은 레벨대 부대가 넘을 수 있게 SS 하단으로
 # (tools/balancetest.js 의 관장 승률 검사 기준)
-STORY_BONUS = {'blacklilith': 25, 'eternity': 10, 'phoenix': 10, 'hongryun': 25, 'labiata': 10, 'harpy': 15, 'sleipnir': 10, 'cheona': 10,
+STORY_BONUS = {'blacklilith': 25, 'eternity': 10, 'phoenix': 10, 'hongryun': 10, 'labiata': 10, 'harpy': 15, 'sleipnir': 10, 'cheona': 10,
                'lemongamma': -25, 'lemonbeta': 15, 'lemonepsilon': 15, 'lemonalpha': 20}
 LEGENDS = {'blacklilith', 'eternity', 'phoenix', 'hongryun'}
 # 시작 유닛은 등급과 무관하게 실전 능력치(합계 × 등급 배율)를 같게, 같은 B급 야생(230)보다 조금 높게
@@ -111,6 +111,15 @@ GENERIC = {
     'hsalvo': {'name': '연속 포격', 'type': 'heavy', 'cat': 'atk', 'pow': 35, 'hits': [2, 3], 'acc': 90, 'pp': 10, 'fx': 'barrage', 'desc': '포문을 번갈아 2~3회 쏘아 댄다.'},
     'aray': {'name': '조준 광선', 'type': 'air', 'cat': 'atk', 'pow': 55, 'acc': 100, 'pp': 25, 'fx': 'beam', 'desc': '위에서 가는 광선을 짧게 끊어 쏜다.'},
     'ldrill': {'name': '천공 일격', 'type': 'light', 'cat': 'atk', 'pow': 75, 'acc': 100, 'pp': 15, 'pierce': 1, 'fx': 'smash', 'desc': '회전하는 끝으로 한 점을 파고들어 장갑을 뚫는다. 상대의 방어 강화를 무시한다.'},
+    'challenge': {'name': '정면 도전', 'type': 'phys', 'cat': 'st', 'acc': 0, 'pp': 20, 'self': {'atk': 1}, 'foe': {'atk': -1}, 'fx': 'debuff', 'desc': '방패를 두드리며 정면으로 맞선다. 자신의 공격이 오르고 상대의 공격이 떨어진다.'},
+    'brace': {'name': '엄호 자세', 'type': 'phys', 'cat': 'st', 'acc': 0, 'pp': 15, 'self': {'def': 1, 'spd': 1}, 'fx': 'shield', 'desc': '동료를 가릴 자리로 재빨리 들어선다. 방어와 속도가 오른다.'},
+    'orders': {'name': '작전 지시', 'type': 'phys', 'cat': 'st', 'acc': 0, 'pp': 15, 'self': {'acc': 1, 'spd': 1}, 'fx': 'buff', 'desc': '전황을 읽고 다음 행동을 지시한다. 명중과 속도가 오른다.'},
+    'flare': {'name': '조명탄', 'type': 'phys', 'cat': 'st', 'acc': 100, 'pp': 20, 'foe': {'acc': -1}, 'self': {'acc': 1}, 'fx': 'smoke', 'desc': '조명탄을 터뜨려 시야를 뺏고 표적을 밝힌다. 상대의 명중이 떨어지고 자신의 명중이 오른다.'},
+    'hack': {'name': '해킹', 'type': 'phys', 'cat': 'st', 'acc': 95, 'pp': 15, 'foe': {'def': -1, 'spd': -1}, 'fx': 'wave', 'desc': '상대 기체의 제어 회로에 침입한다. 상대의 방어와 속도가 떨어진다.'},
+    'analyze': {'name': '약점 분석', 'type': 'phys', 'cat': 'st', 'acc': 100, 'pp': 15, 'foe': {'def': -1}, 'self': {'acc': 1}, 'fx': 'debuff', 'desc': '상대의 움직임을 관찰해 약점을 찾아낸다. 상대의 방어가 떨어지고 자신의 명중이 오른다.'},
+    'arocket': {'name': '로켓 일제 발사', 'type': 'air', 'cat': 'atk', 'pow': 80, 'acc': 95, 'pp': 15, 'eff': {'foeSpd': 0.3}, 'fx': 'barrage', 'desc': '날개 밑 로켓을 한꺼번에 쏟아낸다. 상대의 속도를 떨어뜨릴 때가 있다.'},
+    'hcannon': {'name': '고폭탄', 'type': 'heavy', 'cat': 'atk', 'pow': 85, 'acc': 95, 'pp': 10, 'crit': 2, 'fx': 'shell', 'desc': '고폭탄을 약한 이음새에 꽂아 넣는다. 치명타가 나기 쉽다.'},
+    'steady': {'name': '호흡 고르기', 'type': 'phys', 'cat': 'st', 'acc': 0, 'pp': 20, 'self': {'atk': 1, 'acc': 1}, 'fx': 'buff', 'desc': '숨을 고르고 다음 한 방을 겨눈다. 공격과 명중이 오른다.'},
     'provoke': {'name': '도발', 'type': 'phys', 'cat': 'st', 'acc': 0, 'pp': 20, 'self': {'def': 1}, 'foe': {'atk': -1}, 'fx': 'debuff', 'desc': '일부러 앞으로 나서 적의 공격을 끌어낸다. 자신의 방어가 오르고 상대의 공격이 떨어진다.'},
     'lcover': {'name': '엄폐', 'type': 'light', 'cat': 'st', 'acc': 0, 'pp': 15, 'self': {'def': 1}, 'heal': 0.25, 'fx': 'shield', 'desc': '엄폐물 뒤로 몸을 숨겨 숨을 고른다. 방어가 오르고 HP를 조금 회복한다.'},
     'evade': {'name': '회피 기동', 'type': 'air', 'cat': 'st', 'acc': 0, 'pp': 15, 'self': {'def': 1, 'spd': 1}, 'heal': 0.2, 'fx': 'buff', 'desc': '급선회로 적의 조준을 흐트러뜨린다. 방어와 속도가 오르고 HP를 조금 회복한다.'},
@@ -131,7 +140,11 @@ def elem_of(u):
     return max(set(es), key=es.count) if es else None
 
 
+FAMILY_FIX = {'harpy': 'gun'}  # P-22 공대공 스텔스 전투기: 폭격기가 아니다
+
+
 def family_of(u):
+    if u['key'] in FAMILY_FIX: return FAMILY_FIX[u['key']]
     fs = [FAMILY[s['fx']] for s in u['skills'][:2] if s['kind'] == 'atk' and s['fx'] in FAMILY]
     if not fs: fs = [FAMILY[s['fx']] for s in u['skills'][:2] if s['fx'] in FAMILY]
     return fs[0] if fs else {'light': 'gun', 'heavy': 'blast', 'air': 'gun'}[u['cls']]
@@ -203,6 +216,13 @@ def fit_fx(m, kind, elem):
     m['fx'] = fx or {'heal': 'heal', 'buff': 'buff', 'focus': 'buff', 'guard': 'shield', 'taunt': 'shield'}.get(kind, 'debuff')
 
 
+HEAL_WORDS = ('회복', '수리', '치료', '수복', '재생', '돌보', '보급')
+
+
+def says_heal(m):
+    return any(w in m.get('desc', '') for w in HEAL_WORDS)
+
+
 def status_move(m, kind, extra, role):
     if kind == 'heal':
         m['heal'] = 0.5 if role == '지원기' else 0.35
@@ -210,14 +230,15 @@ def status_move(m, kind, extra, role):
     elif kind == 'buff':
         m['self'] = {'atk': 2} if extra == 'selfAtk' else {'spd': 2} if extra == 'selfSpd' else {'atk': 1, 'acc': 1} if extra == 'selfAcc' else {'atk': 1, 'spd': 1}
         if role == '지원기' and m['self'].get('atk', 0) >= 2: m['self'] = {'atk': 1, 'def': 1}  # 지원기의 지휘는 부대 정비
-        if extra == 'heal' or role == '지원기': m['heal'] = 0.25  # 지원기의 강화는 부대를 돌보는 일이기도 하다
+        if extra == 'heal' or (role == '지원기' and says_heal(m)): m['heal'] = 0.25
     elif kind == 'focus':
         m['self'] = {'atk': 1, 'acc': 1}
         if extra == 'selfSpd': m['self']['spd'] = 1
     elif kind == 'guard':
         m['self'] = {'def': 2} if extra != 'selfSpd' else {'def': 1}
+        if extra in ('foeAcc', 'foeAtk', 'foeSpd', 'foeDef'): m['self'] = {'def': 1}; m['foe'] = {extra[3:].lower(): -1}
         if extra in ('selfAtk', 'selfSpd'): m['self'][extra[4:].lower()] = 1
-        if role == '보호기' or extra == 'heal': m['heal'] = 0.2
+        if extra == 'heal' or says_heal(m): m['heal'] = 0.2
     elif kind == 'taunt':
         m['self'] = {'def': 1}; m['foe'] = {'atk': -1}
         if extra == 'heal': m['heal'] = 0.2
@@ -364,7 +385,7 @@ def learnset(u, elem, fam, has3):
         elif 'barrage' in fxs or 'shell' in fxs: ls = [[lv, 'bomb' if m == ult else m] for lv, m in ls]
         elif 'beam' in fxs or 'plasma' in fxs: ls = [[lv, 'abeam2' if m == ult else m] for lv, m in ls]
     if fam not in ('gun', 'blast'):
-        ls = [[lv, 'menace' if m == 'taunt' else m] for lv, m in ls]
+        ls = [[lv, ('analyze' if role == '지원기' else 'menace') if m == 'taunt' else m] for lv, m in ls]
     # 같은 하위 유형 안에서도 본편 능력치 성향으로 한 자리를 바꾼다 (빠른 유닛은 가속, 단단한 유닛은 장갑)
     st = u.get('stat') or {}
     prof = 'fast' if st.get('SPD', 4) >= 4.45 else 'tough' if st.get('DEF', 0) >= 300 or st.get('HP', 0) >= 3800 else None
@@ -393,14 +414,16 @@ def effect_key(m):
     return json.dumps([m.get('cat'), sign(m.get('self')), sign(m.get('foe')), heal_only, sorted((m.get('eff') or {}).keys()), m.get('status')])
 
 
-ALT = {'quick': 'lunge', 'blade': 'twinslash', 'vital': 'bleed', 'lshot': 'doubletap', 'lfocus': 'lsweep', 'suppress': 'doubletap',
+ALT = {'aimed': 'steady', 'apierce': 'arocket', 'provoke': 'challenge', 'command': 'orders', 'smoke': 'flare', 'jam': 'hack', 'guard': 'brace', 'menace': 'analyze',
+       'amissile': 'arocket', 'hpierce': 'hcannon', 'quick': 'lunge', 'blade': 'twinslash', 'vital': 'bleed', 'lshot': 'doubletap', 'lfocus': 'lsweep', 'suppress': 'doubletap',
        'ashot': 'aburst', 'bomb': 'carpet', 'strafe': 'aburst', 'hsmash': 'hstomp', 'shell': 'hshellap', 'barrage': 'hsalvo', 'hmgburst': 'hsalvo'}
 
 
 def variant(key, m):
     """같은 계열 유닛끼리 공용 세트가 똑같지 않게: 유닛 이름으로 정해지는 한쪽을 고른다."""
     if m not in ALT: return m
-    h = sum(ord(c) * (i + 1) for i, c in enumerate(key + m))
+    import hashlib
+    h = int(hashlib.md5((key + ':' + m).encode()).hexdigest(), 16)
     return ALT[m] if h % 2 else m
 
 
@@ -523,7 +546,8 @@ DESC_FIX = {
     'sig_pa00el_2': '공중에서 소이 폭탄을 쏟아부어 상대 일대를 휩쓴다. 상대의 방어를 떨어뜨릴 때가 있다.',
     'sig_pa00el_3': '하늘을 달리는 기사처럼 급강하하며 폭격하고, 그 기세로 속도가 오른다.',
 }
-EFFECT_FIX = {'sig_echidna_1': {'drain': 0.3}, 'sig_cyclopseprincess_1': {'drain': 0.3}}  # 설명대로 생기를 빨아들인다
+EFFECT_FIX = {'sig_echidna_1': {'drain': 0.3}, 'sig_cyclopseprincess_1': {'drain': 0.3},
+              'sig_alice_3': {'fx': 'barrage'}, 'sig_cheona_2': {'fx': 'bite'}}  # 설명대로 생기를 빨아들인다
 for k, v in EFFECT_FIX.items():
     if k in moves: moves[k].update(v)
 for m in moves.values():
