@@ -169,8 +169,19 @@ def apply_extra(m, extra):
 SKILL_FIX = {('goltarion', 2): {'kind': 'atk', 'extra': 'selfAtk', 'fx': 'bombs', 'desc': '데모닉 웨폰을 소환해 전장에 투하한다. 일대를 덮치고 자신의 공격이 오른다.'}}
 
 
+NAME_FX = [('클로', 'slash'), ('포격', 'shell'), ('포탄', 'shell'), ('캐논', 'shell'), ('폭격', 'bombs'), ('저격', 'snipe'), ('미사일', 'shell'), ('기관총', 'bullets'), ('기관포', 'bullets')]
+
+
+def name_fx(name, fx):
+    for w, f in NAME_FX:
+        if w in (name or ''):
+            return f if fx not in ('barrage', 'bombs', 'napalm') or f == 'slash' else fx  # 광역 연출은 살린다
+    return fx
+
+
 def sig_move(u, i, s):
     s = dict(s, **SKILL_FIX.get((u['key'], i), {}))
+    if s.get('kind') == 'atk': s = dict(s, fx=name_fx(s.get('name'), s.get('fx')))
     role, rank = u['role'], u['rank']
     elem = s.get('elem') if s.get('elem') not in (None, 'none') else None
     fx = s['fx'] if s['fx'] in FX else ('heal' if s['kind'] == 'heal' else 'buff')
@@ -269,6 +280,7 @@ def mech_move(u, p):
         if eff: m['eff'] = eff
         if x.get('drain'): m['drain'] = max(0.1, min(0.5, float(x['drain'])))
         m['fx'] = x.get('fx') if x.get('fx') in FX and x.get('fx') not in ('buff', 'debuff', 'shield', 'heal') else {'light': 'bullet', 'heavy': 'shell', 'air': 'bullets'}[u['cls']]
+        m['fx'] = name_fx(p['name'], m['fx'])
     else:
         m.update(type='phys', cat='st', acc=0, pp=10)
         foe = {k: max(-2, min(0, int(v))) for k, v in (x.get('foe') or {}).items() if k in STAGES and v}
@@ -308,6 +320,14 @@ MECH_FIX = {
 }
 
 
+AGGRESSIVE = ('포식', '반격', '추격', '사냥', '물어', '송곳니', '공격', '사격', '포격', '폭격', '베기', '일격', '처형', '저격', '돌격', '폭군',
+              '역습', '응징', '난사', '섬멸', '파괴', '격파', '참격', '타격', '발톱', '사살', '포효', '분노', '광폭', '학살', '가학', '추적', '포획', '흡혈')
+
+
+def aggressive(name, desc=''):
+    return any(w in (name or '') for w in AGGRESSIVE)
+
+
 def passive_move(u):
     p = u.get('passive')
     if not p or not p.get('name'): return None
@@ -315,6 +335,8 @@ def passive_move(u):
         p = dict(p, mech=dict(MECH_FIX[u['key']]))
     elif u['role'] == '보호기' and (p.get('mech') or {}).get('cat') == 'atk':
         p = dict(p, mech=guard_stance(u, p['name']))
+    elif (p.get('mech') or {}).get('cat') == 'atk' and not aggressive(p['name']):
+        p = dict(p, mech=None)  # 공격 뜻이 없는 패시브는 처음 분류(강화·회복·약화 변화기)로
     if p.get('mech'):
         m = mech_move(u, p)
         if m: return m
@@ -387,7 +409,7 @@ def learnset(u, elem, fam, has3, has4=False):
         else: crit = {'light': 'lpierce', 'heavy': 'hpierce', 'air': 'apierce'}[cls]
         prep = {'gun': 'aimed', 'blast': 'aimed', 'blade': 'quick' if cls == 'light' else 'rally', 'energy': 'charge', 'melee': 'rally', 'chem': 'aimed'}[fam]
         ls = [[1, s1], [1, w[0]], [6, prep], [11, w[1] if not e2 else e[0]], [16, s2], [21, crit], [27, mid], [40, ult]]
-    if cls == 'air' and not e:
+    if cls == 'air' and not e and key not in FAMILY_FIX:
         fxs = {x['fx'] for x in u['skills'][:2]}
         if 'bombs' in fxs: ls = [[lv, 'bomb' if m == ult else m] for lv, m in ls]
         elif 'barrage' in fxs or 'shell' in fxs: ls = [[lv, 'bomb' if m == ult else m] for lv, m in ls]
@@ -591,7 +613,8 @@ for u in units:
         moves[f"sig_{u['key']}_{i}"] = sig_move(u, i, s)
     p = passive_move(u)
     if p: moves[f"sig_{u['key']}_3"] = p
-    p4 = mech_move(u, u['passive2']) if (u.get('passive2') or {}).get('mech') else None
+    p2 = u.get('passive2') or {}
+    p4 = mech_move(u, p2) if p2.get('mech') and (p2['mech'].get('cat') != 'atk' or aggressive(p2.get('name'))) else None
     if p4:
         others = [moves.get(f"sig_{u['key']}_{i}") for i in (1, 2, 3)]
         others = [o for o in others if o]
