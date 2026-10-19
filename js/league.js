@@ -37,8 +37,9 @@
     zeta: { name: '레모네이드 제타', title: '제타 체육관 관장', portrait: L('zeta'), team: [['gigantes', 21], ['goltarion', 22], ['valkyrie', 22], [L('zeta'), 24]], prize: 1200, boss: true, badge: 'zeta', bgm: 'boss', voice: 'mpzeta',
       intro: '', lose: '', after: '관측은 계속돼요. 당신은 여전히 흥미로운 표본이군요.' },
     // 5. 엡실론 체육관 (폐공장 지대)
-    fenrir: { name: '펜리르', title: '엡실론 체육관 관원', portrait: 'fenrir', team: [['hraesvelgr', 25], ['roc', 25]], prize: 1800,
-      intro: '엡실론은 지금 자. 깨우고 싶으면 나부터 이겨, 주인님!', lose: '졌다... 그래도 나 잘 싸웠지? 칭찬해 줘. ...깨우는 건 주인님이 알아서 해.', after: '엡실론 방에선 물 얘기 하지 마. 시끄러워지면 내가 대신 물어 줄까?', rematch: ['주인님! 나 그동안 고장 낸 거 하나도 없어. 한 판 더 하자!', '이번엔 안 져. 진짜로!', '또 졌어... 그래도 열심히 했지? 칭찬해 줘, 주인님.'] },
+    // 원작에서 엡실론의 부관인 이레이나(오비탈 와쳐 II). 사령관을 '마왕 오빠'라 부르는 용사 게이머
+    ireina: { name: '이레이나', title: '엡실론 체육관 관원', portrait: 'ireina', team: [['hraesvelgr', 25], ['roc', 25]], prize: 1800,
+      intro: '또 도전하러 온 거야…? 엡실론 언니는 지금 자는 중이야… 깨우고 싶으면 이레이나부터 공략해 봐, 마왕 오빠…!', lose: '으으… 게임 오버… 마왕 오빠, 생각보다 레벨 높잖아… 흥, 다음엔 공략법 연구해 올 거야…!', after: '엡실론 언니 앞에서 물 얘기는 금지야… 화나면 세이브 데이터 날아가니까… 진짜로.', rematch: ['마왕 오빠, 또 왔어…? 좋아, 몇 번이고 받아줄게… 이레이나는 숨지도 도망치지도 않으니까…!', '이번엔 공략 완벽해… 용사 이레이나의 진짜 실력, 보여 줄게!', '또 졌어… 흥! 치사해! …그래도 재밌었어. 한 판 더 해 줄 거지…?'] },
     epsilon: { name: '레모네이드 엡실론', title: '엡실론 체육관 관장', portrait: L('epsilon'), team: [['talonfeather', 26], ['roc', 26], ['hraesvelgr', 27], [L('epsilon'), 28]], prize: 3800, boss: true, badge: 'epsilon', bgm: 'boss', voice: L('epsilon'),
       intro: '', lose: '', after: '...사령관, 한 판 더? 아니 게임 말이야, 게임.' },
     // 6. 알파 체육관 (설원 고지대)
@@ -92,7 +93,10 @@
   makeGym('gym_beta', '베타 체육관', { id: 'beta', sprite: L('beta') }, { id: 'merlin', sprite: 'merlin' }, ['forest', 30, 12, 'down']);
   makeGym('gym_delta', '델타 체육관', { id: 'delta', sprite: L('delta') }, { id: 'johanna', sprite: 'johanna' }, ['harbor', 11, 5, 'down']);
   makeGym('gym_zeta', '제타 체육관', { id: 'zeta', sprite: L('zeta') }, { id: 'atalanta', sprite: 'atalanta' }, ['coast', 35, 10, 'down']);
-  makeGym('gym_epsilon', '엡실론 체육관', { id: 'epsilon', sprite: L('epsilon') }, { id: 'fenrir', sprite: 'fenrir' }, ['factory', 23, 6, 'down']);
+  makeGym('gym_epsilon', '엡실론 체육관', { id: 'epsilon', sprite: L('epsilon') }, { id: 'ireina', sprite: 'ireina' }, ['factory', 23, 6, 'down']);
+  // 엡실론 체육관 관원이 펜리르에서 이레이나로 바뀌었다: 예전 세이브의 승리 기록을 이어 간다
+  const loadBeforeIreina = Game.load;
+  Game.load = function () { const ok = loadBeforeIreina.apply(this, arguments); if (ok && this.flags.beat_fenrir) this.flags.beat_ireina = 1; return ok; };
   makeGym('gym_alpha', '알파 체육관', { id: 'alpha', sprite: L('alpha') }, { id: 'shirayuri', sprite: 'shirayuri' }, ['snowfield', 8, 8, 'down']);
   makeGym('gym_omega', '챔피언 홀', { id: 'omega', sprite: L('omega') }, { id: 'none', sprite: '' }, ['resort', 13, 9, 'down'], 'boss');
   MAPS.gym_omega.objects = MAPS.gym_omega.objects.filter(o => o.id !== 'none');

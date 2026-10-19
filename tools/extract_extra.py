@@ -2,6 +2,7 @@
 """원작 표(lao_data.json)에 없어 expand_roster.py 가 만들지 않는 유닛을 따로 추출한다.
 - rhode: 시작 유닛 로데 (PECS_Rhode_N, 파츠 합성)
 - lamparion: 램파트 스킨 램파리온 (AGS_Rampart_NS1) 을 별도 전설 유닛으로
+- ireina: 엡실론 체육관 관원 이레이나 (PECS_Ireina_N, 트레이너 전용)
 출력: assets/full, assets/icon, assets/voice, js/assetsizes.js 갱신
 """
 import os, re, subprocess
@@ -33,6 +34,8 @@ def ff(src, dst, args):
 UNITS = {
     'rhode': (['FullbodyIMG_PECS_Rhode_N_part1.png', 'FullbodyIMG_PECS_Rhode_N_part2.png'], 'InvenIcon_PECS_Rhode_N.png', 'Rhode'),
     'lamparion': (['FullbodyIMG_AGS_Rampart_NS1.png'], 'InvenIcon_AGS_Rampart_NS1.png', 'RampartNS1'),
+    # 엡실론 체육관 관원 (펜리르 대신). 트레이너 초상화·SD 용
+    'ireina': (['FullbodyIMG_PECS_Ireina_N_part1.png', 'FullbodyIMG_PECS_Ireina_N_part2.png', 'FullbodyIMG_PECS_Ireina_N_part3.png'], 'InvenIcon_PECS_Ireina_N.png', 'Ireina'),
 }
 
 

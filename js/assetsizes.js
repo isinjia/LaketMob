@@ -88,4 +88,5 @@ const ASSET_SIZES = {
   lemonomega: [248, 720],
   rhode: [720, 601],
   lamparion: [638, 720],
+  ireina: [720, 663],
 };
