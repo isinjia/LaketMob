@@ -391,7 +391,8 @@ class Battle {
     await say(pre + J(user.name, '의') + ' ' + d.name + '!', { auto: 650 });
     // 명중
     if (d.acc && this.ordering !== 'me') {
-      const accM = stageMult(this.stage[side].acc, true) * (traitOf(target) === 'air' ? 0.9 : 1);
+      // 광역(area) 기술은 명중 단계·기동형 회피의 영향을 받지 않는다 (범위로 휩쓴다)
+      const accM = d.area ? 1 : stageMult(this.stage[side].acc, true) * (traitOf(target) === 'air' ? 0.9 : 1);
       if (Math.random() * 100 >= d.acc * accM) {
         Audio2.sfx('whoosh', 0.5);
         await say('그러나 공격은 빗나갔다!', { auto: 800 }); return;
@@ -434,7 +435,7 @@ class Battle {
     if (target.hp > 0 && d.eff) {
       for (const k in d.eff) {
         if (Math.random() >= d.eff[k]) continue;
-        if (k === 'foeDef') await this.changeStage(tSide, 'def', -1);
+        if (/^foe(Def|Atk|Spd|Acc)$/.test(k)) await this.changeStage(tSide, k.slice(3).toLowerCase(), -1);
         else if (!target.status && !(k === 'burn' && target.types.includes('fire')) && !(k === 'freeze' && target.types.includes('ice')) && !(k === 'para' && target.types.includes('elec'))) await this.inflict(tSide, k);
       }
     }
@@ -444,6 +445,7 @@ class Battle {
   calcDamage(user, target, d, side, tSide) {
     let A = user.atk * stageMult(this.stage[side].atk);
     let D = target.def * stageMult(this.stage[tSide].def);
+    if (d.pierce) D = Math.min(D, target.def) * 0.7; // 관통: 방어 강화를 무시하고 장갑의 30%를 뚫는다
     let critChance = d.crit ? 1 / 4 : 1 / 16;
     if (traitOf(user) === 'light') critChance = Math.min(1 / 3, critChance * 2); // 급소 기술과 겹쳐도 1/3까지만
     const crit = Math.random() < critChance;

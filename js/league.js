@@ -19,7 +19,7 @@
     // 1. 감마 체육관 (1번 폐도로)
     tomoe: { name: '토모', title: '감마 체육관 관원', portrait: 'tomoe', team: [['hyena', 8], ['gremlin', 9]], prize: 520,
       intro: '자, 친구 토모 등장! 감마 관장한테 도전하려면 나부터 넘어가야 해. 내 지성미, 각오해!', lose: '으으... 이게 바로 ‘금상첨화’라는 거구나... 어? 아닌가?', after: '감마 관장은 정면 승부를 좋아해. 피하지 말고 맞서, 사령관! 그게 바로 ‘우유부단’... 아니, 아무튼 그거야!', rematch: ['사령관! 친구 토모가 그동안 지성미를 갈고닦았어. 한 판 더 하자!', '이번엔 ‘백전백패’... 아니, 백전백승이다!', '으으... 이게 바로 ‘전화위복’이지? 다음엔 진짜 이긴다!'] },
-    gamma: { name: '레모네이드 감마', title: '감마 체육관 관장', portrait: L('gamma'), team: [['brownie', 8], ['sylphid', 9], [L('gamma'), 11]], prize: 2000, boss: true, badge: 'gamma', bgm: 'boss', voice: L('gamma'),
+    gamma: { name: '레모네이드 감마', title: '감마 체육관 관장', portrait: L('gamma'), team: [['brownie', 5], ['sylphid', 6], [L('gamma'), 8]], prize: 2000, boss: true, badge: 'gamma', bgm: 'boss', voice: L('gamma'),
       intro: '', lose: '', after: '하하하! 언제든 다시 오게, 오르카의 사령관. 이 몸이 상대해 주지!' },
     // 2. 베타 체육관 (엘프의 숲)
     merlin: { name: '멀린', title: '베타 체육관 관원', portrait: 'merlin', team: [['pixie', 13], ['nymph', 13]], prize: 900,
@@ -45,10 +45,10 @@
     // 6. 알파 체육관 (설원 고지대)
     shirayuri: { name: '시라유리', title: '알파 체육관 시녀', portrait: 'shirayuri', team: [['phantom', 29], ['blackhound', 29]], prize: 2100,
       intro: '알파 님께서는 아무나 만나 주지 않으십니다. 실력으로 증명하세요.', lose: '...알파 님께서 기뻐하시겠네요.', after: '알파 님의 미소는... 늘 무언가를 숨기고 계세요. 제 수첩에도 아직 적지 못한 비밀이에요.', rematch: ['사령관님, 다시 오셨군요. 수첩에 적어 둔 대책을 시험해 봐도 될까요?', '이번엔 실수 없이 가겠습니다. ...토모 양도 없으니까요.', '...졌네요. 이 결과도 수첩에 적어 둘게요. 하아.'] },
-    alpha: { name: '레모네이드 알파', title: '알파 체육관 관장 · 관장 협회장', portrait: L('alpha'), team: [['phoenix', 30], ['miho', 30], ['bloodypanther', 31], [L('alpha'), 32]], prize: 4400, boss: true, badge: 'alpha', bgm: 'boss', voice: L('alpha'),
+    alpha: { name: '레모네이드 알파', title: '알파 체육관 관장 · 관장 협회장', portrait: L('alpha'), team: [['phoenix', 30], ['miho', 30], ['bloodypanther', 27], [L('alpha'), 32]], prize: 4400, boss: true, badge: 'alpha', bgm: 'boss', voice: L('alpha'),
       intro: '', lose: '', after: '우후후... 사령관님, 조심하세요. 이제부터는 저도 모르는 일이 벌어질 테니까요.' },
     // 7. 챔피언 오메가 (레모네이드 리조트)
-    omega: { name: '레모네이드 오메가', title: '레모네이드 리그 챔피언', portrait: L('omega'), team: [['tyrant', 33], ['fafnir', 33], ['leona', 34], ['valkyrie', 34], [L('omega'), 36]], prize: 9999, boss: true, badge: 'omega', bgm: 'final',
+    omega: { name: '레모네이드 오메가', title: '레모네이드 리그 챔피언', portrait: L('omega'), team: [['tyrant', 31], ['fafnir', 31], ['leona', 33], ['valkyrie', 33], [L('omega'), 36]], prize: 9999, boss: true, badge: 'omega', bgm: 'final',
       intro: '', lose: '', after: '...한 번 더요? 사양할게요, 인간님. 오늘은 술이나 마실 거니까요.' },
     // 사령관 독점단
     dok1: { name: '사령관 독점단 브라우니', title: '사령관 독점단 (마스코트)', portrait: 'brownie', team: [['brownie', 6], ['brownie', 7], ['brownie', 7]], prize: 300,

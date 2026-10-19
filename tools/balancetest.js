@@ -33,7 +33,7 @@ const World = { id: 'lab', def: {}, player: { x: 6, y: 6, dir: 'up' }, locked: f
 const storage = new Map();
 const localStorage = { getItem: k => storage.get(k), setItem: (k,v) => storage.set(k,v) };
 `);
-for (const file of ['js/data.js', 'js/maps.js', 'js/game.js', 'js/league.js', 'js/rosterdata.js', 'js/roster.js', 'js/quests.js', 'js/battle.js']) {
+for (const file of ['js/data.js', 'js/maps.js', 'js/game.js', 'js/league.js', 'js/rosterdata.js', 'js/sigmoves.js', 'js/roster.js', 'js/quests.js', 'js/battle.js']) {
   let source = fs.readFileSync(path.join(root, file), 'utf8');
   if (file === 'js/game.js') source = source.replace(/\nboot\(\);\s*$/, '\n');
   run(source, file);
@@ -101,7 +101,7 @@ async function fight(team, foes, tactical = false) {
 }
 async function test() {
   // 전체 도감의 기술·타입·순서와 모든 레벨의 생성 가능성을 확인한다.
-  assert.equal(DEX_LIST.length, 196);
+  assert.equal(DEX_LIST.length, 198); // 확장 로스터 + 로데·램파리온
   for (const s of SPECIES_LIST) {
     let previous = 0;
     for (const [level, id] of s.moves) {
@@ -139,7 +139,7 @@ async function test() {
   assert.equal(b.moveScore(MOVES.fortify), 0);
   b.foe.moves.forEach(m => m.pp = 0);
   assert.equal(b.foeAI(), '__struggle');
-  b = battle([mon('harpy', 20)], [mon('lemonzeta', 24)]);
+  b = battle([mon('fafnir', 20)], [mon('lemonzeta', 24)]); // 파프니르: 본편 전기 속성
   assert.equal(b.moveScore(MOVES.emp), 0); // 전기 타입 면역
   b = battle([mon('leprechaun', 20)], [mon('leprechaun', 20)]);
   assert.ok(b.moveScore(MOVES.aimed) > 0);
@@ -231,8 +231,8 @@ async function test() {
   try {
     for (const difficulty of [0, 1, 2]) {
       Settings.difficulty = difficulty;
-      await startBattle({ kind: 'trainer', trainer: TRAINERS.gamma, foes: [mon('lemongamma', 11, false)] });
-      assert.equal(adjusted[0].level, [8, 11, 14][difficulty]);
+      await startBattle({ kind: 'trainer', trainer: TRAINERS.gamma, foes: [mon('lemongamma', 8, false)] });
+      assert.equal(adjusted[0].level, [5, 8, 11][difficulty]);
       assert.ok(!adjusted[0].moves.some(m => m.id === 'barrage'));
     }
     await startBattle({ kind: 'trainer', trainer: { copyOf: [Game.party[0]] }, foes: [mon('leprechaun', 19, false)] });
@@ -241,15 +241,16 @@ async function test() {
     Battle.prototype.run = originalRun; Quests.tick = originalTick; Settings.difficulty = 1;
   }
 
-  // 같은 육성 조건으로 스타터마다 100회. 공격·지휘만 사용하고 아이템은 쓰지 않는다.
+  // 같은 육성 조건으로 스타터마다 100회. 시작 유닛에 본편 지원기(아쿠아·로데)가 있어 공격만으로는 실력이 드러나지 않으므로
+  // 후반 관장과 같은 '보통 플레이어' 전술(상성 교체·수복 키트)로 잰다.
   Game.flags = {};
   const results = [];
-  for (const starter of ['leprechaun', 'gnome', 'harpy']) {
+  for (const starter of ['leprechaun', 'aqua', 'rhode']) {
     let wins = 0, turns = 0;
     for (let i = 0; i < 100; i++) {
       const team = [mon(starter, 12), mon('brownie', 10), mon('sylphid', 10)];
       const foes = TRAINERS.gamma.team.map(([k,l]) => mon(k,l,false));
-      const r = await fight(team, foes); if (r.result === 'win') wins++; turns += r.turns;
+      const r = await fight(team, foes, true); if (r.result === 'win') wins++; turns += r.turns;
     }
     results.push({ starter, wins, battles: 100, averageTurns: +(turns / 100).toFixed(1) });
     assert.ok(wins >= 65, starter + ' 첫 관장 승률 ' + wins);
