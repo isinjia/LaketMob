@@ -141,6 +141,31 @@
     finally { this.locked = false; this.encCool = 1.2; }
   };
 
+  // 관장 첫 승리 보상: 관장 테마의 칩 (챔피언 오메가는 4종)
+  const GYM_CHIPS = { gamma: ['arm'], beta: ['night'], delta: ['stage'], zeta: ['wave'], epsilon: ['rest'], alpha: ['bride'], omega: ['tale', 'snow', 'serve', 'bunny'] };
+  window.giveGymChips = async function (id) {
+    const list = GYM_CHIPS[id]; if (!list) return;
+    for (const t of list) Game.addItem('sc_' + t, 1);
+    Audio2.sfx('item_get', 0.8);
+    await say('사령관은 ' + J(list.map(t => CHIPS[t].name).join(', '), '을') + ' 받았다!');
+  };
+  // 야생 드롭: 스킨이 있는 야생 유닛을 쓰러뜨리면 그 테마의 칩을 떨어뜨릴 때가 있다
+  //  - 스킨 모습으로 나온 유닛: 그 모습의 칩 25%
+  //  - 기본 모습: 그 유닛 스킨 테마 중 하나 8%
+  const baseGiveExp = Battle.prototype.giveExp;
+  Battle.prototype.giveExp = async function (foe, caught) {
+    await baseGiveExp.call(this, foe, caught);
+    if (caught || this.kind !== 'wild' || !foe || !FORMS[foe.key]) return;
+    const themes = FORMS[foe.key].forms.map((_, k) => THEME[foe.key + '_' + (k + 1)]).filter(Boolean);
+    if (!themes.length) return;
+    const cur = foe.form && THEME[foe.artKey];
+    const t = cur && Math.random() < 0.25 ? cur : !cur && Math.random() < 0.08 ? themes[Math.floor(Math.random() * themes.length)] : null;
+    if (!t) return;
+    Game.addItem('sc_' + t, 1);
+    Audio2.sfx('item_get', 0.6);
+    await say(J(foe.name, '이') + ' 떨어뜨린 ' + J(CHIPS[t].name, '을') + ' 주웠다!', { auto: 1200 });
+  };
+
   // 상점: 오르카 보급소는 LRL 칩 3종, 항구 보급소는 10종 모두
   window.SKIN_CHIP_STOCK = (mapId) => mapId === 'shop1' ? ['sc_tale', 'sc_night', 'sc_wave'] : mapId === 'shop2' ? Object.keys(CHIPS).map(t => 'sc_' + t) : [];
 

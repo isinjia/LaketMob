@@ -274,6 +274,7 @@
     if (T.badge && !Game.badges.includes(T.badge)) {
       Game.badges.push(T.badge);
       await UI.push(new BadgeScreen(BADGES.find(b => b.id === T.badge)));
+      if (window.giveGymChips) await giveGymChips(e.o.id, o); // 첫 승리 보상: 관장 테마의 스킨 데이터 칩
     }
     // 밤
     World.locked = true;
@@ -437,7 +438,7 @@
     async post_omega(e) {
       const o = sp('레모네이드 오메가', L('omega'));
       await lines(o, ['...제가 졌다고요? 하... 오늘은 술이에요. 술.', '감마 언니~! 저 좀 격려해 주세요~ ...아, 언니 여기 없지.', '...약속은 지켜요. 마지막 배지예요. 가져가세요.']);
-      if (!Game.badges.includes('omega')) { Game.badges.push('omega'); await UI.push(new BadgeScreen(BADGES.find(b => b.id === 'omega'))); }
+      if (!Game.badges.includes('omega')) { Game.badges.push('omega'); await UI.push(new BadgeScreen(BADGES.find(b => b.id === 'omega'))); if (window.giveGymChips) await giveGymChips('omega'); }
       // 일곱 번째 배지 → 송신 완료
       World.locked = true;
       Audio2.stopBgm(300); Audio2.sfx('warning', 0.8); FX.doShake(14, 0.8); FX.doFlash('#ff2a4a', 0.8);
