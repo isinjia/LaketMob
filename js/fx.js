@@ -128,6 +128,7 @@ window.__initFX = function () {
     const mesh = new THREE.Mesh(g, m);
     mesh.frustumCulled = false;
     mesh.renderOrder = order;
+    mesh.userData.normal = !!normal; // BFX 가 일반 블렌딩(연기 등)만 따로 합성할 수 있게
     scene.add(mesh);
     b = { mesh, g, at, n: 0 };
     batches.set(key, b);
@@ -187,6 +188,8 @@ window.__initFX = function () {
 
   // Spawn one particle. o: {x,y,vx,vy,life,size,size1,color,alpha,tex,frames,rot,spin,drag,grav,normal,order}
   function particle(o) {
+    // 폰: 한 프레임에 새로 만드는 이펙트 파티클 수를 묶는다 (폭격·연사가 겹쳐도 프레임이 튀지 않게)
+    if (o.life !== Infinity && typeof LOW_MEM !== "undefined" && LOW_MEM && ++spawnN > 140) return { dead: true, x: o.x, y: o.y };
     if (o.life !== Infinity && parts.length - keeps - deadN >= budget()) {
       // budget reached: retire the oldest effect particle (never the persistent quads); compacted in update()
       while (rc < parts.length && (parts[rc].keep || parts[rc].dead)) rc++;
@@ -211,6 +214,7 @@ window.__initFX = function () {
   // removed lazily (compacted in update); killed sprites are never pooled: their owner may still hold them
   function kill(p) { if (!p || p.dead) return; p.dead = p.noPool = true; deadN++; if (p.keep) keeps--; }
   let deadN = 0, rc = 0;
+  let spawnN = 0;
   const freeP = []; // expired effect particles for reuse
   function setTex(p, t) { p.uv = rectOf.get(t) || p.uv; }
 
@@ -256,6 +260,8 @@ window.__initFX = function () {
   }
 
   function ribbon(pts, w, color, life, opts = {}) {
+    // 리본은 매번 지오메트리·재질을 만든다: 동시에 너무 많으면 (특히 폰) 새 것은 건너뛴다
+    if (ribbons.length >= (typeof LOW_MEM !== "undefined" && LOW_MEM ? 24 : 60)) return null;
     const mat = new THREE.MeshBasicMaterial({
       map: tex.beam, color, transparent: true, opacity: opts.alpha || 1,
       blending: THREE.AdditiveBlending, depthTest: false, depthWrite: false, side: THREE.DoubleSide,
@@ -520,6 +526,7 @@ window.__initFX = function () {
   function setTimeout0(delay, fn) { timers.push({ t: delay, fn }); }
 
   function update(dt) {
+    spawnN = 0;
     for (let i = timers.length - 1; i >= 0; i--) {
       timers[i].t -= dt;
       if (timers[i].t <= 0) { const f = timers[i].fn; timers.splice(i, 1); f(); }
