@@ -474,13 +474,14 @@ def tidy(u, ls, moves, elems):
     heals = sum(1 for m in sigs if m in moves and moves[m].get('heal'))
     heal_cap = 2 if subtype(u) == 'heal' else 1
     for lv, m in ls:
+        if not m.startswith('sig_'): m = variant(u['key'], m)  # 대체 기술을 먼저 정하고 그 효과로 판단한다
         d = moves.get(m) or GENERIC.get(m) or BASE_MOVES.get(m) or {}
         if not m.startswith('sig_'):
             if d.get('cat') == 'st' and effect_key(d) in sig_keys:
                 continue  # 고유 기술이 같은 일을 한다
-            if d.get('cat') == 'st' and d.get('foe') and not d.get('self'):
+            if d.get('cat') == 'st' and d.get('foe'):
                 ks = {'foe' + k for k, v in d['foe'].items() if v < 0}
-                if ks & stat_seen: continue  # 같은 약화가 이미 있다
+                if ks & stat_seen: continue  # 같은 약화가 이미 있다 (도발·위협처럼 섞인 것도)
                 stat_seen |= ks
             dv = dict(d, **(moves.get(variant(u['key'], m)) or {})) if d.get('cat') == 'atk' else d
             if d.get('cat') == 'atk' and lv < 40 and atk_key(dv) in sig_atk:
@@ -495,7 +496,7 @@ def tidy(u, ls, moves, elems):
                 spd_up += 1
             if (d.get('self') or {}).get('def', 0) > 0 and not d.get('foe'):  # 순수 방어 강화만 센다 (도발은 제외)
                 if def_up >= (1 if sig_def else 2):
-                    if u['role'] == '보호기' and 'provoke' not in [x for _, x in ls] + [x for _, x in out]:
+                    if u['role'] == '보호기' and 'provoke' not in [x for _, x in ls] + [x for _, x in out] and 'foeatk' not in stat_seen:
                         out.append([lv, 'provoke'])  # 버티기는 고유 기술이 맡으니 끌어들이기를 준다
                     continue
                 def_up += 1
@@ -510,12 +511,12 @@ def tidy(u, ls, moves, elems):
                 m = pool.pop(0)
             if u['role'] == '지원기' and lv >= 40:
                 continue  # 지원기는 공격 마무리기 대신 고유 기술과 지원기로 싸운다
-        out.append([lv, variant(u['key'], m) if not m.startswith('sig_') else m])
+        out.append([lv, m])
     seen, res = set(), []
     for lv, m in out:
         if m not in seen: seen.add(m); res.append([lv, m])
     atks = [m for _, m in res if (moves.get(m) or BASE_MOVES.get(m) or {}).get('cat') == 'atk']
-    for fill, lv in (({'light': 'lshot', 'heavy': 'hsmash', 'air': 'ashot'}[u['cls']], 1), ({'light': 'lunge', 'heavy': 'hshellap', 'air': 'aburst'}[u['cls']], 11)):
+    for fill, lv in (({'light': 'lshot', 'heavy': 'hshellap', 'air': 'ashot'}[u['cls']], 1), ({'light': 'lunge', 'heavy': 'hshellap', 'air': 'aburst'}[u['cls']], 11)):
         if len(atks) >= 2: break
         if fill not in seen: res.append([lv, fill]); seen.add(fill); atks.append(fill)
     res.sort(key=lambda x: x[0])
@@ -545,7 +546,7 @@ def base_stats(u, med, zrank):
     if u['key'] in STARTERS:  # 시작 유닛은 성향을 4분의 1만 살려 한쪽으로 치우치지 않게
         b = [x * 0.25 + total / 4 * 0.75 for x in b]
     if u['role'] == '공격기' and b[2] > b[1]: b[1], b[2] = b[2], b[1]  # 공격기는 공격이 방어 이상
-    if u['role'] == '보호기':
+    if u['role'] == '보호기' and not (u['cls'] == 'air' and (st.get('SPD') or 0) >= 4.3):  # 회피형 탱커는 본편 성향 그대로
         if b[1] > b[2]: b[1], b[2] = b[2], b[1]  # 보호기는 방어가 공격 이상
         need = total / 4 - b[2]
         if need > 0: b[2] += need; b[3] -= need  # 회피형도 방어가 평균 아래로 내려가지 않게 (속도에서 옮긴다)
@@ -567,7 +568,11 @@ BASE_MOVES = {}
 _src = open(os.path.join(ROOT, 'js', 'data.js'), encoding='utf-8').read()
 for _m in _re.finditer(r"^  (\w+):\s*\{ name: '[^']*', type: '(\w+)', cat: '(\w+)'([^\n]*)\},?$", _src, _re.M):
     _k, _t, _c, _rest = _m.groups()
-    _d = {'cat': _c}
+    _d = {'cat': _c, 'type': _t}
+    _pw = _re.search(r"pow: (\d+)", _rest)
+    if _pw: _d['pow'] = int(_pw.group(1))
+    _ht = _re.search(r"hits: \[(\d+), (\d+)\]", _rest)
+    if _ht: _d['hits'] = [int(_ht.group(1)), int(_ht.group(2))]
     for _f in ('self', 'foe', 'eff'):
         _x = _re.search(_f + r": \{([^}]*)\}", _rest)
         if _x: _d[_f] = {a.strip(): float(b) for a, b in (kv.split(':') for kv in _x.group(1).split(',') if ':' in kv)}
@@ -589,7 +594,9 @@ for u in units:
         same = any(atk_key(o) == atk_key(p4) if p4['cat'] == 'atk' else effect_key(o) == effect_key(p4) for o in others)
         def_stack = (p4.get('self') or {}).get('def', 0) > 0 and sum(1 for o in others if (o.get('self') or {}).get('def', 0) > 0) >= 2
         spd_stack = (p4.get('self') or {}).get('spd', 0) > 0 and sum(1 for o in others if (o.get('self') or {}).get('spd', 0) > 0) >= 1
-        if same or def_stack or spd_stack: p4 = None
+        foe_keys = lambda o: {k for k, v in (o.get('foe') or {}).items() if v < 0} | {k[3:].lower() for k in (o.get('eff') or {}) if k.startswith('foe')}
+        debuff_dup = bool(foe_keys(p4)) and any(foe_keys(p4) & foe_keys(o) for o in others if o.get('cat') == 'st')
+        if same or def_stack or spd_stack or debuff_dup: p4 = None
     if p4: moves[f"sig_{u['key']}_4"] = p4
     elems = [e for e in dict.fromkeys(x.get('elem') for x in u['skills'][:2]) if e not in (None, 'none')]
     sp = {'types': [u['cls']] + elems, 'moves': tidy(u, learnset(u, elem, fam, bool(p), bool(p4)), moves, elems), 'desc': u['desc']}
