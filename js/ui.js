@@ -3,10 +3,22 @@
 // =====================================================================
 const UI = {
   stack: [],
-  push(w) { this.stack.push(w); w.openT = 0; w._fresh = true; return new Promise(r => { w._resolve = r; }); },
-  close(w, v) { const i = this.stack.indexOf(w); if (i >= 0) this.stack.splice(i, 1); if (w._resolve) { const r = w._resolve; w._resolve = null; r(v); } },
+  push(w) {
+    this.stack.push(w); w.openT = 0; w._fresh = true;
+    // 대사가 이어지면 새 대사창이 다시 나타나는 연출 없이 그대로 이어진다 (창이 깜빡이지 않게)
+    if (w instanceof Dialog && this.lastDlg && performance.now() - this.lastDlg.t < 250) w.openT = 1;
+    this.lastDlg = null;
+    return new Promise(r => { w._resolve = r; });
+  },
+  close(w, v) {
+    const i = this.stack.indexOf(w); if (i >= 0) this.stack.splice(i, 1);
+    if (w instanceof Dialog) this.lastDlg = { w, t: performance.now() }; // 다음 대사가 열리기 전 한 프레임 동안 이 창을 계속 그린다
+    if (w._resolve) { const r = w._resolve; w._resolve = null; r(v); }
+  },
+  // 방금 닫힌 대사창 (다음 대사가 바로 이어질 때 빈 프레임을 메운다)
+  ghost() { const g = this.lastDlg; return g && !this.stack.some(x => x instanceof Dialog) && performance.now() - g.t < 120 ? g.w : null; },
   top() { return this.stack[this.stack.length - 1]; },
-  busy() { return this.stack.length > 0; },
+  busy() { return this.stack.length > 0 || !!this.ghost(); },
   update(dt) {
     for (const w of this.stack) w.openT += dt;
     const t = this.top(); if (t && t.update) { if (t._fresh) t._fresh = false; else t.update(dt); }
@@ -26,7 +38,7 @@ const UI = {
     ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.filter = 'none';
     ctx.fillStyle = 'rgba(2,4,10,' + a.toFixed(3) + ')'; ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height); ctx.restore();
   },
-  draw() { const d = this.dimIndex(); this.stack.forEach((w, i) => { if (i === d) this.dim(w); if (w.draw) w.draw(); }); },
+  draw() { const d = this.dimIndex(), g = this.ghost(); if (g && g.draw) g.draw(); this.stack.forEach((w, i) => { if (i === d) this.dim(w); if (w.draw) w.draw(); }); },
 };
 
 // ---------------------------------------------------------------------

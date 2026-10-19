@@ -43,9 +43,10 @@ const PortraitUI = window.PortraitUI = {
     if(w._detailMax>0)txt('밀어서 상세 내용 읽기',W-36,w._content.bottom+20,{size:15,align:'right',color:UI_COL.sub});
   },
   drawStack() {
-    const dimAt=UI.dimIndex();
-    for(const [i,w] of UI.stack.entries()) {
-      if(i===dimAt) UI.dim(w);
+    const dimAt=UI.dimIndex(),ghost=UI.ghost();
+    for(const [i,w] of (ghost?[ghost,...UI.stack]:UI.stack).entries()) {
+      if(ghost&&i===0){w._touch=[];if(!this.draw(w)){const b=MobileField.uiBox(),width=W,height=H;ctx.save();ctx.translate(0,b.y);ctx.scale(b.scale,b.scale);try{W=960;H=640;w.draw();}finally{W=width;H=height;ctx.restore();}}continue;}
+      const k=ghost?i-1:i;if(k===dimAt) UI.dim(w);
       w._touch=[];
       if(!this.draw(w)) {
         const b=MobileField.uiBox(),width=W,height=H;
