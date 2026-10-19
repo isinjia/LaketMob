@@ -272,6 +272,8 @@
   Battle.prototype.playFx3 = async function (fx, side, tSide, type, isAtk) {
     if (['slash', 'slash3', 'bite', 'dash', 'smash'].includes(fx)) return this.meleeFx(fx, side, tSide, type);
     if (fx === 'shininghand') return this.shiningHandFx(side, tSide);
+    if (fx === 'brokenknuckle') return this.brokenKnuckleFx(side, tSide);
+    if (fx === 'drillknee') return this.drillKneeFx(side, tSide);
     const A = this.fxOrigin(side, fx), B = this.fxTarget(tSide), uv = this.view(side), flip = side === 'foe';
     const [c1, c2] = pal(type);
     const FA = V.footOf(side) ?? A.y + 150, FB = V.footOf(tSide) ?? B.y + 150; // 시전자·대상 발밑
@@ -693,6 +695,118 @@
       later(0.25, () => V.plume(T.x, T.y - 20, 0.8, 0x2a2420));
       await wait(380);
     } finally { await back(); }
+  };
+
+  // ---------------------------------------------------------------- 램파리온: 날아가는 팔 · 무릎 드릴
+  // 그림 안 부위 (그림 폭·높이 비율): 브로큰 너클로 빠지는 팔(그림 왼쪽 위로 든 갈고리 주먹), 드릴이 나가는 무릎
+  const LAMP_ARM = [0.06, 0.15, 0.34, 0.41], LAMP_KNEE = [0.60, 0.68];
+  const cropCache = new WeakMap();
+  function armCrop(img) {
+    let c = cropCache.get(img); if (c) return c;
+    const [x0, y0, x1, y1] = LAMP_ARM, sx = x0 * img.width, sy = y0 * img.height, sw = (x1 - x0) * img.width, sh = (y1 - y0) * img.height;
+    c = document.createElement('canvas'); c.width = Math.ceil(sw); c.height = Math.ceil(sh);
+    c.getContext('2d').drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh); cropCache.set(img, c); return c;
+  }
+  // 팔이 빠진 동안: 본체 그림에서 팔 자리를 비우고, 날아가는 팔을 따로 그린다
+  const baseDrawMon = Battle.prototype.drawMon;
+  Battle.prototype.drawMon = function (m, v, box, mine) {
+    const A = this._armOut;
+    if (!A || A.side !== (mine ? 'me' : 'foe')) return baseDrawMon.call(this, m, v, box, mine);
+    const f = BattleArt.frame(this, A.side), [x0, y0, x1, y1] = LAMP_ARM;
+    const ax = f.flip ? f.x + (1 - x1) * f.w : f.x + x0 * f.w, ay = f.y + y0 * f.h;
+    ctx.save(); ctx.beginPath(); ctx.rect(-5000, -5000, 10000, 10000); ctx.rect(ax, ay, (x1 - x0) * f.w, (y1 - y0) * f.h); ctx.clip('evenodd');
+    baseDrawMon.call(this, m, v, box, mine); ctx.restore();
+  };
+  const baseDrawShapes = Battle.prototype.drawShapes;
+  Battle.prototype.drawShapes = function () {
+    baseDrawShapes.call(this);
+    const A = this._armOut; if (A && A.img) {
+      // 고속 회전: 지나온 각도에 잔상을 남긴다
+      const ghosts = A.spinning ? [[-0.9, 0.18], [-0.45, 0.35], [0, 1]] : [[0, 1]];
+      for (const [d, al] of ghosts) {
+        ctx.save(); ctx.globalAlpha = al; ctx.translate(A.x, A.y); ctx.rotate(A.rot + d * (A.dir || 1)); if (A.flip) ctx.scale(-1, 1);
+        ctx.drawImage(A.img, -A.w / 2, -A.h / 2, A.w, A.h); ctx.restore();
+      }
+    }
+    const D = this._drill; if (D) {
+      // 회전하는 드릴: 금색 원뿔 + 돌아가는 나선 줄무늬
+      ctx.save(); ctx.translate(D.x, D.y); ctx.rotate(D.a);
+      const L = D.len, Wd = D.len * 0.42;
+      const g = ctx.createLinearGradient(0, -Wd / 2, 0, Wd / 2); g.addColorStop(0, '#fff3c0'); g.addColorStop(0.5, '#e0a52a'); g.addColorStop(1, '#6b4310');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(L / 2, 0); ctx.lineTo(-L / 2, -Wd / 2); ctx.lineTo(-L / 2, Wd / 2); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = 'rgba(60,30,0,0.7)'; ctx.lineWidth = 2;
+      for (let i = 0; i < 7; i++) { const k = ((i / 7 + D.spin) % 1), xx = -L / 2 + k * L, hw = Wd / 2 * (1 - k); ctx.beginPath(); ctx.moveTo(xx, -hw); ctx.lineTo(xx + L * 0.1, hw * 0.9); ctx.stroke(); }
+      ctx.fillStyle = 'rgba(255,240,190,0.35)'; ctx.beginPath(); ctx.ellipse(-L * 0.1, 0, L * 0.45, Wd * 0.55, 0, 0, 7); ctx.fill(); // 회전 잔상
+      ctx.fillStyle = '#3a3f48'; ctx.fillRect(-L / 2 - L * 0.18, -Wd * 0.32, L * 0.2, Wd * 0.64);
+      ctx.restore();
+    }
+  };
+  const moveTo = (o, to, ms, ease, onTick) => new Promise(res => {
+    const from = { x: o.x, y: o.y }; let t = 0;
+    Tick.add(dt => { t += dt * 1000; const k = Math.min(1, t / ms), e = ease(k); o.x = lerp(from.x, to.x, e); o.y = lerp(from.y, to.y, e); if (onTick) onTick(dt, k); if (k >= 1) { res(); return false; } });
+  });
+
+  // 브로큰 너클: 팔이 빠져 회전하며 날아가 때리고, 돌아와 다시 장착된다
+  Battle.prototype.brokenKnuckleFx = async function (side, tSide) {
+    const f = BattleArt.frame(this, side), img = f.img, T = this.fxTarget(tSide);
+    if (!img || img._bad) return this.meleeFx('dash', side, tSide, 'light');
+    const [x0, y0, x1, y1] = LAMP_ARM, socket = f.point([(x0 + x1) / 2, (y0 + y1) / 2]);
+    const A = { side, img: armCrop(img), w: (x1 - x0) * f.w, h: (y1 - y0) * f.h, x: socket.x, y: socket.y, rot: 0, flip: f.flip };
+    const dir = Math.sign(T.x - socket.x) || 1; A.dir = dir;
+    // 분리: 관절에서 불꽃과 증기가 튀며 팔이 빠진다
+    Audio2.sfx('charge', 0.5);
+    if (on()) { busy(); V.streaks(socket.x, socket.y, 0xffe0a0, n(12), 6, 0.8); V.smoke(socket.x, socket.y, 2, 0.5, 0x9aa4b0, 0.5); }
+    this._armOut = A;
+    await moveTo(A, { x: socket.x - dir * 18, y: socket.y - 10 }, 120, Ease.outCubic);
+    // 발사: 회전하며 날아간다 (뒤로 분사 불꽃)
+    Audio2.sfx('whoosh', 0.9);
+    A.spinning = true;
+    await moveTo(A, T, 300, Ease.inQuad, (dt) => {
+      A.rot += dt * 42 * dir; // 고속 회전
+      if (on()) { busy(); P().particle({ x: wx(A.x - dir * A.w * 0.3), y: wy(A.y), vx: -dir * R(2, 4), vy: R(-0.5, 0.5), life: 0.3, size: 0.35, size1: 0.05, color: Math.random() < 0.5 ? 0xffb050 : 0x7ff6ff, tex: P().tex.glow, alpha: 0.9 }); }
+    });
+    // 타격
+    Audio2.sfx('hit_smash', 0.9); FX.doShake(12, 0.3); window.HITSTOP = Math.max(window.HITSTOP || 0, 0.07);
+    if (on()) { busy(); V.impact(T.x, T.y, 'heavy', 1.6, { debris: true }); V.streaks(T.x, T.y, 0xfff2c0, n(16), 9, 1.1, dir < 0 ? 0 : Math.PI, 0.8); }
+    await moveTo(A, { x: T.x - dir * 40, y: T.y - 30 }, 150, Ease.outCubic, (dt) => { A.rot += dt * 30 * dir; });
+    await wait(80);
+    // 귀환: 다시 날아와 제자리에 장착
+    Audio2.sfx('whoosh', 0.6);
+    const back = this.fxOrigin(side, 'brokenknuckle'), sock = BattleArt.frame(this, side).point([(x0 + x1) / 2, (y0 + y1) / 2]);
+    await moveTo(A, sock, 320, Ease.inOutQuad, (dt, k) => { A.rot += dt * 30 * (1 - k) * dir; if (k > 0.7) { A.spinning = false; A.rot = A.rot * (1 - Math.min(1, dt * 12)); } });
+    A.rot = 0; A.spinning = false;
+    Audio2.sfx('shield', 0.5);
+    if (on()) { busy(); V.core(sock.x, sock.y, 0xfff2c0, 0.6); V.streaks(sock.x, sock.y, 0xffe0a0, n(8), 5, 0.7); }
+    this._armOut = null;
+  };
+
+  // 드릴 니: 무릎에서 회전하는 드릴이 발사되어 꽂힌 뒤 갈아 내며 터진다
+  Battle.prototype.drillKneeFx = async function (side, tSide) {
+    const f = BattleArt.frame(this, side), K = f.point(LAMP_KNEE), T = this.fxTarget(tSide);
+    const a = Math.atan2(T.y - K.y, T.x - K.x), D = { x: K.x, y: K.y, a, len: Math.max(72, f.h * 0.2), spin: 0 };
+    Audio2.sfx('charge', 0.5);
+    if (on()) { busy(); V.charge(K.x, K.y, 0xffd27a, 0.3, 0.8); }
+    await wait(260);
+    Audio2.sfx('atk_rifle', 0.7); Audio2.sfx('whoosh', 0.7);
+    if (on()) { busy(); P().muzzleFlash(wx(K.x), wy(K.y), a, 0xffd27a, 2.4); V.smoke(K.x, K.y, 2, 0.6, 0x8a8a8a, 0.5); }
+    this._drill = D;
+    await moveTo(D, T, 260, Ease.inQuad, (dt) => {
+      D.spin = (D.spin + dt * 24) % 1; // 고속 회전
+      if (on()) { busy(); P().particle({ x: wx(D.x - Math.cos(a) * D.len * 0.5), y: wy(D.y - Math.sin(a) * D.len * 0.5), vx: -Math.cos(a) * 3, vy: -Math.sin(a) * 3 + R(-0.6, 0.6), life: 0.25, size: 0.18, size1: 0.02, color: 0xffd27a, tex: P().tex.dot, alpha: 0.9 }); }
+    });
+    // 꽂혀서 갈아 낸다: 회전하며 불똥이 튄다
+    Audio2.sfx('hit_smash', 0.8); FX.doShake(8, 0.4);
+    for (let i = 0; i < 8; i++) {
+      D.spin = (D.spin + 0.45) % 1; D.x = T.x + Math.cos(a) * i * 2; D.y = T.y + Math.sin(a) * i * 2;
+      if (on()) { busy(); V.streaks(T.x, T.y, 0xffe0a0, n(6), 8, 0.8, a + Math.PI, 1.0); }
+      if (i % 2 === 0) Audio2.tone(180 + i * 20, 0.05, 'sawtooth', 0.06);
+      await wait(45);
+    }
+    this._drill = null;
+    // 관통 폭발
+    Audio2.sfx('explosion', 0.7); FX.doFlash('#fff2c0', 0.3); window.HITSTOP = Math.max(window.HITSTOP || 0, 0.06);
+    if (on()) { busy(); V.pierce(T.x, T.y, 0xffe0a0, a, 1.4); V.impact(T.x, T.y, 'heavy', 1.4, { debris: true }); V.crack(T.x, V.footOf(tSide) ?? T.y + 150, 0xffb050, 1); }
+    await wait(200);
   };
 
   // ---------------------------------------------------------------- 피격 반응 보강 (모든 공격 공통)
