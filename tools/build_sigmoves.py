@@ -33,7 +33,7 @@ RANK_MULT = {'B': 1.0, 'A': 1.12, 'S': 1.25, 'SS': 1.4}
 # 서사·진행 보정: 전설(사이드 스토리에서 만나는 존재)과 저항군 지도자는 더 강하게.
 # 레모네이드 관장은 체육관 순서에 맞춘다 — 첫 관장 감마와 여섯째 알파는 같은 레벨대 부대가 넘을 수 있게 SS 하단으로
 # (tools/balancetest.js 의 관장 승률 검사 기준)
-STORY_BONUS = {'blacklilith': 25, 'eternity': 10, 'phoenix': 10, 'hongryun': 15, 'labiata': 10, 'harpy': 15, 'leona': 5, 'alexandra': 15, 'sleipnir': 10, 'cheona': 10,
+STORY_BONUS = {'blacklilith': 15, 'eternity': 10, 'phoenix': 10, 'hongryun': 15, 'labiata': 10, 'harpy': 15, 'leona': 5, 'alexandra': 15, 'sleipnir': 10, 'cheona': 10,
                'lemongamma': -25, 'lemonbeta': 15, 'lemonepsilon': 15, 'lemonalpha': 20}
 LEGENDS = {'blacklilith', 'eternity', 'phoenix', 'hongryun'}
 # 시작 유닛은 등급과 무관하게 실전 능력치(합계 × 등급 배율)를 같게, 같은 B급 야생(230)보다 조금 높게
@@ -514,6 +514,9 @@ def tidy(u, ls, moves, elems):
     heal_cap = 0 if heals else (2 if subtype(u) == 'heal' else 1)
     sig_flags = {f for m in sigs if m in moves and moves[m].get('cat') == 'atk' for f in ('crit', 'pierce', 'hits') if moves[m].get(f)}
     has = lambda mid: (moves.get(mid) or BASE_MOVES.get(mid) or {})
+    fx_count = {}
+    for m in sigs:
+        if m in moves and moves[m].get('cat') == 'atk': fx_count[moves[m].get('fx')] = fx_count.get(moves[m].get('fx'), 0) + 1
     for lv, m in ls:
         if not m.startswith('sig_'): m = variant(u['key'], m)  # 대체 기술을 먼저 정하고 그 효과로 판단한다
         d = moves.get(m) or GENERIC.get(m) or BASE_MOVES.get(m) or {}
@@ -529,10 +532,13 @@ def tidy(u, ls, moves, elems):
                 continue  # 같은 성격의 고유 공격기가 있다
             if d.get('cat') == 'atk' and any(dv.get(f) for f in sig_flags):
                 continue  # 치명·관통은 고유 기술이 맡는다
+            if d.get('cat') == 'atk' and fx_count.get(dv.get('fx'), 0) >= 3:
+                continue  # 같은 연출의 공격이 이미 셋이다
+            if d.get('cat') == 'atk': fx_count[dv.get('fx')] = fx_count.get(dv.get('fx'), 0) + 1
             if d.get('cat') == 'atk' and (dv.get('pow') or 0) > 60 and any(moves[x].get('type') == dv.get('type') and abs(eff_pow(moves[x]) - eff_pow(dv)) <= 0.1 * eff_pow(dv)
                                                                          for x in sigs if x in moves and moves[x].get('cat') == 'atk'):
                 continue  # 같은 타입·같은 위력대의 고유 공격기가 있다
-            if d.get('cat') == 'atk' and sig_max and (dv.get('pow') or 0) > 60 and eff_pow(dv) > sig_max:  # 기본기(위력 60 이하)는 남긴다
+            if d.get('cat') == 'atk' and sig_max and (dv.get('pow') or 0) > 55 and eff_pow(dv) > sig_max:  # 기본기(위력 55 이하)는 남긴다
                 continue  # 본편 고유 기술보다 센 공용기는 두지 않는다
             if d.get('cat') == 'atk' and dv.get('type') in ('fire', 'ice', 'elec') and sig_elem >= 2:
                 if elem_shared >= 1: continue  # 속성 공격은 고유 기술이 이미 맡는다
@@ -652,6 +658,9 @@ for u in units:
     elem, fam = elem_of(u), family_of(u)
     for i, s in enumerate(u['skills'][:2], 1):
         moves[f"sig_{u['key']}_{i}"] = sig_move(u, i, s)
+    a1, a2 = moves[f"sig_{u['key']}_1"], moves[f"sig_{u['key']}_2"]
+    if a1.get('cat') == 'atk' and a2.get('cat') != 'atk':
+        a1['pow'] = round(a1['pow'] * 1.3)  # 고유 공격이 하나뿐이면 그 기술이 주력기다
     p = passive_move(u)
     if p: moves[f"sig_{u['key']}_3"] = p
     p2 = u.get('passive2') or {}
