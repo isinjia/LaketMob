@@ -4,7 +4,7 @@
 //  THREE 또는 리그 데이터가 없으면 기존 아이콘 스탠디로 자동 대체된다.
 // =====================================================================
 const SDF = {
-  COLS: 8, ROWS: 3, CW: 110, CH: 172, R: 2,
+  COLS: 8, ROWS: 3, CW: 150, CH: 172, R: 2, // 칸 폭: 옆으로 길게 뻗는 부스터·날개가 잘리지 않게
   ok: false, renderer: null, scene: null, camera: null, canvas: null,
   avail: new Set(), status: {}, frameSlots: [],
   init() {
@@ -62,14 +62,37 @@ const SDF = {
     });
     for (const o of this.scene.children) o.visible = false;
     for (const c of used) c.root.visible = true;
-    this.renderer.render(this.scene, this.camera);
+    // 가산(빛) 재질은 투명 캔버스에 그리면 뿌옇게 남으므로 두 번에 나눈다:
+    // 1) 몸체만 그려 2D 캔버스에 옮기고, 2) 빛 효과만 그린다(몸체 자리는 빛을 지워 몸 뒤의 불꽃이 가려지게)
+    const glow = [...used].some(c => c.tpl.rends && c.tpl.rends.some(r => r.add));
+    const setPass = (p) => { for (const c of used) (c.mats || []).forEach((m, i) => {
+      const add = i % 2 === 1; m.visible = p === 0 ? !add : true;
+      if (add) return;
+      if (p === 1) { m.blending = THREE.CustomBlending; m.blendSrc = m.blendSrcAlpha = THREE.ZeroFactor; m.blendDst = m.blendDstAlpha = THREE.OneMinusSrcAlphaFactor; }
+      else m.blending = THREE.NormalBlending;
+    }); };
+    if (!glow) { this.glowOn = false; this.renderer.render(this.scene, this.camera); return; }
+    setPass(0); this.renderer.render(this.scene, this.camera);
+    if (!this.base) { this.base = document.createElement('canvas'); this.base.width = this.canvas.width; this.base.height = this.canvas.height; this.bctx = this.base.getContext('2d'); }
+    this.bctx.clearRect(0, 0, this.base.width, this.base.height); this.bctx.drawImage(this.canvas, 0, 0);
+    setPass(1); this.renderer.render(this.scene, this.camera);
+    setPass(0); for (const c of used) (c.mats || []).forEach(m => { m.visible = true; });
+    this.glowOn = true;
   },
   // holder의 SD를 발 위치 (cx, footY)에 그린다
   draw(holder, cx, footY, alpha = 1) {
     const s = holder._sdSlot; if (!s || this.frameSlots[s.f] !== holder) return false;
     const R = this.R;
     ctx.save(); ctx.globalAlpha = alpha;
-    ctx.drawImage(this.canvas, s.sx, s.sy, this.CW * R, this.CH * R, cx - this.CW / 2, footY - this.CH + 6, this.CW, this.CH);
+    const dx = cx - this.CW / 2, dy = footY - this.CH + 6;
+    if (this.glowOn) {
+      ctx.drawImage(this.base, s.sx, s.sy, this.CW * R, this.CH * R, dx, dy, this.CW, this.CH);
+      // 부스터·광원: 빛으로 더하고(어두운 바닥에서 빛남) 색도 살짝 얹는다(밝은 바닥에서 하얗게 날아가지 않게)
+      ctx.globalAlpha = alpha * 0.6; ctx.globalCompositeOperation = 'lighter';
+      ctx.drawImage(this.canvas, s.sx, s.sy, this.CW * R, this.CH * R, dx, dy, this.CW, this.CH);
+      ctx.globalAlpha = alpha * 0.5; ctx.globalCompositeOperation = 'source-over';
+    }
+    ctx.drawImage(this.canvas, s.sx, s.sy, this.CW * R, this.CH * R, dx, dy, this.CW, this.CH);
     ctx.restore();
     return true;
   },
