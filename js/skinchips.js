@@ -123,7 +123,8 @@
     this.markForm(k, foe ? foe.form || 0 : 0);
   };
   // 야생: 잡은 모습 다음 단계로 나온다. 단계가 높을수록 훨씬 드물다 (1단계 ×0.25, 2단계 ×0.06 ...)
-  const STAGE_MUL = 0.25;
+  const STAGE_MUL = 0.25, DONE_MUL = 0.3; // 도감 채우기: 모든 모습을 다 잡은 종은 30% 비중으로 줄여 안 잡은 종이 더 자주 나오게
+  const fullyCaught = (key) => { const f = FORMS[key], bits = Game.dex.caught[key] | 0; return f ? bits >= (1 << (f.forms.length + 1)) - 1 : !!bits; };
   const nextStage = (key) => {
     const f = FORMS[key]; if (!f) return 0;
     const bits = Game.dex.caught[key] | 0;
@@ -150,7 +151,7 @@
   }
   World.wildBattle = async function (table) {
     if (Math.random() < LEGEND_RATE && await legendEncounter(this, table)) return;
-    const list = table.list.map(([k, w]) => { const s = nextStage(k); return [k, w * Math.pow(STAGE_MUL, s), s]; });
+    const list = table.list.map(([k, w]) => { if (fullyCaught(k)) return [k, w * DONE_MUL, 0]; const s = nextStage(k); return [k, w * Math.pow(STAGE_MUL, s), s]; });
     let total = list.reduce((s, x) => s + x[1], 0), r = Math.random() * total, pick = list[0];
     for (const x of list) { if ((r -= x[1]) < 0) { pick = x; break; } }
     const lv = randi(table.lv[0], table.lv[1]), m = new Mon(pick[0], lv);

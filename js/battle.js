@@ -517,7 +517,8 @@ class Battle {
     const f = this.foe;
     // 확률 계산
     const stBonus = f.status === 'freeze' ? 2 : f.status ? 1.5 : 1;
-    const a = it.rate >= 255 ? 255 : ((3 * f.maxHp - 2 * f.hp) * f.species.catch * it.rate) / (3 * f.maxHp) * stBonus;
+    const newBonus = Game.dex.caught[f.key] ? 1 : 1.3; // 도감 채우기: 처음 만나는 종은 링크가 조금 더 쉽다
+    const a = it.rate >= 255 ? 255 : ((3 * f.maxHp - 2 * f.hp) * f.species.catch * it.rate) / (3 * f.maxHp) * stBonus * newBonus;
     let shakes = 0;
     if (a >= 255) shakes = 4;
     else { const b = 65536 / Math.pow(255 / Math.max(1, a), 0.1875); for (let i = 0; i < 4; i++) { if (Math.random() * 65536 < b) shakes++; else break; } }
