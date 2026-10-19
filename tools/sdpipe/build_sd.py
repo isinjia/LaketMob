@@ -62,6 +62,9 @@ CLIPS = {
     "die": [r"^die"],
 }
 
+# 유닛별 동작 교체: 램파리온은 걷는 move 대신 날아다니는 move2
+CLIP_OVERRIDE = {"lamparion": {"move": "move2"}}
+
 YLoader = getattr(yaml, "CSafeLoader", yaml.SafeLoader)
 HDR = re.compile(r"^--- !u!(\d+) &(-?\d+).*$", re.M)
 
@@ -891,6 +894,9 @@ def build(uid):
         anim_paths = find_anims(char_dir, model)
         if "move" not in anim_paths or "idle" not in anim_paths:
             anim_paths = dict(pick_clips(controller_anims(prefab)), **anim_paths)
+    for k, name in CLIP_OVERRIDE.get(uid, {}).items():  # 원작에 더 맞는 동작으로 바꿔 쓴다
+        hit = [os.path.join(dp, f) for dp, _, fn in os.walk(os.path.dirname(prefab)) for f in fn if f.lower() == name + ".anim"]
+        if hit: anim_paths[k] = hit[0]
     atlas = Atlas()
     nodes = build_prefab(prefab, atlas)
     manifest = {}

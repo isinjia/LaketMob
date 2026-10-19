@@ -540,7 +540,9 @@ const World = {
       }
       SDF.renderFrame(items, FRAME_DT);
     }
-    if (showFo) list.push({ y: fo.py + 44, f: () => { if (!(window.SDF && SDF.draw(fo, fo.px + 24, fo.py + 46))) drawStandee(fo.px, fo.py, lead.iconKey, fo.dir, p.moving ? p.anim : 0, fo, false); } });
+    // 동료가 사령관 바로 앞(화면 아래)에 겹치면 사령관이 가려지지 않게 반투명으로 그린다
+    const foA = showFo && fo.py > p.py && fo.py - p.py < TILE * 1.6 && Math.abs(fo.px - p.px) < TILE * 0.9 ? 0.45 : 1;
+    if (showFo) list.push({ y: fo.py + 44, f: () => { if (!(window.SDF && SDF.draw(fo, fo.px + 24, fo.py + 46, foA))) { ctx.save(); ctx.globalAlpha = foA; drawStandee(fo.px, fo.py, lead.iconKey, fo.dir, p.moving ? p.anim : 0, fo, false); ctx.restore(); } } });
     list.sort((a, b) => a.y - b.y);
     for (const it of list) it.f();
     // 수풀 앞부분
