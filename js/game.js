@@ -1,5 +1,5 @@
 // =====================================================================
-//  라켓몬스터 - 게임 상태 / 스크립트 / 씬 / 메인 루프
+//  라스트 몬스터 - 게임 상태 / 스크립트 / 씬 / 메인 루프
 // =====================================================================
 
 // ---------------------------------------------------------------------
@@ -64,7 +64,7 @@ class Mon {
 //  게임 상태
 // ---------------------------------------------------------------------
 const SAVE_KEY = 'racketmon_save_v1';
-const GAME_VERSION = 'v0.34';
+const GAME_VERSION = 'v0.35';
 const Game = {
   party: [], box: [], bag: {}, money: 3000, dex: { seen: {}, caught: {} }, flags: {}, badges: [], stats: {}, taken: {}, quests: {},
   map: 'lab', px: 6, py: 6, dir: 'up', playTime: 0, lastHeal: ['center1', 7, 7, 'up'], pendingPromote: new Set(),
@@ -548,17 +548,17 @@ class TitleScene {
     ctx.save();
     ctx.translate(60, ly);
     ctx.font = font(92, 400, TITLE_FONT);
-    ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillText('라켓몬스터', 6, 8);
+    ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillText('라스트 몬스터', 6, 8);
     const lg = ctx.createLinearGradient(0, -80, 0, 10); lg.addColorStop(0, '#ffffff'); lg.addColorStop(0.5, '#9ff3ff'); lg.addColorStop(1, '#2fb7e6');
-    ctx.lineWidth = 10; ctx.strokeStyle = '#08213a'; ctx.lineJoin = 'round'; ctx.strokeText('라켓몬스터', 0, 0);
-    ctx.fillStyle = lg; ctx.fillText('라켓몬스터', 0, 0);
+    ctx.lineWidth = 10; ctx.strokeStyle = '#08213a'; ctx.lineJoin = 'round'; ctx.strokeText('라스트 몬스터', 0, 0);
+    ctx.fillStyle = lg; ctx.fillText('라스트 몬스터', 0, 0);
     // 반짝임
     const sx = ((t * 260) % 900) - 100;
     ctx.globalCompositeOperation = 'source-atop'; ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.beginPath(); ctx.moveTo(sx, -90); ctx.lineTo(sx + 30, -90); ctx.lineTo(sx - 10, 20); ctx.lineTo(sx - 40, 20); ctx.closePath(); ctx.fill();
     ctx.restore();
     ctx.save(); ctx.translate(64, ly + 40);
     ctx.fillStyle = '#ffb22e'; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(370, 0); ctx.lineTo(356, 30); ctx.lineTo(0, 30); ctx.closePath(); ctx.fill();
-    txt('LAST ORIGIN  ·  RACKET MONSTER', 14, 22, { size: 17, weight: 900, color: '#1b1205', shadow: false });
+    txt('LAST ORIGIN  ·  LAST MONSTER', 14, 22, { size: 17, weight: 900, color: '#1b1205', shadow: false });
     // 버전 표기
     ctx.fillStyle = '#0b1d33'; ctx.beginPath(); ctx.moveTo(366, 0); ctx.lineTo(436, 0); ctx.lineTo(422, 30); ctx.lineTo(352, 30); ctx.closePath(); ctx.fill();
     txt(GAME_VERSION, 392, 22, { size: 16, weight: 900, align: 'center', color: '#9ff3ff', shadow: false });
@@ -656,7 +656,7 @@ class EndingScene {
     this.cast = Game.party.concat(Game.box).map(m => m.key);
     if (!this.cast.length) this.cast = ['leprechaun'];
     this.credits = [
-      ['라켓몬스터', 'RACKET MONSTER'],
+      ['라스트 몬스터', 'LAST MONSTER'],
       ['주인공', '사령관'],
       ['함께 싸운 부대원', Game.party.map(m => m.name).join(' · ')],
       ['쓰러뜨린 유닛', (Game.stats.knockouts || 0) + ' 기'],
@@ -762,7 +762,7 @@ class LoadingScene {
   update() { }
   draw() {
     ctx.fillStyle = '#050913'; ctx.fillRect(0, 0, W, H);
-    txt('라켓몬스터', W / 2, H / 2 - 30, { size: 48, align: 'center', family: TITLE_FONT, color: '#9ff3ff' });
+    txt('라스트 몬스터', W / 2, H / 2 - 30, { size: 48, align: 'center', family: TITLE_FONT, color: '#9ff3ff' });
     bar(W / 2 - 200, H / 2 + 10, 400, 10, this.p, ['#7ce8ff', '#1a9fd0']);
     txt('에셋 불러오는 중... ' + Math.floor(this.p * 100) + '%', W / 2, H / 2 + 50, { size: 16, align: 'center', color: UI_COL.sub });
   }
