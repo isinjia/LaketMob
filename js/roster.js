@@ -23,10 +23,15 @@ const ROSTER_MOVE_PROFILES = {
   sekhmet: [[1, 'shot'], [1, 'taunt'], [7, 'repair'], [14, 'expose'], [24, 'command'], [34, 'steelwill']],
 };
 
+// 자동 생성 능력치를 게임 사정에 맞춰 바꾼 유닛. 시작 유닛 아쿠아는 레프리콘·로데와 합계(약 224)를 맞춘다.
+const ROSTER_BASE_OVERRIDES = {
+  aqua: [53, 48, 50, 73],
+};
+
 // 확장 캐릭터는 기존 도감 번호와 세이브 키를 바꾸지 않고 뒤에 붙인다.
 for (const source of EXPANDED_ROSTER) {
   if (SPECIES[source.key]) continue;
-  const s = { ...source, moves: ROSTER_MOVE_PROFILES[source.key] || source.moves, no: DEX_LIST.length + 1 };
+  const s = { ...source, base: ROSTER_BASE_OVERRIDES[source.key] || source.base, moves: ROSTER_MOVE_PROFILES[source.key] || source.moves, no: DEX_LIST.length + 1 };
   SPECIES[s.key] = s; SPECIES_LIST.push(s); DEX_LIST.push(s);
 }
 // 원작 표 밖의 추가 유닛(로데·램파리온)도 같은 방식으로 맨 뒤에 붙인다.
