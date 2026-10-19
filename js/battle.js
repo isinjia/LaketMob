@@ -529,6 +529,8 @@ class Battle {
     this.burst(hover, ['#5ff4ff', '#fff'], 18, 200);
     // 링크 장치 전개: 구속 고리가 몸을 감싸고 코어와 대상이 빛줄기로 이어진다
     const L = this.link = { cx, cy, fr, a: 0, prog: 0, shown: 0, pulse: 0, state: 'sync', t: 0 };
+    // 링크 중에는 HP 같은 UI를 치워 연출만 보이게 한다 (실패하면 다시 나온다)
+    tween(this.hudFoe, { a: 0 }, 220); tween(this.hudMe, { a: 0 }, 220);
     this.ball.hover = true;
     Audio2.sfx('charge', 0.45);
     await tween(L, { a: 1 }, 320, Ease.outCubic);
@@ -553,6 +555,7 @@ class Battle {
       this.foeV.show = false; this.link = null;
       if (!this.ball) this.ball = { x: hover.x, y: hover.y, id, rot: 0, t: 0 };
       this.ball.glow = 1; this.ball.hover = false;
+      tween(this.hudMe, { a: 1 }, 260); // 경험치 표시용으로 아군 UI만 돌아온다
       await wait(250);
       // 링크가 끝난 코어가 사령관에게 돌아온다
       await this.throwCore({ x: this.ball.x, y: this.ball.y }, { x: 140, y: ME_BOX.base - 40 }, id, 420, 60, true, true);
@@ -574,7 +577,7 @@ class Battle {
     this.burst({ x: cx, y: cy }, ['#ff5a6a', '#fff', '#5ff4ff'], 34, 320);
     this.burst(this.ball || hover, ['#5ff4ff', '#fff'], 20, 220);
     this.foeV.flash = 1; tween(this.foeV, { flash: 0 }, 350);
-    await tween(L, { a: 0 }, 260);
+    await Promise.all([tween(L, { a: 0 }, 260), tween(this.hudFoe, { a: 1 }, 300), tween(this.hudMe, { a: 1 }, 300)]);
     this.link = null; this.ball = null;
     const msgs = ['링크가 바로 거부당했다!', '동기화 34%에서 링크가 끊어졌다!', '동기화 67%... 조금만 더 하면 됐는데!', '동기화 92%! 거의 다 됐는데!'];
     await say(msgs[Math.min(3, shakes)], { auto: 1000 });
