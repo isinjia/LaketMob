@@ -288,6 +288,12 @@ def guard_stance(u, name):
         return {'cat': 'st', 'self': {'spd': 2, 'def': 1}, 'fx': 'buff', 'desc': '속도를 끌어올려 맞기 전에 비켜선다. 속도가 크게 오르고 방어가 오른다.'}
     if any(w in name for w in ('조심', '지키', '수호', '호위', '보호', '막아', '방패', '님')):
         return {'cat': 'st', 'self': {'def': 1}, 'foe': {'atk': -1}, 'heal': 0.2, 'fx': 'shield', 'desc': '지켜야 할 이를 등 뒤에 두고 적을 막아선다. 방어가 오르고 상대의 공격이 떨어지며 HP를 조금 회복한다.'}
+    import hashlib
+    pick = int(hashlib.md5(u['key'].encode()).hexdigest(), 16) % 3
+    if pick == 1:
+        return {'cat': 'st', 'self': {'def': 1}, 'foe': {'acc': -1}, 'fx': 'shield', 'desc': '방패 너머로 적의 조준을 흐트러뜨린다. 방어가 오르고 상대의 명중이 떨어진다.'}
+    if pick == 2:
+        return {'cat': 'st', 'self': {'def': 1, 'atk': 1}, 'fx': 'shield', 'desc': '버티는 동안 반격할 틈을 노린다. 방어와 공격이 오른다.'}
     return {'cat': 'st', 'self': {'def': 1}, 'heal': 0.35, 'fx': 'heal', 'desc': '이를 악물고 버티며 몸을 추스른다. 방어가 오르고 HP를 회복한다.'}
 
 
@@ -342,7 +348,7 @@ def elemental_weapon(u):
     return bool(fxs) and all(f in ELEM_FX_SET for f in fxs)
 
 
-def learnset(u, elem, fam, has3):
+def learnset(u, elem, fam, has3, has4=False):
     role, cls, key = u['role'], u['cls'], u['key']
     w = WEAPON[(cls, fam)]
     e = ELEM_MOVES.get(elem)
@@ -395,6 +401,9 @@ def learnset(u, elem, fam, has3):
     elif prof == 'fast' and role != '공격기':
         ls = [[lv, 'quickstep' if lv == 33 else m] for lv, m in ls]
     if has3: ls.append([30, s3])
+    if has4:
+        drop = {'공격기': 27, '보호기': 21, '지원기': 33}[role]  # 고유 기술이 공용 자리를 대신한다
+        ls = [[lv, m] for lv, m in ls if lv != drop or m.startswith('sig_')] + [[23, f'sig_{key}_4']]
     if key in STARTERS:  # 시작 유닛은 본편 필살기(액티브 2)를 첫 관장 전에 배운다
         ls = [[10, m] if m == s2 else [lv, m] for lv, m in ls]
     ls.sort(key=lambda x: x[0])
@@ -524,8 +533,10 @@ for u in units:
         moves[f"sig_{u['key']}_{i}"] = sig_move(u, i, s)
     p = passive_move(u)
     if p: moves[f"sig_{u['key']}_3"] = p
+    p4 = mech_move(u, u['passive2']) if (u.get('passive2') or {}).get('mech') else None
+    if p4: moves[f"sig_{u['key']}_4"] = p4
     elems = [e for e in dict.fromkeys(x.get('elem') for x in u['skills'][:2]) if e not in (None, 'none')]
-    sp = {'types': [u['cls']] + elems, 'moves': tidy(u, learnset(u, elem, fam, bool(p)), moves, elems), 'desc': u['desc']}
+    sp = {'types': [u['cls']] + elems, 'moves': tidy(u, learnset(u, elem, fam, bool(p), bool(p4)), moves, elems), 'desc': u['desc']}
     b = base_stats(u, med, zrank.get(u['key'], 0))
     if b: sp['base'] = b
     if u['key'] in LEGENDS: sp['legend'] = True
