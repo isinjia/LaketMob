@@ -17,13 +17,13 @@
   const L = (k) => 'lemon' + k;
   Object.assign(TRAINERS, {
     // 1. 감마 체육관 (1번 폐도로)
-    shepherd: { name: '잉글리쉬 셰퍼드', title: '베타 체육관 부관', portrait: 'shepherd', team: [['pixie', 13], ['nymph', 13]], prize: 900,
-      intro: '여! 반가워 사령관. 난 잉글리쉬 셰퍼드, 레모네이드 베타의 부관이야. 베타 만나려면 나부터 이기고 가.', lose: '쓰읍.. 생각보다 하는데? 에이, 졌다 졌어.', after: '베타는 겁이 많아서 말이야. 너무 몰아붙이진 마, 사령관.', rematch: ['또 왔네, 사령관? 좋아, 한 판 더 붙자.', '이번엔 안 봐준다?', '쓰읍.. 또 졌네. 너 진짜 세다.'] },
+    merlin: { name: '멀린', title: '감마 체육관 참모', portrait: 'merlin', team: [['hyena', 8], ['gremlin', 9]], prize: 520,
+      intro: '히힛, 아서 등장! 감마 대장님한테 가려면 PECS의 대악당 겸 오르카의 귀염둥이, 천재 멀린부터 넘어야지!', lose: '어라라? 천재의 계산이 틀렸다고? ...히힛, 좋아, 인정! 역시 아서야.', after: '감마 대장님은 정면 승부를 좋아해. 아서도 꼼수 쓰지 말고 제대로 치고 받아 봐!', rematch: ['또 왔어, 아서? 천재 멀린이 새 작전을 짜 뒀지!', '싸움이라고? 그럼 내가 빠질 수 없지!', '히힛... 또 졌네. 그래도 재밌었어, 아서!'] },
     gamma: { name: '레모네이드 감마', title: '감마 체육관 관장', portrait: L('gamma'), team: [['brownie', 5], ['sylphid', 6], [L('gamma'), 8]], prize: 2000, boss: true, badge: 'gamma', bgm: 'boss', voice: L('gamma'),
       intro: '', lose: '', after: '하하하! 언제든 다시 오게, 오르카의 사령관. 이 몸이 상대해 주지!' },
     // 2. 베타 체육관 (엘프의 숲)
-    merlin: { name: '멀린', title: '베타 체육관 관원', portrait: 'merlin', team: [['pixie', 13], ['nymph', 13]], prize: 900,
-      intro: '오호, 베타의 비밀 서버실에 온 걸 환영해! 접속 권한부터 보여 줘 봐, 사령관!', lose: '권한 확인... 완료! 흥미로운데, 사령관!', after: '베타 서랍에는 간식이 가득해. 비밀이야!', rematch: ['오호, 사령관! 새 실험 데이터가 필요하던 참이야. 한 판 더 어때?', '이번 실험은 결과가 다를 거야!', '흠, 또 졌네. 그래도 좋은 데이터였어, 사령관!'] },
+    shepherd: { name: '잉글리쉬 셰퍼드', title: '베타 체육관 부관', portrait: 'shepherd', team: [['pixie', 13], ['nymph', 13]], prize: 900,
+      intro: '여! 반가워 사령관. 난 잉글리쉬 셰퍼드, 레모네이드 베타의 부관이야. 베타 만나려면 나부터 이기고 가.', lose: '쓰읍.. 생각보다 하는데? 에이, 졌다 졌어.', after: '베타는 겁이 많아서 말이야. 너무 몰아붙이진 마, 사령관.', rematch: ['또 왔네, 사령관? 좋아, 한 판 더 붙자.', '이번엔 안 봐준다?', '쓰읍.. 또 졌네. 너 진짜 세다.'] },
     beta: { name: '레모네이드 베타', title: '베타 체육관 관장', portrait: L('beta'), team: [['undine', 14], ['nymph', 14], [L('beta'), 16]], prize: 2600, boss: true, badge: 'beta', bgm: 'boss', voice: L('beta'),
       intro: '', lose: '', after: '주, 주인님... 다음에도 또 와 주실 거죠...?' },
     // 3. 델타 체육관 (항구 마을)
