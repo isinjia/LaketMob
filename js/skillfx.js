@@ -379,7 +379,7 @@
           BFX.frost(B.x, B.y, 110, bc); V.shock(B.x, FB, 0x9ff4ff, 1.4, true);
           // 빔이 지나간 자리에 얼음 조각이 남는다
           // 빔이 지나간 자리가 얼음 가시 줄로 굳었다가 명중과 함께 부서진다
-          for (let i = 0; i < 8; i++) { const k = (i + 1) / 9, sx = lerp(A.x, B.x, k), X = wx(sx), Y = wy(V.footY(sx, lerp(A.y, B.y, k))) + 0.45, rot = R(-0.2, 0.2);
+          for (let i = 0; i < 8; i++) { const k = (i + 1) / 9, sx = lerp(A.x, B.x, k), X = wx(sx), Y = wy(lerp(FA, FB, k)) + 0.45, rot = R(-0.2, 0.2);
             later(i * 0.03, () => { P().particle({ x: X, y: Y, life: 0.75, size: 0.3, size1: 0.28, aspect: 4.5, rot, color: 0x9fe8ff, tex: P().tex.beam, alpha: 1 });
               P().particle({ x: X, y: Y, life: 0.75, size: 0.12, size1: 0.1, aspect: 9, rot, color: 0xffffff, tex: P().tex.beam, alpha: 1 }); P().particle({ x: X, y: Y - 0.4, life: 0.4, size: 0.8, size1: 0.4, color: 0xdff9ff, tex: P().tex.glow, alpha: 0.6 }); }); // 바닥에서 솟은 얼음 가시
             later(0.75, () => { for (let j = 0; j < n(3); j++) P().particle({ x: X, y: Y + 0.2, vx: R(-2, 2), vy: R(1, 3), grav: 8, life: 0.45, size: 0.12, size1: 0.05, aspect: 2, rot: R(0, 6), spin: R(-8, 8), color: 0xdffaff, tex: P().tex.beam, alpha: 0.9 }); }); }
