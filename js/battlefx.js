@@ -79,21 +79,22 @@ const BFX = {
   draw() {
     if (!this.ok || (this.busy <= 0 && !this.inst.length)) return;
     this.P.draw();
-    // 두 번 합성한다: 가산 빛(검은 바탕 텍스처 포함)은 lighter 로, 일반 블렌딩 입자(연기·그을음·파편)는 source-over 로.
-    // lighter 하나로만 그리면 어두운 연기가 보이지 않고, source-over 하나로만 그리면 검은 바탕이 네모로 보인다.
-    const meshes = this._meshes || (this._meshes = []); meshes.length = 0;
-    this.scene.traverse((o) => { if (o.isMesh) meshes.push(o); });
-    const prev = meshes.map((m) => m.visible);
+    // 두 번 합성한다: 일반 블렌딩 입자(연기·그을음·파편)를 먼저 source-over 로 깔고, 그 위에 가산 빛(검은 바탕 텍스처 포함)을 lighter 로.
+    // (lighter 하나로만 그리면 어두운 연기가 안 보이고, source-over 하나로만 그리면 검은 바탕이 네모로 보인다. 빛을 위에 두어 연기가 폭발을 가리지 않게)
+    const meshes = this._meshes || (this._meshes = []), prev = this._prev || (this._prev = []);
+    meshes.length = 0; this.scene.traverse((o) => { if (o.isMesh) meshes.push(o); });
+    prev.length = meshes.length;
     let normalN = 0;
-    meshes.forEach((m, i) => { const nrm = !!m.userData.normal; if (nrm && prev[i] && m.geometry.instanceCount > 0) normalN++; m.visible = prev[i] && !nrm; });
-    this.renderer.render(this.scene, this.camera);
-    ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.drawImage(this.canvas, 0, 0, W, H); ctx.restore();
+    for (let i = 0; i < meshes.length; i++) { const m = meshes[i]; prev[i] = m.visible; if (m.userData.normal && m.visible && m.geometry.instanceCount > 0) normalN++; }
     if (normalN) {
-      meshes.forEach((m, i) => { m.visible = prev[i] && !!m.userData.normal; });
+      for (let i = 0; i < meshes.length; i++) meshes[i].visible = prev[i] && !!meshes[i].userData.normal;
       this.renderer.render(this.scene, this.camera);
       ctx.drawImage(this.canvas, 0, 0, W, H);
     }
-    meshes.forEach((m, i) => { m.visible = prev[i]; });
+    for (let i = 0; i < meshes.length; i++) meshes[i].visible = prev[i] && !meshes[i].userData.normal;
+    this.renderer.render(this.scene, this.camera);
+    ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.drawImage(this.canvas, 0, 0, W, H); ctx.restore();
+    for (let i = 0; i < meshes.length; i++) meshes[i].visible = prev[i];
   },
   clear() { if (!this.ok) return; this.busy = 0; this.P.clear(); for (const f of this.inst) f.dispose(); this.inst.length = 0; },
 };
