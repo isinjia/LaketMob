@@ -100,7 +100,10 @@
   Game.load = function () { const ok = loadBeforeIreina.apply(this, arguments); if (ok && this.flags.beat_fenrir) this.flags.beat_ireina = 1; return ok; };
   // 체육관 관원을 원작 부관으로 바꿨다 (감마 토모→멀린, 베타 멀린→잉글리쉬 셰퍼드, 제타 아탈란테→헤스티아): 예전 승리 기록을 옮긴다
   const loadBeforeAdjutants = Game.load, resetBeforeAdjutants = Game.reset;
-  Game.reset = function () { const r = resetBeforeAdjutants.apply(this, arguments); this.flags.staff2 = 1; return r; };
+  Game.reset = function () { const r = resetBeforeAdjutants.apply(this, arguments); this.flags.staff2 = 1; this.flags.poiSwap = 1; return r; };
+  // 엘프의 숲 트레이너가 포츈에서 포이로 바뀌었다 (캠프 NPC는 포츈): 예전 승리 기록을 옮긴다
+  const loadBeforePoiSwap = Game.load;
+  Game.load = function () { const ok = loadBeforePoiSwap.apply(this, arguments), f = this.flags; if (ok && !f.poiSwap) { if (f.beat_fortune) f.beat_poi = 1; f.poiSwap = 1; } return ok; };
   Game.load = function () {
     const ok = loadBeforeAdjutants.apply(this, arguments), f = this.flags;
     if (ok && !f.staff2) { const old = { t: f.beat_tomoe, m: f.beat_merlin, a: f.beat_atalanta }; delete f.beat_merlin; if (old.t) f.beat_merlin = 1; if (old.m) f.beat_shepherd = 1; if (old.a) f.beat_hestia = 1; f.staff2 = 1; }
