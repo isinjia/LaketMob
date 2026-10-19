@@ -1,4 +1,4 @@
-﻿# 라스트 몬스터 (LAST MONSTER)
+﻿# 라스트 로이드 (LAST ROID)
 
 라스트오리진 에셋(`E:\LAO\Google_QA\Assets`)으로 만든 포켓몬스터풍 RPG입니다. 주인공은 **사령관**입니다.
 

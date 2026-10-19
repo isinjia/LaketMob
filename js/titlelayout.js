@@ -60,14 +60,14 @@
     ctx.save();
     ctx.font = font(size, 400, TITLE_FONT);
     const maxWidth = H > W ? W - 64 : Math.min(520, W * .53);
-    size *= Math.min(1, maxWidth / ctx.measureText('라스트 몬스터').width);
+    size *= Math.min(1, maxWidth / ctx.measureText('라스트 로이드').width);
     ctx.font = font(size, 400, TITLE_FONT);
-    const tw = ctx.measureText('라스트 몬스터').width, x0 = align === 'center' ? cx - tw / 2 : cx;
+    const tw = ctx.measureText('라스트 로이드').width, x0 = align === 'center' ? cx - tw / 2 : cx;
     ctx.translate(x0, y);
-    ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillText('라스트 몬스터', 6, 8);
+    ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillText('라스트 로이드', 6, 8);
     const lg = ctx.createLinearGradient(0, -size * 0.87, 0, size * 0.11); lg.addColorStop(0, '#ffffff'); lg.addColorStop(0.5, '#9ff3ff'); lg.addColorStop(1, '#2fb7e6');
-    ctx.lineWidth = size * 0.11; ctx.strokeStyle = '#08213a'; ctx.lineJoin = 'round'; ctx.strokeText('라스트 몬스터', 0, 0);
-    ctx.fillStyle = lg; ctx.fillText('라스트 몬스터', 0, 0);
+    ctx.lineWidth = size * 0.11; ctx.strokeStyle = '#08213a'; ctx.lineJoin = 'round'; ctx.strokeText('라스트 로이드', 0, 0);
+    ctx.fillStyle = lg; ctx.fillText('라스트 로이드', 0, 0);
     const sx = ((t * 260) % (tw + 200)) - 100;
     ctx.globalCompositeOperation = 'source-atop'; ctx.fillStyle = 'rgba(255,255,255,0.5)';
     ctx.beginPath(); ctx.moveTo(sx, -size); ctx.lineTo(sx + 30, -size); ctx.lineTo(sx - 10, size * 0.22); ctx.lineTo(sx - 40, size * 0.22); ctx.closePath(); ctx.fill();
@@ -78,7 +78,7 @@
   function band(x, y, s) {
     ctx.save(); ctx.translate(x, y); ctx.scale(s, s);
     ctx.fillStyle = '#ffb22e'; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(370, 0); ctx.lineTo(356, 30); ctx.lineTo(0, 30); ctx.closePath(); ctx.fill();
-    txt('LAST ORIGIN  ·  LAST MONSTER', 14, 22, { size: 17, weight: 900, color: '#1b1205', shadow: false });
+    txt('LAST ORIGIN  ·  LAST ROID', 14, 22, { size: 17, weight: 900, color: '#1b1205', shadow: false });
     ctx.fillStyle = '#0b1d33'; ctx.beginPath(); ctx.moveTo(366, 0); ctx.lineTo(436, 0); ctx.lineTo(422, 30); ctx.lineTo(352, 30); ctx.closePath(); ctx.fill();
     txt(GAME_VERSION, 392, 22, { size: 16, weight: 900, align: 'center', color: '#9ff3ff', shadow: false });
     ctx.restore();
