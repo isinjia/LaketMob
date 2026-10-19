@@ -536,7 +536,9 @@ const World = {
       }
       if (showFo && SDF.ready(lead.key)) {
         if (fo.dir === 'left' || fo.dir === 'right') fo.face = fo.dir;
-        items.push({ holder: fo, key: lead.key, anim: p.moving ? 'move' : 'idle', flip: (fo.face || 'right') === 'left', h: 62 });
+        // 칸과 칸 사이의 아주 짧은 멈춤에는 이동 동작을 유지한다 (매 칸마다 동작이 처음부터 다시 시작되어 끊겨 보이지 않게)
+        fo.moveHold = p.moving ? 0.25 : Math.max(0, (fo.moveHold || 0) - FRAME_DT);
+        items.push({ holder: fo, key: lead.key, anim: fo.moveHold > 0 ? 'move' : 'idle', flip: (fo.face || 'right') === 'left', h: 62 });
       }
       SDF.renderFrame(items, FRAME_DT);
     }
