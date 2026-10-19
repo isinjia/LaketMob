@@ -43,7 +43,9 @@ const PortraitUI = window.PortraitUI = {
     if(w._detailMax>0)txt('밀어서 상세 내용 읽기',W-36,w._content.bottom+20,{size:15,align:'right',color:UI_COL.sub});
   },
   drawStack() {
-    for(const w of UI.stack) {
+    const dimAt=UI.dimIndex();
+    for(const [i,w] of UI.stack.entries()) {
+      if(i===dimAt) UI.dim(w);
       w._touch=[];
       if(!this.draw(w)) {
         const b=MobileField.uiBox(),width=W,height=H;

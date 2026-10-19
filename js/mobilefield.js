@@ -35,7 +35,6 @@ const MobileField = window.MobileField = {
     if(window.PortraitUI) return PortraitUI.drawStack();
     const b = this.uiBox(), w = W, h = H;
     ctx.save();
-    if (!(UI.top() instanceof Dialog) && !(UI.top() instanceof Choice)) { ctx.fillStyle='rgba(2,4,10,.65)'; ctx.fillRect(0,0,W,H); }
     ctx.translate(0,b.y); ctx.scale(b.scale,b.scale);
     try { W=960; H=640; UI.draw(); } finally { W=w; H=h; ctx.restore(); }
   },

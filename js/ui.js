@@ -11,7 +11,22 @@ const UI = {
     for (const w of this.stack) w.openT += dt;
     const t = this.top(); if (t && t.update) { if (t._fresh) t._fresh = false; else t.update(dt); }
   },
-  draw() { for (const w of this.stack) if (w.draw) w.draw(); },
+  // 팝업 뒤를 어둡게: 맨 위 팝업(대화창 제외) 바로 아래에 한 번. 질문 대화창+선택지는 대화창부터 함께 띄운다
+  dimIndex() {
+    for (let i = this.stack.length - 1; i >= 0; i--) {
+      const w = this.stack[i];
+      if (w instanceof Dialog) continue;
+      return w instanceof Choice && this.stack[i - 1] instanceof Dialog ? i - 1 : i;
+    }
+    return -1;
+  },
+  dim(w) {
+    const a = 0.55 * Math.min(1, (w.openT || 0) / 0.12);
+    if (a <= 0) return;
+    ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.filter = 'none';
+    ctx.fillStyle = 'rgba(2,4,10,' + a.toFixed(3) + ')'; ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height); ctx.restore();
+  },
+  draw() { const d = this.dimIndex(); this.stack.forEach((w, i) => { if (i === d) this.dim(w); if (w.draw) w.draw(); }); },
 };
 
 // ---------------------------------------------------------------------

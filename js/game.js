@@ -64,7 +64,7 @@ class Mon {
 //  게임 상태
 // ---------------------------------------------------------------------
 const SAVE_KEY = 'racketmon_save_v1';
-const GAME_VERSION = 'v0.57';
+const GAME_VERSION = 'v0.58';
 const Game = {
   party: [], box: [], bag: {}, money: 3000, dex: { seen: {}, caught: {} }, flags: {}, badges: [], stats: {}, taken: {}, quests: {},
   map: 'lab', px: 6, py: 6, dir: 'up', playTime: 0, lastHeal: ['center1', 7, 7, 'up'], pendingPromote: new Set(),
@@ -638,9 +638,12 @@ class IntroScene {
     if (this.i >= this.lines.length) return;
     const a = this.t < 0.8 ? this.t / 0.8 : this.t > 4.8 ? Math.max(0, 1 - (this.t - 4.8) / 0.7) : 1;
     ctx.save(); ctx.globalAlpha = a;
-    this.lines[this.i].split('\n').forEach((l, k, arr) => txt(l, W / 2, H / 2 - (arr.length - 1) * 22 + k * 44, { size: 26, weight: 600, align: 'center', color: '#e6f4ff' }));
+    // 세로 화면(폭 540)에서도 넘치지 않게 화면 폭에 맞춰 줄을 나눈다
+    const size = W < 700 ? 23 : 26, lh = size * 1.7;
+    const rows = this.lines[this.i].split('\n').flatMap(l => wrapText(l, W - 56, size, 600));
+    rows.forEach((l, k) => txt(l, W / 2, H / 2 - (rows.length - 1) * lh / 2 + k * lh, { size, weight: 600, align: 'center', color: '#e6f4ff' }));
     ctx.restore();
-    txt('Z: 다음   X: 건너뛰기', W - 20, H - 20, { size: 14, align: 'right', color: 'rgba(160,190,210,0.6)' });
+    txt(W < 700 ? '화면을 누르면 다음' : 'Z: 다음   X: 건너뛰기', W - 20, H - 20, { size: 14, align: 'right', color: 'rgba(160,190,210,0.6)' });
   }
 }
 
