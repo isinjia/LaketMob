@@ -40,6 +40,8 @@ for (const s of EXTRA_SPECIES) {
   s.no = DEX_LIST.length + 1;
   SPECIES[s.key] = s; SPECIES_LIST.push(s); DEX_LIST.push(s);
 }
+// 본편 설정에 맞춘 전투 데이터(js/sigmoves.js: 본편 액티브 스킬 기술·역할별 습득표·속성·능력치·도감 설명)로 덮어쓴다.
+if (typeof SIG_SPECIES !== 'undefined') for (const [k, o] of Object.entries(SIG_SPECIES)) if (SPECIES[k]) Object.assign(SPECIES[k], o);
 // 각 지역의 기존 조우를 2/3 정도 유지하고 추가 캐릭터를 1/3 확률로 섞는다.
 for (const [area, table] of Object.entries(ENCOUNTERS)) {
   const additions = EXPANDED_ROSTER.filter(s => s.habitat === area && SPECIES[s.key]?.expanded);
