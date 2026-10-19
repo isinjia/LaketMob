@@ -33,7 +33,7 @@ RANK_MULT = {'B': 1.0, 'A': 1.12, 'S': 1.25, 'SS': 1.4}
 # 서사·진행 보정: 전설(사이드 스토리에서 만나는 존재)과 저항군 지도자는 더 강하게.
 # 레모네이드 관장은 체육관 순서에 맞춘다 — 첫 관장 감마와 여섯째 알파는 같은 레벨대 부대가 넘을 수 있게 SS 하단으로
 # (tools/balancetest.js 의 관장 승률 검사 기준)
-STORY_BONUS = {'blacklilith': 25, 'eternity': 10, 'phoenix': 10, 'hongryun': 25, 'labiata': 10, 'harpy': 15, 'leona': 5, 'alexandra': 15, 'sleipnir': 10, 'cheona': 10,
+STORY_BONUS = {'blacklilith': 25, 'eternity': 10, 'phoenix': 10, 'hongryun': 15, 'labiata': 10, 'harpy': 15, 'leona': 5, 'alexandra': 15, 'sleipnir': 10, 'cheona': 10,
                'lemongamma': -25, 'lemonbeta': 15, 'lemonepsilon': 15, 'lemonalpha': 20}
 LEGENDS = {'blacklilith', 'eternity', 'phoenix', 'hongryun'}
 # 시작 유닛은 등급과 무관하게 실전 능력치(합계 × 등급 배율)를 같게, 같은 B급 야생(230)보다 조금 높게
@@ -62,6 +62,7 @@ WEAPON = {
 }
 # 계열별 공용 기술 (위 표에서 쓰는 것 중 아직 없던 것). 타입은 병종이라 자속이 붙는다.
 GENERIC = {
+    'hpunch': {'name': '중장 강타', 'type': 'heavy', 'cat': 'atk', 'pow': 50, 'acc': 100, 'pp': 30, 'fx': 'smash', 'desc': '육중한 팔로 상대를 내리친다.'},
     'lray': {'name': '광선 사격', 'type': 'light', 'cat': 'atk', 'pow': 55, 'acc': 100, 'pp': 30, 'fx': 'beam', 'desc': '손에 모은 에너지를 가늘게 쏘아 보낸다.'},
     'lshot': {'name': '정밀 사격', 'type': 'light', 'cat': 'atk', 'pow': 55, 'acc': 100, 'pp': 30, 'fx': 'bullet', 'desc': '개인 화기로 한 발씩 정확하게 쏜다.'},
     'lfocus': {'name': '집중 사격', 'type': 'light', 'cat': 'atk', 'pow': 105, 'acc': 90, 'pp': 5, 'crit': 2, 'fx': 'bullets', 'desc': '탄창을 비울 각오로 한 점에 화력을 쏟아붓는다. 치명타가 나기 쉽다.'},
@@ -90,7 +91,7 @@ GENERIC = {
     'charge': {'name': '출력 충전', 'type': 'phys', 'cat': 'st', 'acc': 0, 'pp': 15, 'self': {'atk': 1, 'acc': 1}, 'fx': 'buff', 'desc': '동력로 출력을 끌어올려 다음 일격을 준비한다. 공격과 명중이 오른다.'},
     'menace': {'name': '위압', 'type': 'phys', 'cat': 'st', 'acc': 100, 'pp': 20, 'foe': {'atk': -1}, 'fx': 'debuff', 'desc': '무기를 겨누고 다가서 기세로 누른다. 상대의 공격이 떨어진다.'},
     'hmgburst': {'name': '중기관총 연사', 'type': 'heavy', 'cat': 'atk', 'pow': 22, 'hits': [2, 5], 'acc': 95, 'pp': 15, 'fx': 'bullets', 'desc': '총열이 달아오를 때까지 2~5회 끊어 쏜다.'},
-    'quickstep': {'name': '순간 가속', 'type': 'phys', 'cat': 'st', 'acc': 0, 'pp': 15, 'self': {'spd': 2}, 'fx': 'buff', 'desc': '추진기와 다리에 힘을 모아 단숨에 가속한다. 속도가 크게 오른다.'},
+    'quickstep': {'name': '순간 가속', 'type': 'phys', 'cat': 'st', 'acc': 0, 'pp': 15, 'self': {'spd': 2}, 'fx': 'buff', 'desc': '몸을 낮추고 단숨에 가속한다. 속도가 크게 오른다.'},
     'ironwall': {'name': '장갑 강화', 'type': 'phys', 'cat': 'st', 'acc': 0, 'pp': 15, 'self': {'def': 1, 'atk': 1}, 'fx': 'shield', 'desc': '두꺼운 장갑을 믿고 정면으로 맞선다. 방어와 공격이 오른다.'},
     'lpierce': {'name': '철갑 사격', 'type': 'light', 'cat': 'atk', 'pow': 75, 'acc': 100, 'pp': 15, 'pierce': 1, 'fx': 'bullet', 'desc': '철갑탄으로 갈아 끼워 장갑째 꿰뚫는다. 상대의 방어 강화를 무시한다.'},
     'hpierce': {'name': '철갑탄', 'type': 'heavy', 'cat': 'atk', 'pow': 85, 'acc': 95, 'pp': 10, 'pierce': 1, 'fx': 'shell', 'desc': '대전차 철갑탄을 쏘아 두꺼운 장갑을 뚫는다. 상대의 방어 강화를 무시한다.'},
@@ -100,7 +101,7 @@ GENERIC = {
     'achem': {'name': '공중 살포', 'type': 'air', 'cat': 'atk', 'pow': 55, 'acc': 100, 'pp': 25, 'eff': {'foeDef': 0.2}, 'fx': 'acid', 'desc': '공중에서 약품을 흩뿌려 상대를 덮친다. 상대의 방어를 떨어뜨릴 때가 있다.'},
     'lbreak': {'name': '전력 돌파', 'type': 'light', 'cat': 'atk', 'pow': 115, 'acc': 95, 'pp': 5, 'recoil': 0.25, 'fx': 'dash', 'desc': '몸을 아끼지 않고 정면으로 부딪쳐 꿰뚫고 나간다. 반동을 받는다.'},
     'hbreak': {'name': '갑옷 분쇄', 'type': 'heavy', 'cat': 'atk', 'pow': 120, 'acc': 90, 'pp': 5, 'recoil': 0.25, 'fx': 'smash', 'desc': '온몸의 출력을 실어 내리찍어 장갑째 부순다. 반동을 받는다.'},
-    'lunge': {'name': '파고들기', 'type': 'light', 'cat': 'atk', 'pow': 55, 'acc': 100, 'pp': 25, 'eff': {'foeDef': 0.2}, 'fx': 'dash', 'desc': '단숨에 품으로 파고들어 날을 찔러 넣는다. 상대의 방어를 떨어뜨릴 때가 있다.'},
+    'lunge': {'name': '파고들기', 'type': 'light', 'cat': 'atk', 'pow': 55, 'acc': 100, 'pp': 25, 'eff': {'foeDef': 0.2}, 'fx': 'dash', 'desc': '단숨에 품으로 파고들어 일격을 꽂아 넣는다. 상대의 방어를 떨어뜨릴 때가 있다.'},
     'twinslash': {'name': '연속 베기', 'type': 'light', 'cat': 'atk', 'pow': 30, 'hits': [2, 3], 'acc': 100, 'pp': 15, 'fx': 'slash3', 'desc': '날을 되돌려 2~3회 연달아 벤다.'},
     'bleed': {'name': '깊게 베기', 'type': 'light', 'cat': 'atk', 'pow': 70, 'acc': 100, 'pp': 15, 'eff': {'foeAtk': 0.3}, 'fx': 'slash', 'desc': '힘줄을 노려 깊게 베어 낸다. 상대의 공격을 떨어뜨릴 때가 있다.'},
     'doubletap': {'name': '점사', 'type': 'light', 'cat': 'atk', 'pow': 30, 'hits': [2, 2], 'acc': 100, 'pp': 25, 'fx': 'bullet', 'desc': '두 발씩 끊어 쏘아 같은 곳을 두 번 맞힌다.'},
@@ -474,10 +475,10 @@ def atk_key(m):
 
 BASIC = {'gun': {'light': ['lshot', 'lpierce'], 'heavy': ['hmg', 'hshellap'], 'air': ['ashot', 'strafe']},
          'blast': {'light': ['lshot', 'lgrenade'], 'heavy': ['hshellap', 'hmg'], 'air': ['ashot', 'amissile']},
-         'blade': {'light': ['lunge', 'bleed'], 'heavy': ['hsmash', 'hstomp'], 'air': ['dive', 'aslash']},
-         'melee': {'light': ['lunge', 'ldrill'], 'heavy': ['hsmash', 'hstomp'], 'air': ['dive', 'aslash']},
-         'energy': {'light': ['lray', 'lbeam'], 'heavy': ['hbeam', 'hsmash'], 'air': ['aray', 'abeam']},
-         'chem': {'light': ['lchem', 'lunge'], 'heavy': ['hchem', 'hsmash'], 'air': ['achem', 'dive']}}
+         'blade': {'light': ['lunge', 'bleed'], 'heavy': ['hpunch', 'hstomp'], 'air': ['dive', 'aslash']},
+         'melee': {'light': ['lunge', 'ldrill'], 'heavy': ['hpunch', 'hstomp'], 'air': ['dive', 'aslash']},
+         'energy': {'light': ['lray', 'lbeam'], 'heavy': ['hpunch', 'hbeam'], 'air': ['aray', 'abeam']},
+         'chem': {'light': ['lchem', 'lunge'], 'heavy': ['hchem', 'hpunch'], 'air': ['achem', 'dive']}}
 
 
 def basics(u, elems):
@@ -511,7 +512,8 @@ def tidy(u, ls, moves, elems):
     atk_up = sum(1 for m in sigs if m in moves and moves[m].get('cat') == 'st' and (moves[m].get('self') or {}).get('atk', 0) > 0)
     heals = sum(1 for m in sigs if m in moves and moves[m].get('heal'))
     heal_cap = 0 if heals else (2 if subtype(u) == 'heal' else 1)
-    sig_flags = {f for m in sigs if m in moves and moves[m].get('cat') == 'atk' for f in ('crit', 'pierce') if moves[m].get(f)}
+    sig_flags = {f for m in sigs if m in moves and moves[m].get('cat') == 'atk' for f in ('crit', 'pierce', 'hits') if moves[m].get(f)}
+    has = lambda mid: (moves.get(mid) or BASE_MOVES.get(mid) or {})
     for lv, m in ls:
         if not m.startswith('sig_'): m = variant(u['key'], m)  # 대체 기술을 먼저 정하고 그 효과로 판단한다
         d = moves.get(m) or GENERIC.get(m) or BASE_MOVES.get(m) or {}
@@ -553,6 +555,8 @@ def tidy(u, ls, moves, elems):
             if e and m in GUNLIKE and (elemental_weapon(u) or (sig_elem and sig_elem == sum(1 for x in sigs if x in moves and moves[x].get('cat') == 'atk'))):  # 화염방사기·냉기·전격이 무기인 유닛
                 if not pool: continue
                 m = pool.pop(0)
+            if u['role'] == '지원기' and d.get('cat') == 'atk' and (has(m).get('pow') or 0) > 60:
+                continue  # 지원기의 공용 공격은 기본기만
             if u['role'] == '지원기' and lv >= 40:
                 continue  # 지원기는 공격 마무리기 대신 고유 기술과 지원기로 싸운다
         out.append([lv, m])
@@ -560,8 +564,11 @@ def tidy(u, ls, moves, elems):
     for lv, m in out:
         if m not in seen: seen.add(m); res.append([lv, m])
     atks = [m for _, m in res if (moves.get(m) or BASE_MOVES.get(m) or {}).get('cat') == 'atk']
+    has = lambda mid: (moves.get(mid) or BASE_MOVES.get(mid) or {})
     for fill, lv in zip(basics(u, elems), (1, 11, 11, 11)):
         if len(atks) >= 2: break
+        fd = has(fill)
+        if ((fd.get('pow') or 0) > 55 and eff_pow(fd) > sig_max * 0.9) or (u['role'] == '지원기' and (fd.get('pow') or 0) > 60): continue
         if fill not in seen: res.append([lv, fill]); seen.add(fill); atks.append(fill)
     has = lambda mid: (moves.get(mid) or BASE_MOVES.get(mid) or {})
     if u['role'] == '보호기' and not any((has(m).get('foe') or {}).get('atk', 0) < 0 or 'foeAtk' in (has(m).get('eff') or {}) for _, m in res):
@@ -573,6 +580,7 @@ def tidy(u, ls, moves, elems):
         if len(res) >= 5: break
         d = has(cand)
         if cand in seen or (d.get('cat') == 'st' and effect_key(d) in sig_keys): continue
+        if d.get('cat') == 'atk' and (((d.get('pow') or 0) > 55 and eff_pow(d) > sig_max * 0.9) or any(d.get(f) for f in sig_flags)): continue
         if d.get('foe') and ({'foe' + k for k, v in d['foe'].items() if v < 0} & stat_seen): continue
         res.append([21, cand]); seen.add(cand)
     res.sort(key=lambda x: x[0])
@@ -671,6 +679,11 @@ STATUS_WORDS = {'para': ('마비', '감전'), 'burn': ('화상',), 'freeze': ('�
 EFF_TEXT = {'foeDef': '상대의 방어를 떨어뜨릴 때가 있다.', 'foeAtk': '상대의 공격을 떨어뜨릴 때가 있다.', 'foeSpd': '상대의 속도를 떨어뜨릴 때가 있다.',
             'foeAcc': '상대의 명중을 떨어뜨릴 때가 있다.', 'burn': '화상을 입힐 때가 있다.', 'freeze': '동결시킬 때가 있다.', 'para': '감전시킬 때가 있다.'}
 DESC_FIX = {
+    'sig_fafnir_3': '금면피 같은 자신감으로 위압감을 뿜어 공격과 속도를 높인다.',
+    'sig_empress_3': '경계색과 은신을 함께 쓰는 의태로 몸을 숨기며 공격과 속도를 높인다.',
+    'sig_sadius_3': '가학적인 미소로 전기 충격을 예고하며 기세를 올린다. 공격과 속도가 오른다.',
+    'sig_vargr_3': '처형 전 모든 변수를 통제해 공격과 명중을 높인다.',
+    'sig_tiamat_3': '상대의 약점을 간파하고 자신의 빈틈을 지운다. 공격·명중·방어가 오른다.',
     'sig_blackhound_2': 'EMP 탄두 미사일로 상대의 전자 장비를 교란해 방어를 떨어뜨린다.',
     'sig_lemonalpha_2': '케스토스 히마스의 출력을 전개해 상대 회로를 압도한다. 상대의 방어를 떨어뜨릴 때가 있다.',
     'sig_scathy_1': '상대 회로에 과부하를 걸어 장갑 제어를 무너뜨린다. 상대의 방어를 떨어뜨릴 때가 있다.',
