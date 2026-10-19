@@ -1,5 +1,7 @@
 // All points use the same image-local transform as drawMon, including flip, feet,
 // bob, recoil, scaling and lunge. Never use a platform centre as a weapon socket.
+// 전투 그림 위치 보정 [x, y] (그림 폭·높이 비율). 타이런트는 꼬리까지 넓은 그림이라 몸이 발판 오른쪽 위로 떠 보인다.
+const ART_NUDGE = { tyrant: [-0.08, 0.06] };
 const BattleArt = {
   layout(m, v, box, mine) {
     const name = m.artName ? m.artName() : m.key;
@@ -11,9 +13,11 @@ const BattleArt = {
     const foot = img && img.width ? artFootOffset(img) * (flip ? -1 : 1) : 0;
     const age = Tick.time - (v.kickAt ?? -100);
     const recoil = age >= 0 && age < .16 ? (mine ? -1 : 1) * (v.kick || 0) * Math.sin(age / .16 * Math.PI) : 0;
-    const x = box.cx + v.x + recoil - w / 2 - foot * w;
+    // 그림마다 몸통 위치가 달라 발판에서 벗어나는 경우의 보정 (그림 폭·높이 비율, 화면 기준 +x 오른쪽 +y 아래)
+    const nudge = ART_NUDGE[name] || [0, 0];
+    const x = box.cx + v.x + recoil - w / 2 - foot * w + nudge[0] * w;
     const bob = Math.sin(Tick.time * 2.2 + (mine ? 1 : 0)) * 3;
-    const y = (mine ? box.base - 60 : box.base + 18) - h + v.dy + bob * (mine ? 1 : .6);
+    const y = (mine ? box.base - 60 : box.base + 18) - h + v.dy + bob * (mine ? 1 : .6) + nudge[1] * h;
     const profile = BATTLE_ANCHORS[name] || {kind:'focus', emit:[flip ? .20 : .80,.40], hit:[.5,.45]};
     const point = uv => ({x:x + (flip ? 1-uv[0] : uv[0])*w, y:y + uv[1]*h});
     return {name,img,flip,x,y,w,h,profile,point};
