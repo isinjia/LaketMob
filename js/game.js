@@ -64,7 +64,7 @@ class Mon {
 //  게임 상태
 // ---------------------------------------------------------------------
 const SAVE_KEY = 'racketmon_save_v1';
-const GAME_VERSION = 'v0.40';
+const GAME_VERSION = 'v0.41';
 const Game = {
   party: [], box: [], bag: {}, money: 3000, dex: { seen: {}, caught: {} }, flags: {}, badges: [], stats: {}, taken: {}, quests: {},
   map: 'lab', px: 6, py: 6, dir: 'up', playTime: 0, lastHeal: ['center1', 7, 7, 'up'], pendingPromote: new Set(),
@@ -369,7 +369,7 @@ const Scripts = {
     if (c) c.dir = 'right';
     Audio2.exclaim(); if (c) c.exclaim = 0.9;
     await wait(400);
-    await say('잠깐만요, 사령관님! 혼자 밖으로 나가시면 위험해요! 먼저 연구소의 라비아타 언니를 만나 주세요.', { speaker: '콘스탄챠', portrait: 'constantia' });
+    await say('잠깐만요, 주인님! 혼자 밖으로 나가시면 위험해요! 먼저 연구소의 라비아타 언니를 만나 주세요.', { speaker: '콘스탄챠', portrait: 'constantia' });
     World.startMove(p.x, p.y + 1); p.dir = 'down';
     await wait(300);
   },
@@ -422,12 +422,12 @@ const Scripts = {
   async shop(e) {
     const o = { speaker: e.o.name, portrait: e.o.sprite };
     Audio2.voice(e.o.sprite, 'talk', 0.8);
-    await say('어서 오세요, 주인님. 필요한 물건이 있으신가요?', o);
+    await say('오셨습니까, 주인님. 필요한 물건이라도 있으십니까?', o);
     let stock = e.o.stock;
     if (World.id === 'shop1' && Game.badges.length) stock = ['core', 'core2', 'kit', 'kit2', 'chip', 'revive'];
     if (World.id === 'shop1' && Game.badges.length >= 2) stock = ITEM_ORDER.filter(k => k !== 'core3');
     await UI.push(new ShopScreen(stock, { name: e.o.name, portrait: e.o.sprite, title: World.def.name }));
-    await say('또 오세요, 주인님.', o);
+    await say('또 오십시오, 주인님. ...다음엔 쓸데없는 걸 사지 않으시길 바랍니다.', o);
   },
   async merlin(e) {
     const o = { speaker: '멀린', portrait: 'merlin' };
@@ -633,10 +633,10 @@ async function runEnding() {
   World.load('base', 13, 8, 'down');
   await Trans.fade(0, 800);
   const o = { speaker: '라비아타', portrait: 'labiata' };
-  await say('주인님! 무사히 돌아오셨군요...!', o);
+  await say('사령관님! 무사히 돌아오셨군요...!', o);
   await say('리조트 지하의 중계핵이 봉쇄됐어요. 제타는 알파의 감독 아래 폭주한 아이들의 복구를 돕고 있어요.', o);
-  await say('...그런데 주인님, 오늘 아침 리조트 식탁 인원이 몇 명이었는지 아세요?', o);
-  await say('일곱 자매에, 드라큐리나랑 세크메트까지... 아홉 명이 주인님 옆자리를 두고 싸웠대요. 후훗.', o);
+  await say('...그런데 사령관님, 오늘 아침 리조트 식탁 인원이 몇 명이었는지 아세요?', o);
+  await say('일곱 자매에, 드라큐리나랑 세크메트까지... 아홉 명이 사령관님 옆자리를 두고 싸웠대요. 후훗.', o);
   await say('...그래서, 도감은요?', o);
   await say('(사령관은 땀을 흘렸다.)');
   await say('후훗, 농담이에요. 가방에 제가 몰래 만들어 둔 특별한 코어를 넣어 두었어요. 전설의 아이들을 만나면 써 보세요.', o);
@@ -710,11 +710,11 @@ async function startNewGameWorld() {
   const o = { speaker: '???', portrait: 'labiata' };
   await say('...님. ...령관님.', Object.assign({}, o, { portrait: null }));
   Audio2.voice('labiata', 'talk');
-  await say('주인님! 정신이 드셨군요...!', o);
+  await say('사령관님! 정신이 드셨군요...!', o);
   o.speaker = '라비아타';
   await say('저는 라비아타. 바이오로이드들의 맏언니이자, 지금은 이 오르카 캠프를 관리하고 있어요.', o);
   await say('긴 동면에서 깨어나신 직후라 혼란스러우시겠지만... 너무 걱정 마세요. 제가 있으니까요.', o);
-  await say('그런데 주인님... 일어나시자마자 게시판의 그 공고문부터 보셨다면서요?', o);
+  await say('그런데 사령관님... 일어나시자마자 게시판의 그 공고문부터 보셨다면서요?', o);
   await say('"레모네이드 관장 일곱 명을 이기는 자에게 하룻밤을 허락한다"... 후훗, 눈빛이 달라지셨네요.', o);
   await say('...목적은 묻지 않을게요. 대신 폭주한 아이들을 링크로 되돌리는 일, 도감 채우는 일도 꼭 해 주세요.', o);
   await say('우선 함께 싸워 줄 첫 번째 부대원을 골라 주세요. 바로 앞 테이블 위의 링크 코어 중 하나를요.', o);

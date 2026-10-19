@@ -18,7 +18,7 @@
   Object.assign(TRAINERS, {
     // 1. 감마 체육관 (1번 폐도로)
     tomoe: { name: '토모', title: '감마 체육관 관원', portrait: 'tomoe', team: [['hyena', 8], ['gremlin', 9]], prize: 520,
-      intro: '감마 님께 도전하시려면 저부터 넘어서셔야 합니다!', lose: '...정진하겠습니다.', after: '감마 님은 정면 승부를 좋아하세요. 피하지 말고 맞서세요!' },
+      intro: '자, 친구 토모 등장! 감마 관장한테 도전하려면 나부터 넘어가야 해. 내 지성미, 각오해!', lose: '으으... 이게 바로 ‘금상첨화’라는 거구나... 어? 아닌가?', after: '감마 관장은 정면 승부를 좋아해. 피하지 말고 맞서, 사령관! 그게 바로 ‘우유부단’... 아니, 아무튼 그거야!' },
     gamma: { name: '레모네이드 감마', title: '감마 체육관 관장', portrait: L('gamma'), team: [['brownie', 8], ['sylphid', 9], [L('gamma'), 11]], prize: 2000, boss: true, badge: 'gamma', bgm: 'boss', voice: L('gamma'),
       intro: '', lose: '', after: '하하하! 언제든 다시 오게, 오르카의 사령관. 이 몸이 상대해 주지!' },
     // 2. 베타 체육관 (엘프의 숲)
@@ -27,31 +27,31 @@
     beta: { name: '레모네이드 베타', title: '베타 체육관 관장', portrait: L('beta'), team: [['undine', 14], ['nymph', 14], [L('beta'), 16]], prize: 2600, boss: true, badge: 'beta', bgm: 'boss', voice: L('beta'),
       intro: '', lose: '', after: '주, 주인님... 다음에도 또 와 주실 거죠...?' },
     // 3. 델타 체육관 (항구 마을)
-    johanna: { name: '요안나', title: '델타 체육관 모델', portrait: 'johanna', team: [['impet', 17], ['talonfeather', 17]], prize: 1300,
-      intro: '런웨이에 무단으로 오르시면 곤란하죠. 승부로 입장료를 내세요!', lose: '...오늘의 베스트 드레서는 당신이네요.', after: '델타 님 앞에서 감마 님 얘기는 금지예요. 진짜로요.' },
+    johanna: { name: '요안나', title: '델타 체육관 호위 기사', portrait: 'johanna', team: [['impet', 17], ['talonfeather', 17]], prize: 1300,
+      intro: '무대에 함부로 오르려 하는가? 기사의 예법대로, 승부로 입장료를 치르게나!', lose: '...훌륭하군, 주군. 오늘 무대의 주인공은 주군일세. 시라도 한 수 바치고 싶군.', after: '델타 앞에서 감마 이야기는 꺼내지 말게나. 진심으로 하는 충고일세.' },
     delta: { name: '레모네이드 델타', title: '델타 체육관 관장', portrait: L('delta'), team: [['miho', 17], ['talonfeather', 17], ['lindwurm', 18], [L('delta'), 19]], prize: 3200, boss: true, badge: 'delta', bgm: 'boss', voice: L('delta'),
       intro: '', lose: '', after: '유세떨기는. 다음엔 내 마리오네트가 널 무대 밖으로 끌어낼 거야.' },
     // 4. 제타 체육관 (폐허 해안)
     atalanta: { name: '아탈란테', title: '제타 연구소 경비', portrait: 'atalanta', team: [['gigantes', 21], ['valkyrie', 21]], prize: 1600,
-      intro: '연구소 출입은 실험 협조자만 가능합니다. 협조하시겠습니까?', lose: '관측 결과를 보고하겠습니다.', after: '제타 님은 상금을 줄 때 꼭 깎으세요... 비효율적이라면서요.' },
+      intro: '연구소 출입은 실험 협조자만 가능하답니다. 자, 사냥의 시간이군요. 협조하시겠어요?', lose: '후후... 제법이군요. 관측 결과는 그대로 보고하지요.', after: '제타는 상금을 줄 때 꼭 깎는답니다... 비효율적이라나요. 참 무료한 분이에요.' },
     zeta: { name: '레모네이드 제타', title: '제타 체육관 관장', portrait: L('zeta'), team: [['gigantes', 21], ['goltarion', 22], ['valkyrie', 22], [L('zeta'), 24]], prize: 1200, boss: true, badge: 'zeta', bgm: 'boss', voice: 'mpzeta',
       intro: '', lose: '', after: '관측은 계속돼요. 당신은 여전히 흥미로운 표본이군요.' },
     // 5. 엡실론 체육관 (폐공장 지대)
     fenrir: { name: '펜리르', title: '엡실론 체육관 관원', portrait: 'fenrir', team: [['hraesvelgr', 25], ['roc', 25]], prize: 1800,
-      intro: '엡실론 님은 지금 주무세요. 깨우려면 저부터 이기세요!', lose: '깨우는 건... 행운을 빌게요.', after: '엡실론 님 방에선 물 얘기 금지예요.' },
+      intro: '엡실론은 지금 자. 깨우고 싶으면 나부터 이겨, 주인님!', lose: '졌다... 그래도 나 잘 싸웠지? 칭찬해 줘. ...깨우는 건 주인님이 알아서 해.', after: '엡실론 방에선 물 얘기 하지 마. 시끄러워지면 내가 대신 물어 줄까?' },
     epsilon: { name: '레모네이드 엡실론', title: '엡실론 체육관 관장', portrait: L('epsilon'), team: [['talonfeather', 26], ['roc', 26], ['hraesvelgr', 27], [L('epsilon'), 28]], prize: 3800, boss: true, badge: 'epsilon', bgm: 'boss', voice: L('epsilon'),
       intro: '', lose: '', after: '...사령관, 한 판 더? 아니 게임 말이야, 게임.' },
     // 6. 알파 체육관 (설원 고지대)
     shirayuri: { name: '시라유리', title: '알파 체육관 시녀', portrait: 'shirayuri', team: [['phantom', 29], ['blackhound', 29]], prize: 2100,
       intro: '알파 님께서는 아무나 만나 주지 않으십니다. 실력으로 증명하세요.', lose: '...알파 님께서 기뻐하시겠네요.', after: '알파 님의 미소는... 늘 무언가를 숨기고 계세요.' },
     alpha: { name: '레모네이드 알파', title: '알파 체육관 관장 · 관장 협회장', portrait: L('alpha'), team: [['phoenix', 30], ['miho', 30], ['bloodypanther', 31], [L('alpha'), 32]], prize: 4400, boss: true, badge: 'alpha', bgm: 'boss', voice: L('alpha'),
-      intro: '', lose: '', after: '우후후... 주인님, 조심하세요. 이제부터는 저도 모르는 일이 벌어질 테니까요.' },
+      intro: '', lose: '', after: '우후후... 사령관님, 조심하세요. 이제부터는 저도 모르는 일이 벌어질 테니까요.' },
     // 7. 챔피언 오메가 (레모네이드 리조트)
     omega: { name: '레모네이드 오메가', title: '레모네이드 리그 챔피언', portrait: L('omega'), team: [['tyrant', 33], ['fafnir', 33], ['leona', 34], ['valkyrie', 34], [L('omega'), 36]], prize: 9999, boss: true, badge: 'omega', bgm: 'final',
       intro: '', lose: '', after: '...한 번 더요? 사양할게요, 인간님. 오늘은 술이나 마실 거니까요.' },
     // 사령관 독점단
     dok1: { name: '사령관 독점단 브라우니', title: '사령관 독점단 (마스코트)', portrait: 'brownie', team: [['brownie', 6], ['brownie', 7], ['brownie', 7]], prize: 300,
-      intro: '', lose: '', after: '브, 브라우니는 아직 포기 안 했다!' },
+      intro: '', lose: '', after: '브, 브라우니는 아직 포기 안 했지 말입니다!' },
     dok2: { name: '드라큐리나', title: '사령관 독점단', portrait: 'draculina', team: [['bloodypanther', 17], ['impet', 17], ['phantom', 18]], prize: 1500,
       intro: '', lose: '', after: '흥! 이 드라큐리나 님은 아직 끝나지 않았어!' },
     dok3: { name: '세크메트', title: '사령관 독점단', portrait: 'sekhmet', team: [['echidna', 25], ['efreeti', 25], ['rampart', 26]], prize: 2000,
@@ -293,7 +293,7 @@
     await say('세상의 커플 성립을 막기 위해!', D);
     await say('폐하의 독점을 지키기 위해!', S);
     await say('사랑과 질투의 악역! 사령관 독점단!', D);
-    if (withBrownie) await say('...브, 브라우니도 있다!', B);
+    if (withBrownie) await say('...브, 브라우니도 있지 말입니다!', B);
   }
   // 하늘로 날아가며 퇴장
   async function blastOff(e, text) {
@@ -384,7 +384,7 @@
     // ----- 6. 알파 -----
     async pre_alpha() {
       const o = sp('레모네이드 알파', L('alpha')); Audio2.voice(L('alpha'), 'start');
-      await lines(o, ['어서 오세요, 인간님. 후후, 소문보다 훨씬 매력적이시네요.', '동생들을 차례로 꺾으셨다죠? 베타야, 그렇게 좋았니? ...후후, 농담이에요.', '협회장으로서 마지막 관문을 지켜야 하지만... 솔직히 기대돼요. 케스토스 히마스 전개. 전장을 장악하겠어요.']);
+      await lines(o, ['어서 오세요, 사령관님. 후후, 소문보다 훨씬 매력적이시네요.', '동생들을 차례로 꺾으셨다죠? 베타야, 그렇게 좋았니? ...후후, 농담이에요.', '협회장으로서 마지막 관문을 지켜야 하지만... 솔직히 기대돼요. 케스토스 히마스 전개. 전장을 장악하겠어요.']);
     },
     async post_alpha(e) {
       const A = sp('레모네이드 알파', L('alpha'));
@@ -394,8 +394,8 @@
         '위험을 알고 들어가는 작전이에요. 이제부터는 우리가 제타를 관측할 차례예요.']);
       Game.flags.counterlink = 1;
       await gymWin(e, ['후후... 제 배지예요. 준비가 끝나면 리조트로 가요.', '그 전에 쉬어 가세요. 지친 부대로 작전에 나설 수는 없잖아요.'],
-        ['차폐함은 잠갔고, 리조트 감시는 엡실론에게 맡겼어요. 오늘 밤의 기록은 우리만 간직해요.', '우후후... 이제부터는 주인님이라고 불러도 될까요?'],
-        ['좋은 아침이에요, 주인님. 출발 전에 기다리던 손님들을 만나 보세요.'],
+        ['차폐함은 잠갔고, 리조트 감시는 엡실론에게 맡겼어요. 오늘 밤의 기록은 우리만 간직해요.', '우후후... 어쩌면 사령관님이야말로 진정한 저희의 주인님일지도 모르겠네요.'],
+        ['좋은 아침이에요, 사령관님. 출발 전에 기다리던 손님들을 만나 보세요.'],
         async () => {
           const A = sp('레모네이드 알파', L('alpha')), D = sp('드라큐리나', 'draculina'), S = sp('세크메트', 'sekhmet');
           await say('차폐함 안의 배지는 조용해요. 베타도 역추적 준비를 마쳤대요.', A);
@@ -435,7 +435,7 @@
     async pre_mpzeta() {
       // 업데이트 전 알파를 통과한 저장 데이터도 결말 작전과 첫 지휘를 받을 수 있다.
       if (!Game.flags.counterlink) {
-        await say('주인님, 베타의 기록으로 배지를 차폐했어요. 엡실론이 좌표를 잡고 있어요. 제 역송신 신호에 맞춰 지휘해 주세요.', sp('레모네이드 알파', L('alpha')));
+        await say('사령관님, 베타의 기록으로 배지를 차폐했어요. 엡실론이 좌표를 잡고 있어요. 제 역송신 신호에 맞춰 지휘해 주세요.', sp('레모네이드 알파', L('alpha')));
         Game.flags.counterlink = 1;
       }
       await say('중계핵 접속 유지 중이에요. 복제는 저장된 명령만 따라요. 지금 내리는 새 지휘는 베낄 수 없어요!', sp('레모네이드 베타', L('beta')));
@@ -473,11 +473,11 @@
     // ----- 사령관 독점단 -----
     async pre_dok1() {
       const B = sp('브라우니', 'brownie');
-      await say('거기 서라, 사령관!', B);
-      await say('...원래는 드라큐리나 님이랑 세크메트 님이 오셔야 하는데, 오늘은 브라우니만 왔다!', B);
-      await say('사랑과 질투의 악역! 사령관 독점단! ...의 마스코트! 브라우니 부대 출격!', B);
+      await say('거기 서십쇼, 사령관님! 여기서부턴 못 지나가지 말입니다!', B);
+      await say('...원래는 드라큐리나 님이랑 세크메트 님이 오셔야 하는데, 오늘은 브라우니만 왔지 말입니다!', B);
+      await say('사랑과 질투의 악역! 사령관 독점단! ...의 마스코트임다! 브라우니 부대, 출격하지 말입니다!', B);
     },
-    async post_dok1(e) { await blastOff(e, '브라우니는 또 졌다아아~! 오늘 밤도 사령관은 관장한테 가 버린다아~!'); },
+    async post_dok1(e) { await blastOff(e, '브라우니는 또 졌지 말입니다아아~! 오늘 밤도 사령관님은 관장한테 가 버리지 말임다아~!'); },
     async pre_dok2() {
       const D = sp('수상한 관광객', 'draculina');
       await say('어머~ 거기 멋진 사령관님? 이 마을은 처음이세요? 이 몸이 안내... 아니, 내가 안내해 줄게!', D);
@@ -530,10 +530,10 @@
     async constantia(e) {
       Audio2.voice('constantia', 'talk', 0.8);
       const o = sp('콘스탄챠', 'constantia'), n = Game.badges.length;
-      if (!Game.flags.gotStarter) { await say('사령관님, 깨어나셨군요! 라비아타 언니가 연구소(왼쪽 위 건물)에서 기다리고 있어요.', o); return; }
-      if (n === 0) { await say('1번 폐도로 북쪽에 감마 체육관이 있어요. 그... 공고문 보셨죠? 사령관님 표정이 너무 진지하세요.', o); await say('부대가 지치면 오른쪽 위 수복실의 다프네 씨에게 가 보세요.', o); return; }
-      if (!Game.flags.cleared) { await say('배지가 ' + n + '개나... 사령관님, 요즘 잠은 주무세요? 눈 밑이 퀭하세요.', o); return; }
-      await say('사령관님 덕분에 평화가 돌아왔어요. ...그리고 리조트 식탁 인원이 매일 늘고 있다는 소문이에요.', o);
+      if (!Game.flags.gotStarter) { await say('주인님, 깨어나셨군요! 라비아타 언니가 연구소(왼쪽 위 건물)에서 기다리고 있어요.', o); return; }
+      if (n === 0) { await say('1번 폐도로 북쪽에 감마 체육관이 있어요. 그... 공고문 보셨죠? 주인님 표정이 너무 진지하세요.', o); await say('부대가 지치면 오른쪽 위 수복실의 다프네 씨에게 가 보세요.', o); return; }
+      if (!Game.flags.cleared) { await say('배지가 ' + n + '개나... 주인님, 요즘 잠은 주무세요? 눈 밑이 퀭하세요. 따뜻한 차라도 내올까요?', o); return; }
+      await say('주인님 덕분에 평화가 돌아왔어요. ...그리고 리조트 식탁 인원이 매일 늘고 있다는 소문이에요.', o);
       await say('전설의 바이오로이드 소문, 들으셨어요? 라비아타 언니와 해안의 칼리스타 씨가 단서를 갖고 있대요. 레아 씨도 전설을 연구 중이고요!', o);
     },
     async labiata(e) {
@@ -541,15 +541,15 @@
       Audio2.voice('labiata', 'talk');
       if (!Game.flags.gotStarter) { await say('테이블 위의 링크 코어 세 개 중 하나를 골라 주세요. ...목적은 묻지 않을게요.', o); return; }
       if (!Game.flags.cleared) {
-        await say('레몬 하트 배지 ' + n + '개... 후훗, 열심이시네요, 주인님.', o);
+        await say('레몬 하트 배지 ' + n + '개... 후훗, 열심이시네요, 사령관님.', o);
         await say('참, 폭주한 아이들은 체력을 깎은 뒤 링크 코어를 던지면 부대로 영입할 수 있어요. 도감도 잊지 마시고요.', o);
-        if (n >= 3) await say('...그런데 요즘 주인님 배지에서 이상한 신호가 잡혀요. 조심하세요.', o);
+        if (n >= 3) await say('...그런데 요즘 사령관님 배지에서 이상한 신호가 잡혀요. 너무 걱정 마세요, 제가 있으니까요. 그래도 조심하시고요.', o);
         return;
       }
       const caught = DEX_LIST.filter(s => Game.dex.caught[s.key]).length, total = DEX_LIST.length;
       await say('보고서 잘 받았어요. ...일곱 장이나요. 후훗.', o);
       await say('그래서 도감은요? ... ' + caught + ' / ' + total + '명이군요!', o);
-      if (caught >= total) { await say('모든 바이오로이드와 링크하셨어요! 주인님은 진정한 라켓몬 마스터예요!', o); Audio2.jingle([523, 659, 784, 1047], 0.15); }
+      if (caught >= total) { await say('모든 바이오로이드와 링크하셨어요! 사령관님은 진정한 라켓몬 마스터예요!', o); Audio2.jingle([523, 659, 784, 1047], 0.15); }
     },
   });
 

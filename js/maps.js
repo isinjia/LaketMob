@@ -37,25 +37,25 @@ class Grid {
 // ---------- 트레이너 ----------
 const TRAINERS = {
   emily: { name: '에밀리', title: '꼬마 전투원', portrait: 'emily', team: [['brownie', 3], ['nymph', 4]], prize: 360,
-    intro: '사령관님이다! 제 브라우니 분대 실력 좀 보실래요?', lose: '우와앙, 역시 사령관님이에요!', after: '브라우니들은 수가 많아서 든든해요. 풀숲에도 잔뜩 있다구요!' },
-  alvis: { name: '앨비스', title: '명랑한 정찰병', portrait: 'alvis', team: [['gremlin', 5], ['hyena', 6]], prize: 480,
-    intro: '정찰 중에 사령관님을 발견! 훈련 상대가 되어 주세요!', lose: '하하, 완패예요! 상성을 잘 쓰시네요!', after: '중장형에게는 기동 기술이 강해요. 전기는 화염 타입에 강하고요. 상성표는 메뉴에서 볼 수 있어요!' },
+    intro: '사령관이다... 내 브라우니 분대... 실력, 봐 줄래...?', lose: '역시 사령관... 대단해... 나, 더 배워야겠어...', after: '브라우니들은... 수가 많아서 든든해... 풀숲에도 잔뜩 있어...' },
+  alvis: { name: '알비스', title: '명랑한 정찰병', portrait: 'alvis', team: [['gremlin', 5], ['hyena', 6]], prize: 480,
+    intro: '정찰 중에 사령관님 발견~! 알비스랑 훈련하자! 이기면 초코바 줄게!', lose: '히히, 완패야! 사령관님 상성 진짜 잘 쓰는구나? 자, 약속한 초코바!', after: '중장형한테는 기동 기술이 세! 전기는 화염 타입한테 강하고! 상성표는 메뉴에서 볼 수 있어~ 알비스가 알려 준 거 잊으면 안 돼?' },
   amy: { name: '에이미', title: '오르카 경비대', portrait: 'amy', team: [['nymph', 6], ['hyena', 6], ['brownie', 7]], prize: 560,
-    intro: '이 앞은 엘프의 숲이에요. 그 실력으로 괜찮으시겠어요?', lose: '...인정할게요. 지나가셔도 좋아요.', after: '숲 안쪽에 철충 지휘 개체가 나타났다는 보고가 있어요. 조심하세요.' },
-  darkelf: { name: '다크엘프', title: '숲의 사냥꾼', portrait: 'darkelf', team: [['undine', 9], ['impet', 10]], prize: 800,
-    intro: '이 숲에 함부로 발을 들이다니. 실력을 보여 봐라.', lose: '흥... 제법이군.', after: '숲 한가운데 수복 포드가 있다. 지쳤다면 쉬어 가라.' },
+    intro: '어머나 자기, 이 앞은 엘프의 숲이에요. 그 실력으로 괜찮겠어요? 후후, 제가 확인해 볼까요?', lose: '후후... 제법인걸요, 자기? 지나가도 좋아요.', after: '자기, 숲 안쪽에 철충 지휘 개체가 나타났대요. 다치면 제가 재워 줄 테니... 조심해요?' },
+  darkelf: { name: '다크엘븐', title: '숲의 사냥꾼', portrait: 'darkelf', team: [['undine', 9], ['impet', 10]], prize: 800,
+    intro: '안녕? 이 숲을 지나가려면 나랑 한 판 해야 하거든? 당신 실력, 보여 줘!', lose: '하하... 제법인데? 당신, 생각보다 강하네.', after: '숲 한가운데에 수복 포드가 있어. 지쳤으면 쉬었다 가. ...캠프파이어는 안 해 준다?' },
   highelven: { name: '하이엘븐', title: '숲의 수호자', portrait: 'highelven', team: [['sylphid', 10], ['pixie', 11]], prize: 880,
     intro: '바람의 노래가 들리나요? 우리 아이들의 날갯짓이랍니다.', lose: '바람이 당신 편이었군요.', after: '기동형은 중장형에게 강하지만 경장형에게는 약해요.' },
-  fortune: { name: '포츈', title: '행운의 여신', portrait: 'fortune', team: [['spriggan', 11], ['miho', 12]], prize: 960,
-    intro: '오늘의 운세는... 사령관님과의 승부! 대길이려나?', lose: '어머, 오늘은 소길이었네.', after: '베타 체육관은 숲 동쪽이에요. 베타의 냉기에 강하게 맞서려면 화염 기술을 쓰는 임펫·미호를 데려가세요!' },
+  fortune: { name: '포츈', title: '오르카 정비반', portrait: 'fortune', team: [['spriggan', 11], ['miho', 12]], prize: 960,
+    intro: '어머나! 사령관? 누나랑 한 판 할래? 기계든 승부든 이 누나가 완전 전문가거든?', lose: '후후, 누나가 졌네. 사령관, 제법인데?', after: '베타 체육관은 숲 동쪽이야. 베타의 냉기엔 화염 기술을 쓰는 임펫·미호를 데려가. 누나 말 들어서 손해 볼 일 없거든?' },
   beta: { name: '레모네이드 베타', title: '레모네이드 자매', portrait: 'lemonbeta', team: [['impet', 12], ['spriggan', 12], ['lemonbeta', 14]], prize: 2400, boss: true, badge: 'forest', bgm: 'boss', voice: 'lemonbeta',
     intro: '마지막 인간이 제 발로 찾아오다니. 오메가 언니가 기뻐하겠네요.', lose: '말도 안 돼... 내 아이들이...!', after: '' },
   calista: { name: '칼리스타', title: '해안 경비대', portrait: 'calista', team: [['talonfeather', 16], ['bulgasari', 17]], prize: 1300,
-    intro: '해안선은 우리가 지킨다! 사령관이라도 봐주지 않아!', lose: '크윽, 방어선이 뚫렸어!', after: '등대 쪽에 붉은 날개를 단 레모네이드가 있어. 엄청 강해.' },
+    intro: '흐응~ 당신이 사령관이구나? 해안선은 우리 담당이니까, 봐주진 않을 거야~', lose: '아얏... 방어선이 뚫렸네. 나 튼튼하긴 한데, 그렇게 막 다루면 고장 난다구?', after: '등대 쪽에 붉은 날개를 단 레모네이드가 있어. 엄청 강해. 갈 거면 명령만 해~' },
   raven: { name: '레이븐', title: '까마귀 저격수', portrait: 'raven', team: [['perrault', 17], ['hraesvelgr', 18]], prize: 1400,
-    intro: '조준 완료. 움직이지 마시죠.', lose: '...탄이 다 떨어졌군.', after: '기동형을 상대할 땐 경장 기술을 써. 냉기 기술은 전기 타입의 약점을 찌르지.' },
-  kheshig: { name: '케시크', title: '호드 돌격대', portrait: 'kheshig', team: [['gigantes', 18], ['bloodypanther', 19]], prize: 1500,
-    intro: '돌격! 돌격이다! 사령관님도 예외는 없어!', lose: '후퇴! 후퇴다아!', after: '체력을 깎고 상태이상을 걸면 링크 성공률이 확 올라간다고!' },
+    intro: '사령관~ 우리 애들 잘 지켜 준다며? 그래도 승부는 승부야. 조준 완료!', lose: '아앙, 탄이 다 떨어졌잖아~ 사령관 너-무 세다!', after: '기동형 상대할 땐 경장 기술을 써. 냉기 기술은 전기 타입 약점을 찌르고. 누나가 알려 준 거니까 잘 기억해, 사령관~' },
+  kheshig: { name: '케시크', title: '호드 병참·구호반', portrait: 'kheshig', team: [['gigantes', 18], ['bloodypanther', 19]], prize: 1500,
+    intro: '처음 뵙겠습니다, 사령관님! T-4 케시크예요. 실례지만... 훈련 상대가 되어 드릴게요!', lose: '아... 졌네요. 역시 사령관님이세요. 혹시 다친 아이는 없나요?', after: '구호 담당으로서 말씀드리면요, 체력을 깎고 상태이상을 걸면 링크 성공률이 확 올라간답니다!' },
   mariagrace: { name: '마리아 그레이스', title: '호드의 기수', portrait: 'mariagrace', team: [['alice', 19], ['daika', 19], ['cheona', 20]], prize: 1800,
     intro: '사령관님, 이 앞은 지옥이에요. 각오는 되셨나요?', lose: '...좋아요. 당신이라면 해낼 수 있을지도.', after: '레모네이드 제타는 경장형이라 중장형이 강해요. 화염은 전기 기술로 받아치세요!' },
   zeta: { name: '레모네이드 제타', title: '레모네이드 자매', portrait: 'lemonzeta', team: [['bloodypanther', 19], ['hraesvelgr', 19], ['lemonzeta', 22]], prize: 3600, boss: true, badge: 'coast', bgm: 'boss', voice: 'lemonzeta',
@@ -63,9 +63,9 @@ const TRAINERS = {
   draculina: { name: '드라큐리나', title: '정신 지배된 바이오로이드', portrait: 'draculina', team: [['phantom', 24], ['efreeti', 25]], prize: 2000,
     intro: '오메가 님의... 명령... 침입자는... 제거한다...', lose: '사, 사령관님...? 저는 대체 무슨 짓을...', after: '오메가는 둥지 맨 안쪽에 있어요. 저 대신... 꼭 이겨 주세요.' },
   sekhmet: { name: '세크메트', title: '정신 지배된 바이오로이드', portrait: 'sekhmet', team: [['echidna', 24], ['roc', 25], ['goltarion', 25]], prize: 2000,
-    intro: '크르르... 오메가 님을 위해...', lose: '...머리가 맑아졌어. 고마워, 사령관.', after: '이 앞에 수복 포드가 있어. 오메가는 중장형이라 기동형 공격이 잘 들어. 그녀의 전격은 냉기형이 막아 줄 거야!' },
+    intro: '크르르... 오메가 님을 위해...', lose: '...머리가 맑아졌습니다. 감사합니다, 폐하.', after: '이 앞에 수복 포드가 있습니다. 오메가는 중장형이라 기동형 공격이 잘 듭니다. 그 전격은 냉기형이 막아 줄 것입니다. 이 어미가 장담하지요.' },
   omega: { name: '레모네이드 오메가', title: '레모네이드 자매의 정점', portrait: 'lemonomega', team: [['tyrant', 27], ['lindwurm', 27], ['valkyrie', 28], ['lemonomega', 30]], prize: 9999, boss: true, badge: 'nest', bgm: 'final',
-    intro: '자, 사령관님. 당신의 "링크"가 얼마나 강한지 보여 주세요.', lose: '...이것이 인간의 힘. 아니, 바이오로이드들과의 유대인가요.', after: '' },
+    intro: '자, 인간님. 당신의 "링크"가 얼마나 강한지 보여 주세요.', lose: '...이것이 인간의 힘. 아니, 바이오로이드들과의 유대인가요.', after: '' },
 };
 
 // ---------- 출현 테이블 ----------
@@ -108,9 +108,9 @@ const MAPS = {};
       { t: 'trigger', x: 13, y: 2, w: 2, h: 1, run: 'gate' },
       { t: 'npc', id: 'constantia', sprite: 'constantia', x: 12, y: 3, dir: 'down', name: '콘스탄챠', talk: 'constantia' },
       { t: 'npc', id: 'audrey', sprite: 'audrey', x: 17, y: 11, dir: 'left', name: '오드리', wander: 1,
-        lines: ['링크 코어를 던지기 전에 상대의 체력을 깎아 두세요. 빨간색이 될 때까지 깎으면 성공률이 크게 올라요.', '상태이상(동결·감전 등)에 걸린 상대는 더 쉽게 링크할 수 있어요. 동결이 가장 효과적이에요!'] },
-      { t: 'npc', id: 'poi', sprite: 'poi', x: 15, y: 15, dir: 'down', name: '포이', lines: ['오르카호는 지금 정비 중이에요. 다 고치면 다시 바다로 나갈 수 있을 거예요!', '그때까지 사령관님이 이 일대의 철충들을 정리해 주세요!'] },
-      { t: 'npc', id: 'rhea', sprite: 'rhea', x: 6, y: 8, dir: 'down', name: '레아', wander: 1, lines: ['랭크가 B인 아이들도 레벨 16이 되면 A랭크로 승급해요. 그 뒤 30, 44에서도 승급하고요.', '승급하면 능력치가 쑥 오른답니다!'] },
+        lines: ['어-머나, 사령관. 링크 코어를 던지기 전엔 상대의 체력을 깎아 두세요. 빨간색이 될 때까지 깎으면 성공률이 크게 올라요.', '상태이상(동결·감전 등)에 걸린 상대는 더 쉽게 링크할 수 있어요. 동결이 가장 효과적이죠. 얼어붙은 포즈... 흐음, 영감이 오네요.'] },
+      { t: 'npc', id: 'poi', sprite: 'poi', x: 15, y: 15, dir: 'down', name: '포이', lines: ['냐하핫, 오르카호는 지금 정비 중이에요. 포이가 다 고치면 다시 바다로 나갈 수 있다구요?', '그때까지 주인님이 이 일대 철충들을 정리해 주세요♡ 설마 벌써 지치신 건 아니죠~?'] },
+      { t: 'npc', id: 'rhea', sprite: 'rhea', x: 6, y: 8, dir: 'down', name: '레아', wander: 1, lines: ['주인님, 랭크가 B인 아이들도 레벨 16이 되면 A랭크로 승급해요. 그 뒤 30, 44에서도 승급하고요.', '승급하면 능력치가 쑥 오른답니다. 후후, 아이들이 크는 걸 보면 누나처럼 뿌듯해져요.'] },
     ],
   };
 })();
@@ -149,7 +149,7 @@ function makeCenter(id, name, back) {
       { t: 'deco', kind: 'healer', x: 4, y: 1, w: 2, h: 1 }, { t: 'deco', kind: 'healer', x: 9, y: 1, w: 2, h: 1 },
       { t: 'deco', kind: 'plant', x: 1, y: 2, w: 1, h: 1, block: 1 }, { t: 'deco', kind: 'plant', x: 13, y: 8, w: 1, h: 1, block: 1 },
       { t: 'npc', id: id + '_snow', sprite: id === 'center1' ? 'snowfeather' : 'thetis', x: 2, y: 6, dir: 'right', name: id === 'center1' ? '스노우 페더' : '테티스',
-        lines: id === 'center1' ? ['격납고 단말기(오른쪽 위)에서 부대원을 맡기거나 꺼낼 수 있어요.', '부대는 최대 6명까지! 나머지는 격납고에서 쉬고 있답니다.'] : ['바다 냄새 좋죠? 해안 너머 둥지에서 나는 쇳내만 빼면요.'] },
+        lines: id === 'center1' ? ['주인님, 격납고 단말기(오른쪽 위)에서 부대원을 맡기거나 꺼낼 수 있어요.', '부대는 최대 6명까지예요. 나머지는 격납고에서 쉬고 있으니, 제가 잘 지켜 둘게요.'] : ['꺄하핫, 바다 냄새 좋죠, 사령관? 해안 너머 둥지에서 나는 쇳내만 빼면요~ 바다의 여신 테티스님이 보증해요!'] },
     ],
   };
 }
@@ -286,8 +286,8 @@ makeShop('shop1', '오르카 보급소', ['base', 5, 13, 'down'], ['core', 'kit'
       { t: 'sign', x: 9, y: 11, text: '남부 항구 마을\n서쪽: 엘프의 숲  /  동쪽: 폐허 해안' },
       { t: 'npc', id: 'merlin', sprite: 'merlin', x: 14, y: 12, dir: 'down', name: '멀린', talk: 'merlin' },
       { t: 'npc', id: 'shirayuri', sprite: 'shirayuri', x: 8, y: 15, dir: 'right', name: '시라유리', wander: 1, lines: ['폐허 해안의 등대 근처는 철충 투성이예요.', '화염 기술은 냉기형에게 효과가 굉장하답니다!'] },
-      { t: 'npc', id: 'tomoe', sprite: 'tomoe', x: 22, y: 8, dir: 'left', name: '토모', lines: ['해안 너머 동굴에서 이상한 붉은 빛이 새어 나와요. 철충의 둥지인 것 같아요.'] },
-      { t: 'npc', id: 'johanna', sprite: 'johanna', x: 4, y: 12, dir: 'right', name: '요안나', wander: 1, lines: ['보급소에서 고급 링크 코어를 팔기 시작했어요. 성공률이 1.6배라던데요?', '링크 코어를 10개 이상 사면 보너스를 준대요!'] },
+      { t: 'npc', id: 'tomoe', sprite: 'tomoe', x: 22, y: 8, dir: 'left', name: '토모', lines: ['사령관, 해안 너머 동굴에서 이상한 붉은 빛이 새어 나와. 친구 토모의 지성미로 추리하면... 철충 둥지야! 이게 바로 ‘일석이조’지!'] },
+      { t: 'npc', id: 'johanna', sprite: 'johanna', x: 4, y: 12, dir: 'right', name: '요안나', wander: 1, lines: ['주군, 보급소에서 고급 링크 코어를 팔기 시작했다네. 성공률이 1.6배라더군.', '링크 코어를 10개 이상 사면 덤을 준다고 하네. 기억해 두게나.'] },
     ],
   };
 })();

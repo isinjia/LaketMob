@@ -588,7 +588,7 @@ class ShopScreen {
     this.busy = true;
     try {
       const max = Math.min(99, Math.floor(Game.money / it.price));
-      if (max <= 0) { Audio2.bump(); await say('자원이 부족합니다, 사령관님.', { speaker: this.o.name, auto: 1300 }); return; }
+      if (max <= 0) { Audio2.bump(); await say('자원이 부족하십니다, 주인님. 계산은 할 줄 아시는 거죠?', { speaker: this.o.name, auto: 1300 }); return; }
       Audio2.select();
       const n = await UI.push(new NumberPick(max, it.price));
       if (n > 0) {
@@ -596,7 +596,7 @@ class ShopScreen {
         Audio2.sfx('buy');
         this.flash = 1;
         let bonus = '';
-        if (id === 'core' && n >= 10) { Game.addItem('core2', 1); bonus = ' 서비스로 고급 링크 코어를 하나 드릴게요!'; }
+        if (id === 'core' && n >= 10) { Game.addItem('core2', 1); bonus = ' 서비스로 고급 링크 코어를 하나 드리겠습니다.'; }
         await say(J(it.name, '을') + ' ' + n + '개 구매했습니다.' + bonus, { speaker: this.o.name, auto: 1400 });
       }
     } finally { this.busy = false; }
