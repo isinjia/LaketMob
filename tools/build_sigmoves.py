@@ -33,7 +33,7 @@ RANK_MULT = {'B': 1.0, 'A': 1.12, 'S': 1.25, 'SS': 1.4}
 # 서사·진행 보정: 전설(사이드 스토리에서 만나는 존재)과 저항군 지도자는 더 강하게.
 # 레모네이드 관장은 체육관 순서에 맞춘다 — 첫 관장 감마와 여섯째 알파는 같은 레벨대 부대가 넘을 수 있게 SS 하단으로
 # (tools/balancetest.js 의 관장 승률 검사 기준)
-STORY_BONUS = {'blacklilith': 25, 'eternity': 10, 'phoenix': 10, 'hongryun': 10, 'labiata': 10, 'harpy': 15, 'leona': 5, 'alexandra': 15, 'sleipnir': 10, 'cheona': 10,
+STORY_BONUS = {'blacklilith': 25, 'eternity': 10, 'phoenix': 10, 'hongryun': 25, 'labiata': 10, 'harpy': 15, 'leona': 5, 'alexandra': 15, 'sleipnir': 10, 'cheona': 10,
                'lemongamma': -25, 'lemonbeta': 15, 'lemonepsilon': 15, 'lemonalpha': 20}
 LEGENDS = {'blacklilith', 'eternity', 'phoenix', 'hongryun'}
 # 시작 유닛은 등급과 무관하게 실전 능력치(합계 × 등급 배율)를 같게, 같은 B급 야생(230)보다 조금 높게
@@ -111,7 +111,7 @@ GENERIC = {
     'hsalvo': {'name': '연속 포격', 'type': 'heavy', 'cat': 'atk', 'pow': 35, 'hits': [2, 3], 'acc': 90, 'pp': 10, 'fx': 'barrage', 'desc': '포문을 번갈아 2~3회 쏘아 댄다.'},
     'aray': {'name': '조준 광선', 'type': 'air', 'cat': 'atk', 'pow': 55, 'acc': 100, 'pp': 25, 'fx': 'beam', 'desc': '위에서 가는 광선을 짧게 끊어 쏜다.'},
     'ldrill': {'name': '천공 일격', 'type': 'light', 'cat': 'atk', 'pow': 75, 'acc': 100, 'pp': 15, 'pierce': 1, 'fx': 'smash', 'desc': '회전하는 끝으로 한 점을 파고들어 장갑을 뚫는다. 상대의 방어 강화를 무시한다.'},
-    'challenge': {'name': '정면 도전', 'type': 'phys', 'cat': 'st', 'acc': 0, 'pp': 20, 'self': {'atk': 1}, 'foe': {'atk': -1}, 'fx': 'debuff', 'desc': '방패를 두드리며 정면으로 맞선다. 자신의 공격이 오르고 상대의 공격이 떨어진다.'},
+    'challenge': {'name': '정면 도전', 'type': 'phys', 'cat': 'st', 'acc': 0, 'pp': 20, 'self': {'atk': 1}, 'foe': {'atk': -1}, 'fx': 'debuff', 'desc': '앞으로 나서 정면으로 맞서며 기세를 꺾는다. 자신의 공격이 오르고 상대의 공격이 떨어진다.'},
     'brace': {'name': '엄호 자세', 'type': 'phys', 'cat': 'st', 'acc': 0, 'pp': 15, 'self': {'def': 1, 'spd': 1}, 'fx': 'shield', 'desc': '동료를 가릴 자리로 재빨리 들어선다. 방어와 속도가 오른다.'},
     'orders': {'name': '작전 지시', 'type': 'phys', 'cat': 'st', 'acc': 0, 'pp': 15, 'self': {'acc': 1, 'spd': 1}, 'fx': 'buff', 'desc': '전황을 읽고 다음 행동을 지시한다. 명중과 속도가 오른다.'},
     'flare': {'name': '조명탄', 'type': 'phys', 'cat': 'st', 'acc': 100, 'pp': 20, 'foe': {'acc': -1}, 'self': {'acc': 1}, 'fx': 'smoke', 'desc': '조명탄을 터뜨려 시야를 뺏고 표적을 밝힌다. 상대의 명중이 떨어지고 자신의 명중이 오른다.'},
@@ -240,7 +240,7 @@ def status_move(m, kind, extra, role):
         if extra in ('selfDef', 'selfAtk', 'selfSpd'): m['self'] = {extra[4:].lower(): 1}
     elif kind == 'buff':
         m['self'] = {'atk': 2} if extra == 'selfAtk' else {'spd': 2} if extra == 'selfSpd' else {'atk': 1, 'acc': 1} if extra == 'selfAcc' else {'atk': 1, 'spd': 1}
-        if role == '지원기' and m['self'].get('atk', 0) >= 2: m['self'] = {'atk': 1, 'def': 1}  # 지원기의 지휘는 부대 정비
+
         if extra == 'heal' or (role == '지원기' and says_heal(m)): m['heal'] = 0.25
     elif kind == 'focus':
         m['self'] = {'atk': 1, 'acc': 1}
@@ -495,7 +495,8 @@ def tidy(u, ls, moves, elems):
     sig_def = def_up > 0
     atk_up = sum(1 for m in sigs if m in moves and moves[m].get('cat') == 'st' and (moves[m].get('self') or {}).get('atk', 0) > 0)
     heals = sum(1 for m in sigs if m in moves and moves[m].get('heal'))
-    heal_cap = 2 if subtype(u) == 'heal' else 1
+    heal_cap = 0 if heals else (2 if subtype(u) == 'heal' else 1)
+    sig_flags = {f for m in sigs if m in moves and moves[m].get('cat') == 'atk' for f in ('crit', 'pierce') if moves[m].get(f)}
     for lv, m in ls:
         if not m.startswith('sig_'): m = variant(u['key'], m)  # 대체 기술을 먼저 정하고 그 효과로 판단한다
         d = moves.get(m) or GENERIC.get(m) or BASE_MOVES.get(m) or {}
@@ -509,6 +510,8 @@ def tidy(u, ls, moves, elems):
             dv = dict(d, **(moves.get(variant(u['key'], m)) or {})) if d.get('cat') == 'atk' else d
             if d.get('cat') == 'atk' and lv < 40 and atk_key(dv) in sig_atk:
                 continue  # 같은 성격의 고유 공격기가 있다
+            if d.get('cat') == 'atk' and any(dv.get(f) for f in sig_flags):
+                continue  # 치명·관통은 고유 기술이 맡는다
             if d.get('cat') == 'atk' and (dv.get('pow') or 0) > 60 and any(moves[x].get('type') == dv.get('type') and abs(eff_pow(moves[x]) - eff_pow(dv)) <= 0.1 * eff_pow(dv)
                                                                          for x in sigs if x in moves and moves[x].get('cat') == 'atk'):
                 continue  # 같은 타입·같은 위력대의 고유 공격기가 있다
@@ -545,6 +548,18 @@ def tidy(u, ls, moves, elems):
     for fill, lv in (({'light': 'lshot', 'heavy': 'hshellap', 'air': 'ashot'}[u['cls']], 1), ({'light': 'lunge', 'heavy': 'hshellap', 'air': 'aburst'}[u['cls']], 11)):
         if len(atks) >= 2: break
         if fill not in seen: res.append([lv, fill]); seen.add(fill); atks.append(fill)
+    has = lambda mid: (moves.get(mid) or BASE_MOVES.get(mid) or {})
+    if u['role'] == '보호기' and not any((has(m).get('foe') or {}).get('atk', 0) < 0 or 'foeAtk' in (has(m).get('eff') or {}) for _, m in res):
+        for cand in ('provoke', 'menace', 'challenge'):
+            if cand not in seen: res.append([11, cand]); seen.add(cand); break
+    pad = {'보호기': ['brace', 'menace', 'challenge'], '지원기': ['orders', 'analyze', 'flare'],
+           '공격기': [{'light': 'lunge', 'heavy': 'hshellap', 'air': 'aburst'}[u['cls']], 'steady', 'quickstep']}[u['role']]
+    for cand in pad:
+        if len(res) >= 5: break
+        d = has(cand)
+        if cand in seen or (d.get('cat') == 'st' and effect_key(d) in sig_keys): continue
+        if d.get('foe') and ({'foe' + k for k, v in d['foe'].items() if v < 0} & stat_seen): continue
+        res.append([21, cand]); seen.add(cand)
     res.sort(key=lambda x: x[0])
     return res
 
@@ -602,6 +617,9 @@ for _m in _re.finditer(r"^  (\w+):\s*\{ name: '[^']*', type: '(\w+)', cat: '(\w+
     for _f in ('self', 'foe', 'eff'):
         _x = _re.search(_f + r": \{([^}]*)\}", _rest)
         if _x: _d[_f] = {a.strip(): float(b) for a, b in (kv.split(':') for kv in _x.group(1).split(',') if ':' in kv)}
+    for _f in ('crit', 'pierce', 'area', 'drain'):
+        _x = _re.search(_f + r": ([\d.]+)", _rest)
+        if _x: _d[_f] = float(_x.group(1))
     _h = _re.search(r"heal: ([\d.]+)", _rest)
     if _h: _d['heal'] = float(_h.group(1))
     BASE_MOVES[_k] = _d
@@ -623,7 +641,8 @@ for u in units:
         spd_stack = (p4.get('self') or {}).get('spd', 0) > 0 and sum(1 for o in others if (o.get('self') or {}).get('spd', 0) > 0) >= 1
         foe_keys = lambda o: {k for k, v in (o.get('foe') or {}).items() if v < 0} | {k[3:].lower() for k in (o.get('eff') or {}) if k.startswith('foe')}
         debuff_dup = bool(foe_keys(p4)) and any(foe_keys(p4) & foe_keys(o) for o in others if o.get('cat') == 'st')
-        if same or def_stack or spd_stack or debuff_dup: p4 = None
+        heal_dup = p4.get('heal') and any(o.get('heal') for o in others)
+        if same or def_stack or spd_stack or debuff_dup or heal_dup: p4 = None
     if p4: moves[f"sig_{u['key']}_4"] = p4
     elems = [e for e in dict.fromkeys(x.get('elem') for x in u['skills'][:2]) if e not in (None, 'none')]
     sp = {'types': [u['cls']] + elems, 'moves': tidy(u, learnset(u, elem, fam, bool(p), bool(p4)), moves, elems), 'desc': u['desc']}
@@ -683,13 +702,15 @@ HAND = {
             'sig_lemonomega_2': {'name': '오메가 섬멸 포격', 'type': 'heavy', 'cat': 'atk', 'pow': 110, 'acc': 90, 'pp': 5, 'pierce': 1, 'fx': 'beam', 'desc': '모든 포문의 출력을 하나로 모아 꿰뚫는다. 상대의 방어 강화를 무시한다.'},
             'sig_lemonomega_3': {'name': '챔피언의 위엄', 'type': 'phys', 'cat': 'st', 'acc': 0, 'pp': 10, 'self': {'atk': 1, 'spd': 1}, 'fx': 'buff', 'desc': '자매들의 정점에 선 자의 여유로 전장을 내려다본다. 공격과 속도가 오른다.'},
         },
-        'learn': [[1, 'order'], [1, 'shell'], [11, 'guard'], [16, 'sig_lemonomega_2'], [21, 'plasma'], [26, 'hpierce'], [30, 'sig_lemonomega_3']],
+        'desc': '레모네이드 자매의 정점에 선 리더이자 리그 챔피언. 절대 명령 한마디로 자매들을 움직이며, 오만해 보여도 자매들에게는 누구보다 정이 깊다.',
+        'learn': [[1, 'order'], [1, 'shell'], [11, 'guard'], [16, 'sig_lemonomega_2'], [21, 'plasma'], [26, 'hcannon'], [30, 'sig_lemonomega_3']],
     },
 }
 for k, h in HAND.items():
     for mid, m in h['moves'].items():
         m['sig'] = k; moves[mid] = m
     species[k] = {'moves': h['learn']}
+    if h.get('desc'): species[k]['desc'] = h['desc']
 
 for m in moves.values():
     m['desc'] = fix_words(m['desc'])
@@ -703,6 +724,11 @@ for sp in species.values():
     if 'desc' in sp: sp['desc'] = fix_words(sp['desc'])
 for k, v in DESC_FIX.items():
     if k in moves: moves[k]['desc'] = v
+NAME_OF = {'atk': '공격', 'def': '방어', 'spd': '속도', 'acc': '명중'}
+for m in moves.values():
+    if not m.get('sig') or m.get('cat') != 'st' or not m.get('self'): continue
+    miss = [NAME_OF[k] for k, v in m['self'].items() if v > 0 and k in NAME_OF and NAME_OF[k] not in m['desc'] and not (k == 'acc' and '적중' in m['desc'])]
+    if miss: m['desc'] = m['desc'].rstrip() + ' ' + '·'.join(miss) + ('도 오른다.' if len(miss) == 1 else '도 오른다.')
 for m in moves.values():
     if m.get('heal') and '회복' not in m['desc']:
         m['desc'] = m['desc'].rstrip() + (' HP를 조금 회복한다.' if m['heal'] < 0.3 else ' HP를 회복한다.')
