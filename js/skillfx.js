@@ -213,11 +213,22 @@
       const f = P();
       f.particle({ x: wx(x), y: wy(y), life: 1.1, size: 0.12 * s, size1: 0.1 * s, aspect: 14, rot, color: col, tex: f.tex.white, alpha: 0.7, normal: true, order: f.L.FX - 3 });
     },
+    // 발밑 높이: 캐릭터 그림의 아래쪽 (가슴 기준 +70 처럼 고정값을 쓰면 허벅지에 떠 보인다)
+    footOf(side) {
+      const b = Scene; if (!(b instanceof Battle)) return null;
+      try { const f = BattleArt.frame(b, side); return f.y + f.h - 6; } catch (e) { return null; }
+    },
+    footY(x, y) {
+      const b = Scene; if (!(b instanceof Battle)) return y + 70;
+      let best = null, bd = 1e9;
+      for (const side of ['me', 'foe']) { try { const f = BattleArt.frame(b, side), cx = f.x + f.w / 2, d = Math.abs(cx - x); if (d < bd) { bd = d; best = f.y + f.h - 6; } } catch (e) { } }
+      return best == null ? y + 70 : best;
+    },
     // 명중 세트: 타입마다 다른 모양 (힘 s)
     impact(x, y, type, s = 1, o = {}) {
       if (!on()) return; busy();
       const [c1, c2] = pal(type);
-      const g = { x, y: y + 70 };
+      const g = { x, y: o.gy != null ? o.gy : V.footY(x, y) };
       switch (type) {
         case 'fire':
           V.core(x, y, c1, s * 0.8); V.flameBurst(x, y, s); V.shock(g.x, g.y, c1, s * 1.2, true); V.scorch(g.x, g.y, s * 0.9, 0x2a1408); break;
@@ -231,15 +242,18 @@
           V.plume(x, y, s * 0.9); V.debris(x, y + 20, 7 + 4 * s, s * 1.8, 0x4a443c);
           V.shock(g.x, g.y, c1, s * 1.3, true); V.dust(g.x, g.y, s); V.scorch(g.x, g.y, s); break;
         case 'air':
-          V.core(x, y, c1, s * 0.75); V.wind(x, y, c1, s); V.streaks(x, y, c2, 10, 6 * s, s); break;
+          V.core(x, y, c1, s * 0.75); V.wind(x, y, c1, s); V.streaks(x, y, c2, 10, 6 * s, s);
+          for (let i = 0; i < n(6); i++) P().particle({ x: wx(x) + R(-0.6, 0.6), y: wy(y) + R(-0.3, 0.6), vx: R(-1.2, 1.2), vy: R(-0.2, 0.6), grav: 0.6, drag: 1.2, life: R(1.0, 1.4), size: 0.22 * s, size1: 0.18 * s, aspect: 2.4, rot: R(0, 6), spin: R(-4, 4), color: 0xeafff4, tex: P().tex.beam, alpha: 0.85 }); // 흩날리는 깃털
+          break;
         default: // light: 날카롭고 가볍게
           V.core(x, y, c1, s * 0.7);
           P().particle({ x: wx(x), y: wy(y), life: 0.26, size: 0.3 * s, size1: 2.8 * s, color: c1, tex: P().tex.ring, alpha: 0.9 });
           V.streaks(x, y, c2, 14 + 6 * s, 8 * s, s);
+          P().particle({ x: wx(x), y: wy(y), life: 0.42, size: 2.2 * s, size1: 1.2 * s, color: HOT, tex: P().tex.cross, rot: Math.PI / 4, alpha: 1 }); // 오래 남는 별빛
       }
       if (o.debris && type !== 'heavy' && type !== 'phys') V.debris(x, y + 20, 5 + 3 * s, s);
       if (o.embers && type !== 'fire') V.embers(x, y, c1, 8, s);
-      later(0.2, () => V.linger(x, y, c1, Math.min(1.4, s)));
+      const now = performance.now(); if (!V._lingerT || now - V._lingerT > 500) { V._lingerT = now; later(0.2, () => V.linger(x, y, c1, Math.min(1.4, s))); }
     },
   };
   // 어느 부품을 불러도 이펙트 레이어가 깨어 있게 (BFX.busy 가 0이면 파티클을 지운다)
@@ -251,7 +265,8 @@
     if (['slash', 'slash3', 'bite', 'dash', 'smash'].includes(fx)) return this.meleeFx(fx, side, tSide, type);
     const A = this.fxOrigin(side, fx), B = this.fxTarget(tSide), uv = this.view(side), flip = side === 'foe';
     const [c1, c2] = pal(type);
-    const ground = (p) => ({ x: p.x, y: p.y + 70 });   // 대상 발밑 근처
+    const FA = V.footOf(side) ?? FA, FB = V.footOf(tSide) ?? FB; // 시전자·대상 발밑
+    const ground = (p) => ({ x: p.x, y: V.footY(p.x, p.y) });
     const dirTo = Math.atan2(wy(B.y) - wy(A.y), wx(B.x) - wx(A.x));
     const near = (p, r = 40) => ({ x: p.x + R(-r, r), y: p.y + R(-r * 0.7, r * 0.7) });
     busy();
@@ -282,7 +297,7 @@
         V.debris(B.x + (flip ? -40 : 40), B.y, 8, 0.9); V.smoke(B.x + (flip ? -50 : 50), B.y, 3, 0.8);
         BFX.baked('skill_hit_simple', B.x, B.y, 1.1, flip);
         P().particle({ x: wx(B.x), y: wy(B.y), life: 0.35, size: 1.4, size1: 0.1, color: 0xff3b3b, tex: P().tex.ring, alpha: 0.9 }); // 조준경이 접히며 사라진다
-        V.plume(B.x, B.y - 10, 0.7, 0x30302e); later(0.35, () => V.plume(B.x, B.y - 10, 0.55, 0x3a3a38)); // 연기 나는 탄흔 (두 번 피어오름)
+        V.plume(B.x + (flip ? -40 : 40), B.y - 10, 0.4, 0x6a6a6a); later(0.35, () => V.plume(B.x + (flip ? -55 : 55), B.y - 10, 0.35, 0x7a7a7a)); // 관통한 쪽에서 피어오르는 연기
         P().particle({ x: wx(B.x), y: wy(B.y), life: 1.1, size: 0.3, size1: 0.18, color: 0xffb050, tex: P().tex.glow, alpha: 0.95 }); V.embers(B.x, B.y, 0xffb050, 8, 0.6, 0.5);
         P().ribbon([{ x: wx(A.x), y: wy(A.y) }, { x: wx(B.x), y: wy(B.y) }], 0.03, 0xfff3c0, 0.45, { alpha: 0.6, shrink: true }); // 사라져 가는 탄도
         V.dust(B.x + (flip ? -160 : 160), B.y + 20, 0.9); V.debris(B.x + (flip ? -120 : 120), B.y, 6, 0.9); V.streaks(B.x, B.y, 0xfff2c0, 8, 12, 1, dirTo, 0.15);
@@ -331,18 +346,18 @@
         V.impact(B.x, B.y, fx === 'icebeam' ? 'ice' : fx === 'plasma' ? 'elec' : 'light', 1.5);
         if (fx === 'beam') BFX.baked('Mercury_N_Skill2_Hit', B.x, B.y, 1.3, flip);
         else if (fx === 'icebeam') {
-          BFX.frost(B.x, B.y, 110, bc); V.shock(B.x, B.y + 70, 0x9ff4ff, 1.4, true);
+          BFX.frost(B.x, B.y, 110, bc); V.shock(B.x, FB, 0x9ff4ff, 1.4, true);
           // 빔이 지나간 자리에 얼음 조각이 남는다
           for (let i = 0; i < n(10); i++) { const k = (i + 0.5) / 10; P().particle({ x: lerp(wx(A.x), wx(B.x), k), y: lerp(wy(A.y), wy(B.y), k) + R(-0.15, 0.15), life: R(0.7, 0.9), size: 0.22, size1: 0.14, aspect: R(2, 4), rot: R(-0.6, 0.6), color: i % 2 ? 0xbff6ff : 0xf0fdff, tex: P().tex.beam, alpha: 0.9 }); }
         }
         else { BFX.lightning([B, near(B, 60)], 0xffe14d, 0.16, 0.2); BFX.baked('Sleipnir_hit', B.x, B.y, 1.2, flip);
           for (let i = 0; i < 3; i++) later(0.15 * (i + 1), () => V.arcs(B.x + R(-25, 25), B.y + R(-40, 40), 0xffe14d, 0.6, 2)); }
-        if (fx === 'beam') { V.groundMark(B.x - (flip ? -40 : 40), B.y + 75, Math.PI / 2, 1.4, 0x2a2a30); V.linger(B.x, B.y, bc, 1.2); }
+        if (fx === 'beam') { V.groundMark(B.x - (flip ? -40 : 40), FB, Math.PI / 2, 1.4, 0x2a2a30); V.linger(B.x, B.y, bc, 1.2); }
         await wait(160); break;
       }
       case 'dive': {
         Audio2.sfx('whoosh', 0.8);
-        V.streaks(A.x, A.y + 60, c1, 10, 6, 1, Math.PI / 2, 0.4); V.dust(A.x, A.y + 120, 1);
+        V.streaks(A.x, A.y + 60, c1, 10, 6, 1, Math.PI / 2, 0.4); V.dust(A.x, FA, 1);
         await tween(uv, { dy: -260, a: 0.2 }, 220, Ease.inQuad);
         // 하늘에서 내리꽂는 잔상과 바람 줄기
         for (let i = 0; i < 4; i++) { const yy = B.y - 420 + i * 90;
@@ -364,7 +379,7 @@
         for (let i = 0; i < 6; i++) {
           const q = { x: B.x + R(-110, 110), y: B.y + R(-20, 60) };
           V.projectile({ x: q.x + R(-40, 40), y: q.y - 460 }, q, 0xffe0a0, 300, { size: 0.45, smoke: true }).then(() => {
-            Audio2.sfx('explosion', 0.45); V.impact(q.x, q.y, 'heavy', 1.15, { debris: true }); V.dust(q.x, q.y + 50, 0.9); V.scorch(q.x, q.y + 55, 0.8); V.crack(q.x, q.y + 55, 0xff9a3d, 0.7);
+            Audio2.sfx('explosion', 0.45); V.impact(q.x, q.y, 'heavy', 1.15, { debris: true }); V.dust(q.x, FB, 0.9); V.scorch(q.x, FB, 0.8); V.crack(q.x, FB, 0xff9a3d, 0.7);
             BFX.baked(i % 2 ? 'Thetis_skill1_Ground_Hit' : 'simple_explosion', q.x, q.y, 0.9, flip); });
           await wait(85);
         }
@@ -375,13 +390,20 @@
         // 분사 내내 이어지는 불의 심지 + 촘촘한 화염 입자
         P().ribbon(P().jagged(wx(A.x), wy(A.y), wx(B.x), wy(B.y), 0.12, 0.4), 0.5, 0xff8a3d, 0.55, { alpha: 0.55 });
         P().ribbon([{ x: wx(A.x), y: wy(A.y) }, { x: wx(B.x), y: wy(B.y) }], 0.18, 0xfff0b0, 0.5, { alpha: 0.6, shrink: true });
-        for (let i = 0; i < 22; i++) { V.flameJet(A, near(B, 30), 0xff6a2a, 1.1); if (i % 2 === 0) { const k = R(0.3, 0.9); P().particle({ x: lerp(wx(A.x), wx(B.x), k), y: lerp(wy(A.y), wy(B.y), k), vx: Math.cos(dirTo) * 9, vy: Math.sin(dirTo) * 9, life: 0.2, size: 0.3, size1: 0.5, aspect: 2.8, rot: dirTo - Math.PI / 2, color: 0xffc040, tex: P().tex.glow, alpha: 0.8 }); } await wait(18); }
-        await wait(180); // 마지막 줄기가 닿은 뒤 폭발
+        // 원뿔처럼 넓어지는 화염: 진행 방향으로 늘어진 불꽃 줄기가 앞으로 갈수록 커진다
+        for (let i = 0; i < 20; i++) {
+          V.flameJet(A, near(B, 30), 0xff6a2a, 1.1);
+          for (let j = 0; j < n(3); j++) { const life = R(0.28, 0.36), sp = R(-0.18, 0.18) + dirTo, d = Math.hypot(wx(B.x) - wx(A.x), wy(B.y) - wy(A.y)) * R(0.9, 1.05);
+            P().particle({ x: wx(A.x), y: wy(A.y), vx: Math.cos(sp) * d / life, vy: Math.sin(sp) * d / life, life, size: 0.18, size1: 0.9, aspect: 2.6, rot: sp - Math.PI / 2, color: j % 2 ? 0xffb040 : 0xff5a1e, tex: P().tex.glow, alpha: 0.75 }); }
+          await wait(18);
+        }
+        await wait(170); // 줄기가 끊긴 뒤 한 박자 쉬고 폭발 (폭발이 화염에 묻히지 않게)
         V.impact(B.x, B.y, 'fire', 2.0, { embers: true });
         V.embers(B.x, B.y + 40, 0xff8a3d, 16, 1.4);
         // 발밑에서 1초 넘게 일렁이는 불
-        for (let i = 0; i < n(12); i++) later(i * 0.08, () => { const x = B.x + R(-70, 70); P().particle({ x: wx(x), y: wy(B.y + 70), vy: R(1.2, 2.2), life: R(0.5, 0.8), size: R(0.3, 0.5), size1: R(0.8, 1.1), color: i % 2 ? 0xff6a2a : 0xffc040, tex: P().tex.glow, alpha: 0.7 }); });
-        V.scorch(B.x, B.y + 70, 1.1, 0x2a1408);
+        for (let i = 0; i < n(12); i++) later(i * 0.08, () => { const x = B.x + R(-70, 70); P().particle({ x: wx(x), y: wy(FB), vy: R(1.2, 2.2), life: R(0.5, 0.8), size: R(0.3, 0.5), size1: R(0.8, 1.1), color: i % 2 ? 0xff6a2a : 0xffc040, tex: P().tex.glow, alpha: 0.7 }); });
+        V.scorch(B.x, FB, 1.1, 0x2a1408);
+        for (let i = 0; i < 8; i++) { const x = B.x + (i - 3.5) * 22; later(0.05 * i, () => V.flameJet({ x, y: FB }, { x: x + R(-10, 10), y: FB - 170 }, 0xff5a20, 0.8)); } // 발밑에서 감아 오르는 불길
         BFX.baked('Phoenix_skill1_hit', B.x, B.y, 1.0, flip); V.plume(B.x, B.y - 10, 0.8, 0x2a2420); await wait(260); break;
       }
       case 'fireball': {
@@ -397,9 +419,9 @@
         Audio2.sfx('explosion_big', 0.7); Audio2.sfx('flame', 0.5); FX.doFlash('#ff7a45', 0.3); FX.doShake(14, 0.4);
         V.impact(B.x, B.y, 'fire', 1.5, { embers: true, debris: true });
         V.shock(ground(B).x, ground(B).y, 0xff5a1e, 2, true);
-        for (let p = 0; p < 4; p++) { const gx = B.x + (p - 1.5) * 60; V.scorch(gx, B.y + 75, 0.6, 0x2a1408);
-          for (let i = 0; i < n(5); i++) later(i * 0.18, () => P().particle({ x: wx(gx + R(-15, 15)), y: wy(B.y + 70), vy: R(1, 2), life: 0.6, size: 0.35, size1: 0.8, color: i % 2 ? 0xff5a1e : 0xffc040, tex: P().tex.glow, alpha: 0.75 })); } // 땅에 번진 불
-        for (let i = 0; i < 8; i++) { const x = B.x + R(-90, 90); V.flameJet({ x, y: B.y + 80 }, { x: x + R(-20, 20), y: B.y - 70 }, 0xff5a20, 0.9); await wait(40); }
+        for (let p = 0; p < 4; p++) { const gx = B.x + (p - 1.5) * 60; V.scorch(gx, FB, 0.6, 0x2a1408);
+          for (let i = 0; i < n(5); i++) later(i * 0.18, () => P().particle({ x: wx(gx + R(-15, 15)), y: wy(FB), vy: R(1, 2), life: 0.6, size: 0.35, size1: 0.8, color: i % 2 ? 0xff5a1e : 0xffc040, tex: P().tex.glow, alpha: 0.75 })); } // 땅에 번진 불
+        for (let i = 0; i < 8; i++) { const x = B.x + R(-90, 90); V.flameJet({ x, y: FB }, { x: x + R(-20, 20), y: B.y - 70 }, 0xff5a20, 0.9); await wait(40); }
         V.smoke(B.x, B.y - 30, 6, 1.5, 0x3a3030, 0.55); await wait(200); break;
       }
       case 'ice': {
@@ -409,7 +431,7 @@
           V.projectile(A, q, 0xbff6ff, 300, { size: 0.55, haloTex: 'snow', spin: 10 }).then(() => { V.core(q.x, q.y, 0x9ff4ff, 0.7); V.streaks(q.x, q.y, HOT, 8, 5, 0.8); });
           await wait(75);
         }
-        await wait(260); BFX.frost(B.x, B.y, 90, 0x9ff4ff); V.impact(B.x, B.y, 'ice', 1.2); V.shock(B.x, B.y + 70, 0x9ff4ff, 1.3, true); break;
+        await wait(260); BFX.frost(B.x, B.y, 90, 0x9ff4ff); V.impact(B.x, B.y, 'ice', 1.2); V.shock(B.x, FB, 0x9ff4ff, 1.3, true); break;
       }
       case 'blizzard': {
         Audio2.sfx('ice', 0.9); FX.doFlash('#bff6ff', 0.35);
@@ -420,10 +442,10 @@
             color: i % 3 ? 0xdff9ff : 0x7fe8ff, tex: P().tex.snow, spin: R(-6, 6), fadeIn: 0.1 }); }
         BFX.baked('Titania_skill1_Ground_ice', B.x, B.y + 40, 0.7, flip);
         for (let i = 0; i < n(4); i++) P().particle({ x: wx(B.x + R(-80, 80)), y: wy(B.y + R(-20, 60)), life: 1.4, size: 2.5, size1: 3.6, color: 0xcfefff, frames: P().sheets.smoke, alpha: 0.3, normal: true, order: P().L.FX - 2, fadeIn: 0.2 });
-        for (let i = 0; i < 3; i++) { V.shock(B.x, B.y + 70, 0x9ff4ff, 1.2 + i * 0.4, true); await wait(120); }
+        for (let i = 0; i < 3; i++) { V.shock(B.x, FB, 0x9ff4ff, 1.2 + i * 0.4, true); await wait(120); }
         // 발밑에 얼음 가시가 박혀 남는다
         for (let i = 0; i < n(7); i++) { const x = B.x + R(-90, 90), a = R(-0.5, 0.5);
-          P().particle({ x: wx(x), y: wy(B.y + 70) + 0.4, life: 1.4, size: 0.4, size1: 0.32, aspect: R(5, 7), rot: a, color: i % 2 ? 0xbff6ff : 0xf0fdff, tex: P().tex.beam, alpha: 1, fadeIn: 0.05 }); }
+          P().particle({ x: wx(x), y: wy(FB) + 0.4, life: 1.4, size: 0.4, size1: 0.32, aspect: R(5, 7), rot: a, color: i % 2 ? 0xbff6ff : 0xf0fdff, tex: P().tex.beam, alpha: 1, fadeIn: 0.05 }); }
         V.impact(B.x, B.y, 'ice', 1.4); await wait(220); break;
       }
       case 'spark': {
@@ -449,18 +471,18 @@
       case 'buff': {
         // 강화: 몸을 감아 오르는 금빛 나선 + 머리 위 화살표 + 마지막 섬광
         Audio2.sfx('charge', 0.5); Audio2.sfx('rise', 0.5);
-        V.shock(A.x, A.y + 110, 0xffb22e, 1.4, true);
-        const X0 = wx(A.x), Y0 = wy(A.y + 110);
+        V.shock(A.x, FA, 0xffb22e, 1.4, true);
+        const X0 = wx(A.x), Y0 = wy(FA);
         for (let i = 0; i < n(26); i++) { const t0 = i * 0.018;
           later(t0, () => { const a = i * 0.7, r = 1.0; P().particle({ x: X0 + Math.cos(a) * r, y: Y0, vx: -Math.sin(a) * 3, vy: 4.2, drag: 0.2, life: 0.9, size: 0.36, size1: 0.08, color: i % 2 ? 0xffb22e : 0xfff0b0, tex: P().tex.glow, alpha: 0.9 }); }); }
         P().particle({ x: X0, y: Y0 + 2.2, life: 1.0, size: 1.0, size1: 1.3, aspect: 6, color: 0xffb22e, tex: P().tex.beam, alpha: 0.5, fadeIn: 0.15 });
         await wait(380);
         const head = BattleArt.frame(this, side), hx = wx(head.x + head.w / 2), hy = wy(head.y) + 0.2;
         for (let i = 0; i < 3; i++) later(i * 0.12, () => { for (const d of [-1, 1]) P().particle({ x: hx + d * 0.42, y: hy + i * 0.6, vy: 1.4, life: 1.1, size: 0.35, size1: 0.3, aspect: 3.2, rot: d * 0.95, color: 0xffd060, tex: P().tex.beam, alpha: 1, fadeIn: 0.05 }); P().particle({ x: hx, y: hy + i * 0.6 + 0.2, vy: 1.4, life: 1.1, size: 1.0, size1: 0.8, color: 0xffb22e, tex: P().tex.glow, alpha: 0.5 }); }); // ^ 모양 상승 화살표
-        P().particle({ x: wx(A.x), y: wy(A.y), life: 0.7, size: 2.0, size1: 3.2, color: 0xffb22e, tex: P().tex.glow, alpha: 0.45 }); V.shock(A.x, A.y + 110, 0xffe08a, 1.6, true);
+        P().particle({ x: wx(A.x), y: wy(A.y), life: 0.7, size: 2.0, size1: 3.2, color: 0xffb22e, tex: P().tex.glow, alpha: 0.45 }); V.shock(A.x, FA, 0xffe08a, 1.6, true);
         V.core(A.x, A.y - 60, 0xffb22e, 0.9); V.streaks(A.x, A.y - 60, 0xfff0b0, 10, 5, 0.9, Math.PI / 2, 0.8);
         P().particle({ x: wx(head.x + head.w / 2), y: wy(head.y + head.h / 2), life: 1.0, size: Math.max(head.w, head.h) / BFX.U * 0.9, size1: Math.max(head.w, head.h) / BFX.U, aspect: head.h / Math.max(1, head.w) * 0.8, color: 0xffb22e, tex: P().tex.glow, alpha: 0.28, fadeIn: 0.1 }); // 금빛 오라
-        P().particle({ x: wx(A.x), y: wy(A.y + 110), life: 1.3, size: 3.0, size1: 3.4, aspect: 0.32, color: 0xffb22e, tex: P().tex.ring, alpha: 0.8 }); // 발밑에 남는 고리
+        P().particle({ x: wx(A.x), y: wy(FA), life: 1.3, size: 3.0, size1: 3.4, aspect: 0.32, color: 0xffb22e, tex: P().tex.ring, alpha: 0.8 }); // 발밑에 남는 고리
         Audio2.sfx('shine', 0.45); await wait(360); break;
       }
       case 'debuff': {
@@ -469,7 +491,7 @@
         // 어두운 고리가 조여 들고 기운이 아래로 빠져나간다
         for (let i = 0; i < 3; i++) { BFX.ring(B.x, B.y, 160 - i * 35, 10, 0x5a7aff, 0.42); await wait(80); }
         for (let i = 0; i < n(16); i++) P().particle({ x: wx(B.x + R(-60, 60)), y: wy(B.y - R(-40, 80)), vy: -R(1.5, 3.5), life: R(0.5, 0.9), size: 0.1, size1: 0.02, aspect: 5, color: i % 2 ? 0x5a7aff : 0xb08aff, tex: P().tex.beam });
-        V.smoke(B.x, B.y, 4, 1.1, 0x2a2850, 0.55); V.core(B.x, B.y, 0x7a5aff, 1); V.shock(B.x, B.y + 70, 0x7a5aff, 1.5, true);
+        V.smoke(B.x, B.y, 4, 1.1, 0x2a2850, 0.55); V.core(B.x, B.y, 0x7a5aff, 1); V.shock(B.x, FB, 0x7a5aff, 1.5, true);
         for (let i = 0; i < 3; i++) P().particle({ x: wx(B.x), y: wy(B.y - 120) + i * 0.15, life: 0.8, size: 0.5, size1: 0.3, aspect: 1, color: 0xb08aff, tex: P().tex.cross, alpha: 0.9, spin: 2, fadeIn: 0.1 });
         for (let i = 0; i < n(6); i++) P().particle({ x: wx(B.x + R(-50, 50)), y: wy(B.y + R(-20, 60)), vy: R(0.5, 1.2), life: R(1.0, 1.3), size: 1.0, size1: 2.4, color: 0x3a2a6a, frames: P().sheets.smoke, alpha: 0.6, normal: true, order: P().L.FX - 2, fadeIn: 0.1 });
         for (let i = 0; i < 3; i++) for (const d of [-1, 1]) P().particle({ x: wx(B.x) + d * 0.3, y: wy(B.y - 150) - i * 0.5, vy: -0.8, life: 1.3, size: 0.3, size1: 0.26, aspect: 3, rot: Math.PI - d * 0.95, color: 0x9a7aff, tex: P().tex.beam, alpha: 1, fadeIn: 0.08 + i * 0.08 }); // v 모양 하강 화살표
@@ -485,7 +507,7 @@
         P().particle({ x: X, y: Y, life: 0.9, size: 4.0, size1: 4.4, aspect: 0.9, color: 0x5ff4ff, tex: P().tex.glow, alpha: 0.25, fadeIn: 0.08 });
         const hex = []; for (let i = 0; i <= 6; i++) { const a = i / 6 * Math.PI * 2 + Math.PI / 6; hex.push({ x: X + Math.cos(a) * 1.9, y: Y + Math.sin(a) * 1.7 }); }
         P().ribbon(hex, 0.08, 0xbffcff, 0.85, { alpha: 0.9 });
-        V.shock(A.x, A.y + 110, 0x5ff4ff, 1.4, true);
+        V.shock(A.x, FA, 0x5ff4ff, 1.4, true);
         for (let i = 0; i < n(10); i++) { const a = i / 10 * Math.PI * 2;
           P().particle({ x: X + Math.cos(a) * 2.1, y: Y + Math.sin(a) * 1.9, vx: -Math.sin(a) * 2.5, vy: Math.cos(a) * 2.2, life: 0.8, size: 0.16, size1: 0.04, color: 0xbffcff, tex: P().tex.dot, alpha: 1 }); }
         await wait(300);
@@ -498,31 +520,32 @@
       case 'heal': {
         // 회복: 위에서 빛 방울이 내려와 몸으로 모이고, 초록 십자가 피어오르며 부드럽게 맥동
         Audio2.sfx('heal', 0.7); Audio2.sfx('shine', 0.35);
+        { const hf = BattleArt.frame(this, side); P().particle({ x: wx(hf.x + hf.w / 2), y: wy(hf.y + hf.h / 2), life: 1.2, size: Math.max(hf.w, hf.h) / BFX.U * 0.9, size1: Math.max(hf.w, hf.h) / BFX.U, aspect: hf.h / Math.max(1, hf.w) * 0.8, color: 0x5dff9c, tex: P().tex.glow, alpha: 0.26, fadeIn: 0.15 }); } // 몸을 감싸는 초록 빛
         const X = wx(A.x), Y = wy(A.y);
         for (let i = 0; i < n(18); i++) { const sx = X + R(-1.6, 1.6), sy = Y + R(2.2, 3.4), life = R(0.45, 0.7);
           P().particle({ x: sx, y: sy, vx: (X - sx) / life, vy: (Y - sy) / life, life, size: 0.32, size1: 0.12, color: i % 2 ? 0x5dff9c : 0xc8ffde, tex: P().tex.glow, alpha: 0.95, fadeIn: 0.08 }); }
         P().particle({ x: X, y: Y + 0.6, life: 0.9, size: 1.5, size1: 1.8, aspect: 3, color: 0x5dff9c, tex: P().tex.glow, alpha: 0.35, fadeIn: 0.2 });
         await wait(420);
-        for (let i = 0; i < n(10); i++) { const a = i * 1.1; later(i * 0.06, () => P().particle({ x: X + Math.cos(a) * 0.9, y: Y - 0.8, vx: -Math.sin(a) * 1.6, vy: 1.8, life: 1.0, size: 0.4, size1: 0.2, color: i % 2 ? 0x5dff9c : 0xc8ffde, tex: P().tex.cross, alpha: 0.95 })); } // 나선으로 오르는 십자
-        P().particle({ x: X, y: wy(A.y + 110), life: 1.4, size: 3.0, size1: 3.3, aspect: 0.32, color: 0x5dff9c, tex: P().tex.ring, alpha: 0.75 });
+        for (let i = 0; i < n(10); i++) { const a = i * 1.1; later(i * 0.06, () => P().particle({ x: X + Math.cos(a) * 0.9, y: Y - 0.8, vx: -Math.sin(a) * 1.6, vy: 1.8, life: 1.0, size: 0.55, size1: 0.3, color: i % 2 ? 0x5dff9c : 0xc8ffde, tex: P().tex.cross, alpha: 0.95 })); } // 나선으로 오르는 십자
+        P().particle({ x: X, y: wy(FA), life: 1.4, size: 3.0, size1: 3.3, aspect: 0.32, color: 0x5dff9c, tex: P().tex.ring, alpha: 0.75 });
         for (let i = 0; i < n(6); i++) P().particle({ x: X + R(-1, 1), y: Y + R(-0.8, 0.4), vy: R(1.2, 2), life: R(0.9, 1.1), size: 0.7, size1: 0.35, color: 0x5dff9c, tex: P().tex.cross, alpha: 0.9, fadeIn: 0.06 });
         for (let i = 0; i < 2; i++) later(i * 0.18, () => P().particle({ x: X, y: Y, life: 0.45, size: 1.2, size1: 3.0, color: 0x5dff9c, tex: P().tex.glow, alpha: 0.45 }));
-        V.shock(A.x, A.y + 110, 0x5dff9c, 1.2, true);
-        later(0.45, () => { P().particle({ x: X, y: Y, life: 0.5, size: 1.4, size1: 3.2, color: 0xc8ffde, tex: P().tex.glow, alpha: 0.4 }); V.shock(A.x, A.y + 110, 0x5dff9c, 1.5, true); });
+        V.shock(A.x, FA, 0x5dff9c, 1.2, true);
+        later(0.45, () => { P().particle({ x: X, y: Y, life: 0.5, size: 1.4, size1: 3.2, color: 0xc8ffde, tex: P().tex.glow, alpha: 0.4 }); V.shock(A.x, FA, 0x5dff9c, 1.5, true); });
         await wait(380); break;
       }
       case 'smoke': {
         // 연막: 터지며 세 번에 걸쳐 짙은 연기가 대상을 덮고 오래 남는다
         Audio2.sfx('whoosh', 0.6);
         await V.projectile(A, B, 0x8899aa, 320, { arc: 90, size: 0.5, smoke: true });
-        V.core(B.x, B.y, 0xc0c8d0, 0.9); V.shock(B.x, B.y + 70, 0x9aa4b0, 1.4, true);
+        V.core(B.x, B.y, 0xc0c8d0, 0.9); V.shock(B.x, FB, 0x9aa4b0, 1.4, true);
         for (let w = 0; w < 3; w++) {
           const f = P();
           for (let i = 0; i < n(6); i++) f.particle({ x: wx(B.x + R(-70, 70)), y: wy(B.y + R(-60, 60)), vx: R(-0.9, 0.9), vy: R(0, 0.5), drag: 0.4, life: R(1.6, 2.0), size: 1.4, size1: R(3.5, 4.5),
             color: i % 3 ? 0x4a525e : 0x8a94a2, frames: f.sheets.smoke, alpha: 0.75, normal: true, order: f.L.FX - 2, spin: R(-0.6, 0.6), fadeIn: 0.12 });
           await wait(150);
         }
-        V.dust(B.x, B.y + 70, 1.4, 0x7a8494); await wait(300); break;
+        V.dust(B.x, FB, 1.4, 0x7a8494); await wait(300); break;
       }
       default: await wait(200);
     }
@@ -558,7 +581,7 @@
 
   // ---------------------------------------------------------------- 근접: 베기·연속 베기·물기·돌진·강타
   Battle.prototype.meleeFx = async function (fx, side, tSide, type) {
-    const back = await BattleArt.approach(this, side, tSide), T = this.fxTarget(tSide);
+    const back = await BattleArt.approach(this, side, tSide), T = this.fxTarget(tSide), FT = V.footOf(tSide) ?? FT;
     const [c1] = pal(type);
     try {
       const cnt = fx === 'slash3' ? 3 : 1;
@@ -568,7 +591,7 @@
         busy();
         if (fx === 'smash' || fx === 'dash') {
           V.impact(T.x, T.y, type, fx === 'smash' ? 1.7 : 1.3, { debris: true });
-          V.shock(T.x, T.y + 70, c1, 1.6, true); V.dust(T.x, T.y + 70, 1.3); V.crack(T.x, T.y + 70, c1, fx === 'smash' ? 1.3 : 1); V.plume(T.x, T.y + 95, 0.5, 0x8a8070); P().particle({ x: wx(T.x), y: wy(T.y + 70), life: 0.12, size: 3.2, size1: 3.6, aspect: 0.32, color: HOT, tex: P().tex.ring, alpha: 1 }); V.scorch(T.x, T.y + 70, 0.9, 0x3a3020);
+          V.shock(T.x, FT, c1, 1.6, true); V.dust(T.x, FT, 1.3); V.crack(T.x, FT, c1, fx === 'smash' ? 1.3 : 1); V.plume(T.x, FT + 30, 0.35, 0x9a9080); V.debris(T.x, FT - 10, 3, 2.2, 0x5a5048); P().particle({ x: wx(T.x), y: wy(FT), life: 0.12, size: 3.2, size1: 3.6, aspect: 0.32, color: HOT, tex: P().tex.ring, alpha: 1 }); V.scorch(T.x, FT, 0.9, 0x3a3020);
           if (fx === 'dash') { V.streaks(T.x, T.y, HOT, 14, 9, 1, side === 'me' ? 0 : Math.PI, 0.35);
             const S0 = this.fxOrigin(side, fx); P().ribbon([{ x: wx(S0.x), y: wy(S0.y) }, { x: wx(T.x), y: wy(T.y) }], 0.6, c1, 0.6, { alpha: 0.5, shrink: true });
             for (let i = 0; i < n(8); i++) { const k = R(0.1, 0.9), oy = R(-0.8, 0.8); P().particle({ x: lerp(wx(S0.x), wx(T.x), k), y: lerp(wy(S0.y), wy(T.y), k) + oy, vx: (side === 'me' ? 1 : -1) * 6, life: 0.55, size: 0.06, size1: 0.03, aspect: 16, rot: Math.PI / 2, color: HOT, tex: P().tex.beam, alpha: 0.8 }); } } // 속도선
@@ -581,10 +604,10 @@
           V.slashArc(T.x + R(-10, 10), T.y + R(-10, 10), c1, fx === 'slash3' ? 1.15 : 1.35, rot);
           // 잔상: 같은 궤적이 0.5초 동안 옅게 남는다
           P().particle({ x: wx(T.x), y: wy(T.y), life: 0.8, size: 3.6, size1: 4.0, color: c1, tex: P().tex.slash, rot, alpha: 0.6 });
-          V.groundMark(T.x + R(-20, 20), T.y + 72, rot * 0.3 + Math.PI / 2, 1, 0x241c14);
+          V.groundMark(T.x + R(-20, 20), FT, rot * 0.3 + Math.PI / 2, 1, 0x241c14);
           V.core(T.x, T.y, c1, last && fx === 'slash3' ? 1.2 : 0.7); V.streaks(T.x, T.y, HOT, 10, 7, 1, rot, 0.5);
           if (last && fx === 'slash3') { V.slashArc(T.x, T.y, HOT, 1.5, rot + Math.PI / 2); FX.doFlash('#ffffff', 0.18); window.HITSTOP = Math.max(window.HITSTOP || 0, 0.06); } // 마지막 일격은 X자
-          if (last) { V.shock(T.x, T.y, c1, 1.1); V.shock(T.x, T.y + 70, c1, 1.2, true); V.embers(T.x, T.y, c1, 10, 0.9, 0.6); V.linger(T.x, T.y, c1, 1); }
+          if (last) { V.shock(T.x, T.y, c1, 1.1); V.shock(T.x, FT, c1, 1.2, true); V.embers(T.x, T.y, c1, 10, 0.9, 0.6); V.linger(T.x, T.y, c1, 1); }
         }
         await wait(cnt > 1 ? 90 : 160);
       }
