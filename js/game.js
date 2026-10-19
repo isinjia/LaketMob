@@ -511,7 +511,8 @@ const Scripts = {
     await say('오셨습니까, 주인님. 무엇이 필요하십니까?', o);
     let stock = e.o.stock;
     if (World.id === 'shop1' && Game.badges.length) stock = ['core', 'core2', 'kit', 'kit2', 'chip', 'revive'];
-    if (World.id === 'shop1' && Game.badges.length >= 2) stock = ITEM_ORDER.filter(k => k !== 'core3');
+    if (World.id === 'shop1' && Game.badges.length >= 2) stock = ITEM_ORDER.filter(k => k !== 'core3' && ITEMS[k].kind !== 'skin');
+    if (window.SKIN_CHIP_STOCK) stock = [...new Set(stock.concat(SKIN_CHIP_STOCK(World.id)))]; // 스킨 데이터 칩 (skinchips.js)
     await UI.push(new ShopScreen(stock, { name: e.o.name, portrait: e.o.sprite, title: World.def.name }));
     await say('또 오십시오, 주인님. ...다음엔 쓸데없는 걸 사지 않으시길 바랍니다.', o);
   },

@@ -583,6 +583,12 @@ function itemIcon(id, cx, cy, s = 28) {
     const col = k === 'kit' ? '#4be38a' : k === 'kit2' ? '#3fb6ff' : '#ff5fa2';
     rrect(-s * 0.42, -s * 0.32, s * 0.84, s * 0.64, 5); ctx.fillStyle = '#f2f6fa'; ctx.fill(); ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.stroke();
     ctx.fillStyle = col; ctx.fillRect(-s * 0.07, -s * 0.22, s * 0.14, s * 0.44); ctx.fillRect(-s * 0.22, -s * 0.07, s * 0.44, s * 0.14);
+  } else if (k === 'schip') {
+    // 스킨 데이터 칩: 칩마다 테마 색
+    const c = (ITEMS[id] && ITEMS[id].color) || '#7fffd4';
+    rrect(-s * 0.4, -s * 0.3, s * 0.8, s * 0.6, 4); ctx.fillStyle = '#1b2433'; ctx.fill(); ctx.strokeStyle = c; ctx.lineWidth = 2; ctx.stroke();
+    ctx.fillStyle = c; for (let i = 0; i < 4; i++) { ctx.fillRect(-s * 0.3 + i * s * 0.18, -s * 0.42, 3, s * 0.12); ctx.fillRect(-s * 0.3 + i * s * 0.18, s * 0.3, 3, s * 0.12); }
+    ctx.beginPath(); ctx.moveTo(0, -s * 0.16); ctx.lineTo(s * 0.14, 0); ctx.lineTo(0, s * 0.16); ctx.lineTo(-s * 0.14, 0); ctx.closePath(); ctx.fill();
   } else if (k === 'chip') {
     rrect(-s * 0.36, -s * 0.36, s * 0.72, s * 0.72, 4); ctx.fillStyle = '#2b3a4f'; ctx.fill(); ctx.strokeStyle = '#7fffd4'; ctx.lineWidth = 2; ctx.stroke();
     ctx.fillStyle = '#7fffd4'; for (let i = -1; i <= 1; i++) { ctx.fillRect(i * s * 0.2 - 1.5, -s * 0.5, 3, s); ctx.fillRect(-s * 0.5, i * s * 0.2 - 1.5, s, 3); }
