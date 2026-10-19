@@ -120,7 +120,7 @@ const MOVES = {
   protect:  { name: '프로텍트 월', type: 'light', cat: 'st', acc: 0, pp: 10, self: { def: 2 }, heal: 0.2, fx: 'shield', desc: '왼팔에 방어장을 펼쳐 공격을 받아낸다. 방어가 크게 오르고 HP를 조금 회복.' },
   drillknee:{ name: '드릴 니', type: 'light', cat: 'atk', pow: 85, acc: 95, pp: 10, crit: 2, fx: 'smash', desc: '무릎의 드릴로 장갑을 뚫는다. 치명타가 나기 쉽다.' },
   bravefuse:{ name: '용자 합체', type: 'fire', cat: 'st', acc: 0, pp: 5, self: { atk: 1, def: 1, spd: 1 }, fx: 'buff', desc: '사자의 심장에 링크를 잇는 최종 합체. 공격·방어·속도가 모두 오른다.' },
-  shining:  { name: '샤이닝 핸드', type: 'fire', cat: 'atk', pow: 110, acc: 95, pp: 5, eff: { burn: 0.3 }, fx: 'napalm', desc: '불타는 손바닥으로 상대를 움켜쥐고 폭발시킨다. 화상을 입히기 쉽다.' },
+  shining:  { name: '샤이닝 핸드', type: 'fire', cat: 'atk', pow: 110, acc: 95, pp: 5, eff: { burn: 0.3 }, fx: 'shininghand', desc: '하얗게 빛나는 오른손으로 돌진해 상대를 움켜쥐고, 빛으로 감싸 폭발시킨다. 화상을 입히기 쉽다.' },
   heavenhell:{ name: '헤븐 앤 헬', type: 'light', cat: 'atk', pow: 150, acc: 95, pp: 3, recoil: 0.2, fx: 'thunder', desc: '파괴와 수호의 힘을 두 손에 모아 하나로 짓눌러 부순다. 램파리온 최강의 필살기. 반동을 받는다.' },
 };
 

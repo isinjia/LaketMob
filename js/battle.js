@@ -804,6 +804,7 @@ class Battle {
     } finally { await back(); }
   }
   async playFx(fx, side, tSide, type, isAtk) {
+    if (fx === 'shininghand' && !(window.BFX && BFX.ok)) fx = 'dash'; // 3D 연출을 못 쓰면 돌진으로
     if (['slash','slash3','bite','dash','smash'].includes(fx)) return this.meleeFx(fx,side,tSide,type);
     if (window.BFX && BFX.ok) return this.playFx3(fx, side, tSide, type, isAtk);
     const A = this.fxOrigin(side, fx);

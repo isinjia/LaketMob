@@ -271,6 +271,7 @@
   // ---------------------------------------------------------------- 기술별 연출
   Battle.prototype.playFx3 = async function (fx, side, tSide, type, isAtk) {
     if (['slash', 'slash3', 'bite', 'dash', 'smash'].includes(fx)) return this.meleeFx(fx, side, tSide, type);
+    if (fx === 'shininghand') return this.shiningHandFx(side, tSide);
     const A = this.fxOrigin(side, fx), B = this.fxTarget(tSide), uv = this.view(side), flip = side === 'foe';
     const [c1, c2] = pal(type);
     const FA = V.footOf(side) ?? A.y + 150, FB = V.footOf(tSide) ?? B.y + 150; // 시전자·대상 발밑
@@ -647,6 +648,50 @@
         }
         await wait(cnt > 1 ? 90 : 160);
       }
+    } finally { await back(); }
+  };
+
+  // ---------------------------------------------------------------- 샤이닝 핸드 (램파리온)
+  // 오른손이 하얗게 빛나며 차오르고 → 빛줄기를 남기며 돌진 → 상대가 빛에 감싸였다가 → 화염 폭발
+  Battle.prototype.shiningHandFx = async function (side, tSide) {
+    const H = this.fxOrigin(side, 'shininghand'), WHITE = 0xffffff, GOLD = 0xfff1b8;
+    if (on()) {
+      busy();
+      Audio2.sfx('charge', 0.7); Audio2.sfx('shine', 0.5);
+      V.charge(H.x, H.y, WHITE, 0.55, 1.4);
+      // 손에서 하얀 빛이 차오른다: 커지는 빛 덩어리 + 위로 피어오르는 빛 알갱이 + 십자 섬광
+      P().particle({ x: wx(H.x), y: wy(H.y), life: 0.7, size: 0.4, size1: 1.8, color: WHITE, tex: P().tex.glow, alpha: 1, fadeIn: 0.25 });
+      P().particle({ x: wx(H.x), y: wy(H.y), life: 0.7, size: 0.8, size1: 2.6, color: GOLD, tex: P().tex.glow, alpha: 0.6, fadeIn: 0.3 });
+      for (let i = 0; i < n(18); i++) later(i * 0.025, () => P().particle({ x: wx(H.x) + R(-0.5, 0.5), y: wy(H.y) + R(-0.4, 0.4), vy: R(1.5, 3), vx: R(-0.6, 0.6), life: R(0.35, 0.6), size: 0.1, size1: 0, color: i % 2 ? WHITE : GOLD, tex: P().tex.dot }));
+      later(0.45, () => P().particle({ x: wx(H.x), y: wy(H.y), life: 0.3, size: 2.4, size1: 1.2, color: WHITE, tex: P().tex.cross, rot: Math.PI / 4, spin: 3, alpha: 1 }));
+    }
+    await wait(560);
+    // 돌진: 빛나는 손이 지나간 자리에 빛줄기
+    const S0 = this.fxOrigin(side, 'shininghand');
+    Audio2.sfx('whoosh', 0.8);
+    const back = await BattleArt.approach(this, side, tSide), T = this.fxTarget(tSide), FT = V.footOf(tSide) ?? T.y + 150;
+    try {
+      if (!on()) return;
+      busy();
+      P().ribbon([{ x: wx(S0.x), y: wy(S0.y) }, { x: wx(T.x), y: wy(T.y) }], 0.7, GOLD, 0.5, { alpha: 0.6, shrink: true });
+      P().ribbon([{ x: wx(S0.x), y: wy(S0.y) }, { x: wx(T.x), y: wy(T.y) }], 0.25, WHITE, 0.4, { alpha: 0.9, shrink: true });
+      Audio2.sfx('hit_smash', 0.8); FX.doFlash('#ffffff', 0.35); window.HITSTOP = Math.max(window.HITSTOP || 0, 0.08);
+      // 움켜쥔 순간: 하얀 빛이 상대를 감싼다 (빛의 구 + 좁혀 드는 고리 + 몸을 타고 오르는 빛)
+      V.core(T.x, T.y, WHITE, 1.4);
+      P().particle({ x: wx(T.x), y: wy(T.y), life: 0.75, size: 2.2, size1: 3.2, color: WHITE, tex: P().tex.glow, alpha: 0.75, fadeIn: 0.1 });
+      for (let i = 0; i < 3; i++) later(i * 0.12, () => P().particle({ x: wx(T.x), y: wy(T.y), life: 0.4, size: 4.2 - i * 0.6, size1: 0.6, color: i % 2 ? GOLD : WHITE, tex: P().tex.ring, alpha: 0.95 }));
+      for (let i = 0; i < n(16); i++) later(i * 0.03, () => P().particle({ x: wx(T.x) + R(-0.9, 0.9), y: wy(FT) + 0.2, vy: R(3, 5), life: R(0.4, 0.6), size: 0.14, size1: 0.05, aspect: 5, color: i % 2 ? WHITE : GOLD, tex: P().tex.beam, alpha: 0.95 }));
+      await wait(620);
+      // 빛이 터지며 화염 폭발
+      Audio2.sfx('explosion_big', 0.85); Audio2.sfx('flame', 0.5);
+      FX.doFlash('#ffd9a0', 0.6); FX.doShake(16, 0.45);
+      V.impact(T.x, T.y, 'fire', 2.2, { embers: true, debris: true });
+      if (window.BFX && BFX.explosion) BFX.explosion(T.x, T.y, 70, 0xff7a30, true);
+      V.shock(T.x, FT, 0xff8a3d, 2.4, true); V.scorch(T.x, FT, 1.3, 0x2a1408);
+      for (let i = 0; i < 6; i++) { const x = T.x + (i - 2.5) * 26; later(0.05 * i, () => V.tongues(x, FT, 1.4, 4)); }
+      V.embers(T.x, T.y, 0xffb050, 18, 1.4);
+      later(0.25, () => V.plume(T.x, T.y - 20, 0.8, 0x2a2420));
+      await wait(380);
     } finally { await back(); }
   };
 
