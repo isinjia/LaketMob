@@ -504,10 +504,13 @@ def tidy(u, ls, moves, elems):
     sig_elem = sum(1 for m in sigs if m in moves and moves[m].get('cat') == 'atk' and moves[m].get('type') in ('fire', 'ice', 'elec'))
     elem_shared = 0
     stat_seen = set()
+    elem_conv = 0
     for m in sigs:
         d0 = moves.get(m) or {}
         if d0.get('cat') == 'st':
             stat_seen.update('foe' + k for k, v in (d0.get('foe') or {}).items() if v < 0)
+        stat_seen.update('foe' + k[3:].lower() for k in (d0.get('eff') or {}) if k.startswith('foe'))  # 공격의 부가 약화도 같은 약화다
+    sig_self = [moves[m].get('self') or {} for m in sigs if m in moves and moves[m].get('cat') == 'st']
     spd_up = sum(1 for m in sigs if m in moves and (moves[m].get('self') or {}).get('spd', 0) > 0)
     e = ELEM_MOVES.get(elems[0]) if elems else None
     pool = [x for x in (e or []) if x not in [m for _, m in ls]]
@@ -529,6 +532,8 @@ def tidy(u, ls, moves, elems):
         if not m.startswith('sig_'):
             if d.get('cat') == 'st' and effect_key(d) in sig_keys:
                 continue  # 고유 기술이 같은 일을 한다
+            if d.get('cat') == 'st' and d.get('self') and not d.get('foe') and not d.get('heal') and any(all(ss.get(k, 0) >= v for k, v in d['self'].items()) for ss in sig_self):
+                continue  # 고유 강화가 이미 이만큼 올린다
             if d.get('cat') == 'st' and d.get('foe'):
                 ks = {'foe' + k for k, v in d['foe'].items() if v < 0}
                 if ks & stat_seen: continue  # 같은 약화가 이미 있다 (도발·위협처럼 섞인 것도)
@@ -538,6 +543,8 @@ def tidy(u, ls, moves, elems):
                 continue  # 같은 성격의 고유 공격기가 있다
             if d.get('cat') == 'atk' and any(dv.get(f) for f in sig_flags):
                 continue  # 치명·관통은 고유 기술이 맡는다
+            if d.get('cat') == 'atk' and any(moves[x].get('fx') == dv.get('fx') and moves[x].get('type') == dv.get('type') for x in sigs if x in moves and moves[x].get('cat') == 'atk') and lv < 40:
+                continue  # 고유기와 같은 무기 연출의 공용 공격
             s1d = moves.get(f"sig_{u['key']}_1") or {}
             if d.get('cat') == 'atk' and lv < 21 and s1d.get('cat') == 'atk' and eff_pow(dv) >= eff_pow(s1d):
                 continue  # 초반 공용 공격은 대표기보다 약하게
@@ -567,7 +574,9 @@ def tidy(u, ls, moves, elems):
             if d.get('cat') == 'st' and (d.get('self') or {}).get('atk', 0) > 0:
                 if atk_up >= (1 if sig_atk_up else 2): continue
                 atk_up += 1
-            if e and m in GUNLIKE and (elemental_weapon(u) or (sig_elem and sig_elem == sum(1 for x in sigs if x in moves and moves[x].get('cat') == 'atk'))):  # 화염방사기·냉기·전격이 무기인 유닛
+            if e and m in GUNLIKE and d.get('cat') == 'atk' and sig_elem + elem_conv < 2 and not elemental_weapon(u) and pool:
+                m = pool.pop(1 if lv >= 11 and len(pool) > 1 else 0); elem_conv += 1  # 속성 공격이 하나뿐이면 공용 하나를 속성기로
+            elif e and m in GUNLIKE and (elemental_weapon(u) or (sig_elem and sig_elem == sum(1 for x in sigs if x in moves and moves[x].get('cat') == 'atk'))):  # 화염방사기·냉기·전격이 무기인 유닛
                 if not pool: continue
                 m = pool.pop(1 if lv >= 11 and len(pool) > 1 else 0)  # 늦게 배우는 자리는 더 센 속성기
             if u['role'] == '지원기' and d.get('cat') == 'atk' and (has(m).get('pow') or 0) > 55:
@@ -596,6 +605,9 @@ def tidy(u, ls, moves, elems):
     if u['role'] == '보호기' and not any((has(m).get('foe') or {}).get('atk', 0) < 0 for _, m in res):
         for cand in ('provoke', 'menace', 'challenge'):
             if cand not in seen: res.append([11, cand]); seen.add(cand); break
+    if elems and sum(1 for _, x in res if has(x).get('cat') == 'atk' and has(x).get('type') in ('fire', 'ice', 'elec')) < 2:
+        for cand in ELEM_MOVES[elems[0]][:2][::-1] if u['role'] != '지원기' else ELEM_MOVES[elems[0]][:1]:
+            if cand not in seen and eff_pow(has(cand)) <= sig_max: res.append([21, cand]); seen.add(cand); break
     pad = {'보호기': ['brace', 'menace', 'challenge', 'guard', 'ironwall'], '지원기': ['orders', 'analyze', 'flare', 'smoke', 'jam', 'rally'],
            '공격기': [basics(u, elems)[1 if elems else 0], 'steady', 'quickstep', 'aimed', 'charge']}[u['role']]
     for cand in pad:
@@ -811,7 +823,8 @@ if 'sig_royalarsenal_3' in moves: moves['sig_royalarsenal_3']['desc'] = '무제�
 NAME_OF = {'atk': '공격', 'def': '방어', 'spd': '속도', 'acc': '명중'}
 for m in moves.values():
     if not m.get('sig') or m.get('cat') != 'st' or not m.get('self'): continue
-    miss = [NAME_OF[k] for k, v in m['self'].items() if v > 0 and k in NAME_OF and NAME_OF[k] not in m['desc'] and not (k == 'acc' and '적중' in m['desc'])]
+    SYN = {'atk': ('공격', '화력', '위력'), 'def': ('방어', '단단', '지킨', '막아', '버티', '장갑'), 'spd': ('속도', '빠르', '가속', '기동'), 'acc': ('명중', '적중', '조준')}
+    miss = [NAME_OF[k] for k, v in m['self'].items() if v > 0 and k in NAME_OF and not any(w in m['desc'] for w in SYN[k])]
     if miss: m['desc'] = m['desc'].rstrip() + ' ' + '·'.join(miss) + ('도 오른다.' if len(miss) == 1 else '도 오른다.')
 for m in moves.values():
     if m.get('heal') and '회복' not in m['desc']:
