@@ -515,16 +515,17 @@ const Scripts = {
     await UI.push(new ShopScreen(stock, { name: e.o.name, portrait: e.o.sprite, title: World.def.name }));
     await say('또 오십시오, 주인님. ...다음엔 쓸데없는 걸 사지 않으시길 바랍니다.', o);
   },
-  async merlin(e) {
-    const o = { speaker: '멀린', portrait: 'merlin' };
-    Audio2.voice('merlin', 'talk', 0.8);
+  // 항구 마을의 닥터 (멀린이 감마 체육관 참모가 되어 자리를 넘겼다. 선물 기록 merlinGift 는 그대로 쓴다)
+  async doctor(e) {
+    const o = { speaker: '닥터', portrait: 'drm' };
+    Audio2.voice('drm', 'talk', 0.8);
     if (!Game.flags.merlinGift) {
-      await say('히힛, 네가 소문의 오르카 사령관? 오늘부터 아서라고 부를게! 숲 지나오느라 고생했으니 천재 멀린이 선물을 주지!', o);
+      await say('오빠가 소문의 오르카 사령관? 숲 지나오느라 고생했지? 닥터가 선물 줄게. ...비밀 무기는 아직 비밀이야.', o);
       Game.addItem('cell', 2); Game.addItem('core2', 2); Game.flags.merlinGift = 1;
       Audio2.sfx('item_get', 0.8);
       await say('사령관은 에너지 셀 ×2, 고급 링크 코어 ×2를 받았다!');
-      await say('에너지 셀은 기술 에너지(EN)를 회복해 줘. 강한 기술은 EN이 적으니까 아껴 써, 아서.', o);
-    } else await say('해안의 폭주 바이오로이드들은 숲과는 차원이 달라. 수복실에서 충분히 정비하고 가, 아서.', o);
+      await say('에너지 셀은 기술 에너지(EN)를 회복해 줘. 강한 기술은 EN이 적으니까 아껴 써야 돼, 오빠.', o);
+    } else await say('해안의 폭주 바이오로이드들은 숲이랑 차원이 달라. 수복실에서 정비 꼭 하고 가, 오빠. 타이탄이었으면 한 방인데... 흥.', o);
   },
   async obj_pc(e) { Audio2.sfx('stage_in', 0.6); await say('사령관은 격납고 단말기를 켰다.', { auto: 700 }); await UI.push(new PCScreen()); },
   async obj_healpod(e) {

@@ -316,7 +316,7 @@ const World = {
     if (e.kind === 'npc' || e.kind === 'trainer') e.dir = OPP[this.player.dir];
     // 퀘스트 (보고 · 제안). 상점·수복실·선물 같은 기능형 NPC는 퀘스트 대화 뒤 원래 기능을 이어서 쓴다
     if ((e.kind === 'npc' || (e.kind === 'trainer' && Game.flags['beat_' + o.id])) && window.Quests && await Quests.talk(e)) {
-      if (!['shop', 'nurse', 'merlin'].includes(o.talk)) return;
+      if (!['shop', 'nurse', 'doctor'].includes(o.talk)) return;
     }
     if (e.kind === 'sign') { Audio2.cursor(); await say(o.text); return; }
     if (e.kind === 'item') {
