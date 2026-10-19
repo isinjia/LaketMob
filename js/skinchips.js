@@ -53,12 +53,19 @@
     ITEMS['sc_' + t] = { name: c.name, price: 1500, kind: 'skin', theme: t, icon: 'schip', color: c.color, desc: c.desc };
     ITEM_ORDER.push('sc_' + t);
   }
-  const formOf = (m, theme) => { const f = FORMS[m.key]; if (!f) return 0; const i = f.forms.findIndex((_, k) => THEME[m.key + '_' + (k + 1)] === theme); return i < 0 ? 0 : i + 1; };
+  // 포켓몬처럼 캐릭터마다 진화 방식이 다르다:
+  //  - 스킨이 여러 개라 갈래가 생기는 캐릭터(LRL·발키리·홍련 등)와 럼버제인 → 데이터 칩으로만
+  //  - 스킨이 하나뿐인 캐릭터 → 예전처럼 레벨로 (칩은 쓸 수 없다)
+  const CHIP_EXTRA = new Set(['lumberjane']);
+  const chipEvolver = (key) => !!FORMS[key] && (FORMS[key].forms.length > 1 || CHIP_EXTRA.has(key));
+  const formOf = (m, theme) => { const f = FORMS[m.key]; if (!f || !chipEvolver(m.key)) return 0; const i = f.forms.findIndex((_, k) => THEME[m.key + '_' + (k + 1)] === theme); return i < 0 ? 0 : i + 1; };
   window.SKIN_CHIP_THEME = THEME;
-  window.skinChipFor = (artKey) => THEME[artKey] ? 'sc_' + THEME[artKey] : null;
+  window.chipEvolver = chipEvolver;
+  window.skinChipFor = (artKey) => THEME[artKey] && chipEvolver(artKey.replace(/_\d+$/, '')) ? 'sc_' + THEME[artKey] : null;
 
-  // 레벨로 모습이 바뀌던 진화는 끈다 (랭크 승급만 레벨로)
-  Mon.prototype.canEvolve = function () { return false; };
+  // 레벨 진화는 칩 진화 캐릭터에게만 끈다 (랭크 승급은 모두 레벨로)
+  const baseCanEvolve = Mon.prototype.canEvolve;
+  Mon.prototype.canEvolve = function () { return chipEvolver(this.key) ? false : baseCanEvolve.call(this); };
 
   // 칩 사용: 그 테마의 모습이 있고 지금 모습과 다르면 바뀐다. 전투 중에는 못 쓴다
   const baseCan = Game.canUseItem.bind(Game), baseApply = Game.applyItem.bind(Game);
