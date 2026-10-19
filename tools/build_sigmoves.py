@@ -510,6 +510,7 @@ def tidy(u, ls, moves, elems):
     def_up = sum(1 for m in sigs if m in moves and (moves[m].get('self') or {}).get('def', 0) > 0)
     sig_def = def_up > 0
     atk_up = sum(1 for m in sigs if m in moves and moves[m].get('cat') == 'st' and (moves[m].get('self') or {}).get('atk', 0) > 0)
+    sig_atk_up = atk_up > 0
     heals = sum(1 for m in sigs if m in moves and moves[m].get('heal'))
     heal_cap = 0 if heals else (2 if subtype(u) == 'heal' else 1)
     sig_flags = {f for m in sigs if m in moves and moves[m].get('cat') == 'atk' for f in ('crit', 'pierce', 'hits') if moves[m].get(f)}
@@ -532,6 +533,9 @@ def tidy(u, ls, moves, elems):
                 continue  # 같은 성격의 고유 공격기가 있다
             if d.get('cat') == 'atk' and any(dv.get(f) for f in sig_flags):
                 continue  # 치명·관통은 고유 기술이 맡는다
+            s1d = moves.get(f"sig_{u['key']}_1") or {}
+            if d.get('cat') == 'atk' and lv < 21 and s1d.get('cat') == 'atk' and eff_pow(dv) >= eff_pow(s1d):
+                continue  # 초반 공용 공격은 대표기보다 약하게
             if d.get('cat') == 'atk' and fx_count.get(dv.get('fx'), 0) >= 3:
                 continue  # 같은 연출의 공격이 이미 셋이다
             if d.get('cat') == 'atk': fx_count[dv.get('fx')] = fx_count.get(dv.get('fx'), 0) + 1
@@ -556,7 +560,7 @@ def tidy(u, ls, moves, elems):
                 if heals >= heal_cap: continue
                 heals += 1
             if d.get('cat') == 'st' and (d.get('self') or {}).get('atk', 0) > 0:
-                if atk_up >= 2: continue
+                if atk_up >= (1 if sig_atk_up else 2): continue
                 atk_up += 1
             if e and m in GUNLIKE and (elemental_weapon(u) or (sig_elem and sig_elem == sum(1 for x in sigs if x in moves and moves[x].get('cat') == 'atk'))):  # 화염방사기·냉기·전격이 무기인 유닛
                 if not pool: continue
@@ -571,11 +575,16 @@ def tidy(u, ls, moves, elems):
         if m not in seen: seen.add(m); res.append([lv, m])
     atks = [m for _, m in res if (moves.get(m) or BASE_MOVES.get(m) or {}).get('cat') == 'atk']
     has = lambda mid: (moves.get(mid) or BASE_MOVES.get(mid) or {})
+    s1 = moves.get(f"sig_{u['key']}_1") if (moves.get(f"sig_{u['key']}_1") or {}).get('cat') == 'atk' else None
     for fill, lv in zip(basics(u, elems), (1, 11, 11, 11)):
         if len(atks) >= 2: break
         fd = has(fill)
         if ((fd.get('pow') or 0) > 55 and eff_pow(fd) > sig_max * 0.9) or (u['role'] == '지원기' and (fd.get('pow') or 0) > 55): continue
+        if s1 and eff_pow(fd) >= eff_pow(s1): continue
         if fill not in seen: res.append([lv, fill]); seen.add(fill); atks.append(fill)
+    if len(atks) < 2:
+        weak = min((x for x in basics(u, elems) if x not in seen), key=lambda x: eff_pow(has(x)), default=None)
+        if weak: res.append([1, weak]); seen.add(weak); atks.append(weak)
     has = lambda mid: (moves.get(mid) or BASE_MOVES.get(mid) or {})
     if u['role'] == '보호기' and not any((has(m).get('foe') or {}).get('atk', 0) < 0 or 'foeAtk' in (has(m).get('eff') or {}) for _, m in res):
         for cand in ('provoke', 'menace', 'challenge'):
@@ -674,7 +683,8 @@ for u in units:
         foe_keys = lambda o: {k for k, v in (o.get('foe') or {}).items() if v < 0} | {k[3:].lower() for k in (o.get('eff') or {}) if k.startswith('foe')}
         debuff_dup = bool(foe_keys(p4)) and any(foe_keys(p4) & foe_keys(o) for o in others if o.get('cat') == 'st')
         heal_dup = p4.get('heal') and any(o.get('heal') for o in others)
-        if same or def_stack or spd_stack or debuff_dup or heal_dup: p4 = None
+        atk_stack = p4.get('cat') == 'st' and (p4.get('self') or {}).get('atk', 0) > 0 and sum(1 for o in others if o.get('cat') == 'st' and (o.get('self') or {}).get('atk', 0) > 0) >= 1
+        if same or def_stack or spd_stack or debuff_dup or heal_dup or atk_stack: p4 = None
     if p4: moves[f"sig_{u['key']}_4"] = p4
     elems = [e for e in dict.fromkeys(x.get('elem') for x in u['skills'][:2]) if e not in (None, 'none')]
     sp = {'types': [u['cls']] + elems, 'moves': tidy(u, learnset(u, elem, fam, bool(p), bool(p4)), moves, elems), 'desc': u['desc']}
@@ -741,7 +751,7 @@ HAND = {
             'sig_lemonomega_3': {'name': '챔피언의 위엄', 'type': 'phys', 'cat': 'st', 'acc': 0, 'pp': 10, 'self': {'atk': 1, 'spd': 1}, 'fx': 'buff', 'desc': '자매들의 정점에 선 자의 여유로 전장을 내려다본다. 공격과 속도가 오른다.'},
         },
         'desc': '레모네이드 자매의 정점에 선 리더이자 리그 챔피언. 절대 명령 한마디로 자매들을 움직이며, 오만해 보여도 자매들에게는 누구보다 정이 깊다.',
-        'learn': [[1, 'sig_lemonomega_1'], [1, 'order'], [11, 'guard'], [16, 'sig_lemonomega_2'], [21, 'plasma'], [30, 'sig_lemonomega_3']],
+        'learn': [[1, 'sig_lemonomega_1'], [1, 'order'], [11, 'guard'], [16, 'sig_lemonomega_2'], [21, 'hmgburst'], [30, 'sig_lemonomega_3']],
     },
 }
 for k, h in HAND.items():
@@ -765,6 +775,19 @@ for sp in species.values():
     if 'desc' in sp: sp['desc'] = fix_words(sp['desc'])
 for k, v in DESC_FIX.items():
     if k in moves: moves[k]['desc'] = v
+# 지원기: 액티브가 이미 공격을 올리면 패시브는 방어 쪽으로, 회복만 겹치면 패시브에 방어 강화를 더한다
+for u in units:
+    if u['role'] != '지원기': continue
+    m2, m3 = moves.get(f"sig_{u['key']}_2") or {}, moves.get(f"sig_{u['key']}_3") or {}
+    if m2.get('cat') != 'st' or m3.get('cat') != 'st': continue
+    s2, s3 = m2.get('self') or {}, m3.get('self') or {}
+    if s2.get('atk', 0) > 0 and s3.get('atk', 0) > 0 and 'def' not in s3:
+        s3 = dict(s3); s3['def'] = s3.pop('atk'); m3['self'] = s3
+        for x, y in (('공격과', '방어와'), ('공격이', '방어가'), ('공격을', '방어를'), ('공격·', '방어·'), ('화력을', '방어를')):
+            m3['desc'] = m3['desc'].replace(x, y)
+    elif m2.get('heal') and m3.get('heal') and not s2 and not s3:
+        m3['self'] = {'def': 1}
+if 'sig_royalarsenal_3' in moves: moves['sig_royalarsenal_3']['desc'] = '무제한 보급으로 장갑과 탄약을 새로 채운다. 방어가 두 단계 오르고 체력을 20% 회복한다.'
 NAME_OF = {'atk': '공격', 'def': '방어', 'spd': '속도', 'acc': '명중'}
 for m in moves.values():
     if not m.get('sig') or m.get('cat') != 'st' or not m.get('self'): continue
