@@ -331,15 +331,15 @@
   "albatross": {
     "kind": "blade",
     "emit": [
-      0.99,
-      0.61
+      0.06,
+      0.78
     ]
   },
   "alexandra": {
     "kind": "focus",
     "emit": [
-      0.2,
-      0.28
+      0.7,
+      0.18
     ]
   },
   "alice_1": {
@@ -716,8 +716,8 @@
   "constantia": {
     "kind": "gun",
     "emit": [
-      0.81,
-      0.18
+      0.1,
+      0.08
     ]
   },
   "cyclopseprincess": {
@@ -1241,8 +1241,8 @@
   "khan": {
     "kind": "gun",
     "emit": [
-      0.145,
-      0.89
+      0.08,
+      0.6
     ]
   },
   "kheshig": {
@@ -1829,8 +1829,8 @@
   "scathy": {
     "kind": "focus",
     "emit": [
-      0.14,
-      0.24
+      0.6,
+      0.16
     ]
   },
   "scissorslise": {

@@ -507,13 +507,15 @@ const World = {
     const x1 = Math.min(this.w - 1, Math.ceil((cx + VW) / TILE) + 1), y1 = Math.min(this.h - 1, Math.ceil((cy + VH) / TILE) + 2);
     const th = THEME[this.def.theme];
     // 애니메이션 타일
+    const acid = [];
     for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
       const c = this.tiles[y][x];
       if (c === '~') drawWaterAnim(x, y, th, this);
       else if (c === '"' || c === 'n') drawTallGrass(x * TILE, y * TILE, c, th, x, y, false);
-      else if (c === '%') drawAcid(x, y);
+      else if (c === '%') acid.push([x, y]);
       else if (c === 'H') drawCave(x, y);
     }
+    drawAcidPools(acid);
     // Y 정렬 스프라이트
     const list = [];
     for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
@@ -844,16 +846,37 @@ function drawTallGrass(X, Y, c, th, x, y, front) {
   if (nest && !front) { ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.18 + 0.15 * Math.sin(t * 3 + x + y); ctx.fillStyle = '#ff2a4a'; ctx.beginPath(); ctx.arc(X + 24, Y + 30, 7, 0, 7); ctx.fill(); }
   ctx.restore();
 }
-function drawAcid(x, y) {
-  const X = x * TILE, Y = y * TILE, t = Tick.time;
+// 철충 둥지의 체액 웅덩이(둥지 바닥처럼 검붉은 색): 웅덩이 전체를 층마다 한 경로로 그려(칸 경계 없이) 가장자리만 불규칙하게 부풀린다
+function acidPath(cells, ins, dy, bump) {
+  ctx.beginPath();
+  for (const [x, y] of cells) {
+    const X = x * TILE, Y = y * TILE + dy;
+    const u = same(World, x, y - 1, '%'), d = same(World, x, y + 1, '%'), l = same(World, x - 1, y, '%'), r = same(World, x + 1, y, '%');
+    const x0 = X + (l ? 0 : ins), y0 = Y + (u ? 0 : ins), x1 = X + TILE - (r ? 0 : ins), y1 = Y + TILE - (d ? 0 : ins);
+    const k = Math.min(26, (x1 - x0) / 2, (y1 - y0) / 2), tl = !u && !l ? k : 0, tr = !u && !r ? k : 0, br = !d && !r ? k : 0, bl = !d && !l ? k : 0;
+    ctx.moveTo(x0 + tl, y0); ctx.lineTo(x1 - tr, y0); ctx.quadraticCurveTo(x1, y0, x1, y0 + tr); ctx.lineTo(x1, y1 - br); ctx.quadraticCurveTo(x1, y1, x1 - br, y1);
+    ctx.lineTo(x0 + bl, y1); ctx.quadraticCurveTo(x0, y1, x0, y1 - bl); ctx.lineTo(x0, y0 + tl); ctx.quadraticCurveTo(x0, y0, x0 + tl, y0); ctx.closePath();
+    if (!bump) continue;
+    // 바깥 가장자리마다 크기가 다른 혹 두 개
+    const edges = [[!u, (q) => [x0 + q * (x1 - x0), y0]], [!d, (q) => [x0 + q * (x1 - x0), y1]], [!l, (q) => [x0, y0 + q * (y1 - y0)]], [!r, (q) => [x1, y0 + q * (y1 - y0)]]];
+    edges.forEach(([open, at], i) => { if (!open) return; for (let j = 0; j < 2; j++) { const [cx, cy] = at(0.25 + 0.5 * j + (hash2(x, y, 20 + i * 2 + j) - 0.5) * 0.2), rad = bump * (0.5 + 0.9 * hash2(x, y, 40 + i * 2 + j)); if (hash2(x, y, 60 + i * 2 + j) < 0.3) continue; ctx.moveTo(cx + rad, cy); ctx.arc(cx, cy, rad, 0, 7); } });
+  }
+}
+function drawAcidPools(cells) {
+  if (!cells.length) return;
+  const t = Tick.time;
   ctx.save();
-  blobTile(ctx, World, x, y, '%', '#2f7a1a', 4, 16, '#163a0a');
-  ctx.globalCompositeOperation = 'lighter';
-  ctx.globalAlpha = 0.35 + 0.15 * Math.sin(t * 2 + x * 0.7 + y);
-  blobTile(ctx, World, x, y, '%', '#7dff3a', 10, 16);
+  ctx.fillStyle = 'rgba(18,3,9,0.55)'; acidPath(cells, 3, 4, 15); ctx.fill();   // 바닥에 스민 그림자
+  ctx.fillStyle = '#2a0c18'; acidPath(cells, 6, 0, 13); ctx.fill();           // 검붉은 체액
+  ctx.fillStyle = '#441428'; acidPath(cells, 15, -1, 9); ctx.fill();
+  ctx.fillStyle = 'rgba(16,2,8,0.45)'; for (const [x, y] of cells) { const X = x * TILE + 8 + hash2(x, y, 13) * 30, Y = y * TILE + 8 + hash2(x, y, 14) * 30; ctx.beginPath(); ctx.ellipse(X, Y, 6 + hash2(x, y, 15) * 10, 4 + hash2(x, y, 16) * 6, hash2(x, y, 17) * 3, 0, 7); ctx.fill(); } // 고인 체액의 얼룩         // 표면
+  ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.1 + 0.05 * Math.sin(t * 1.6);
+  ctx.fillStyle = '#ff2a5a'; acidPath(cells, 24, -2, 6); ctx.fill();         // 은은한 발광
   ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
-  ctx.fillStyle = 'rgba(220,255,160,0.75)';
-  for (let i = 0; i < 2; i++) { const ph = (t * 0.8 + hash2(x, y, i)) % 1; ctx.beginPath(); ctx.arc(X + 10 + hash2(x, y, 5 + i) * 28, Y + 36 - ph * 20, 3 * (1 - ph), 0, 7); ctx.fill(); }
+  ctx.strokeStyle = 'rgba(255,140,170,0.22)'; ctx.lineWidth = 2;
+  for (const [x, y] of cells) { if (hash2(x, y, 8) > 0.45) continue; const X = x * TILE + 10 + hash2(x, y, 11) * 18, Y = y * TILE + 14 + hash2(x, y, 12) * 18, s = 0.6 + 0.4 * Math.sin(t * 1.2 + x + y); ctx.beginPath(); ctx.ellipse(X, Y, 9 * s, 3.5 * s, 0, Math.PI * 1.1, Math.PI * 1.9); ctx.stroke(); }
+  ctx.fillStyle = 'rgba(255,150,180,0.5)';
+  for (const [x, y] of cells) { const X = x * TILE, Y = y * TILE; const ph = (t * 0.5 + hash2(x, y, 0)) % 1; if (hash2(x, y, 7) < 0.6) { ctx.beginPath(); ctx.arc(X + 12 + hash2(x, y, 5) * 24, Y + 30 - ph * 12, 2.6 * (1 - ph), 0, 7); ctx.fill(); } }
   ctx.restore();
 }
 function drawCave(x, y) {

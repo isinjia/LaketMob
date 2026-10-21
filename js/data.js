@@ -213,7 +213,7 @@ const SPECIES_LIST = [
   { key: 'goltarion', name: '골타리온', types: ['light', 'elec'], base: [82, 90, 86, 44], rank: 'S', catch: 45, exp: 150, kind: 'ags', faction: 'AGS',
     moves: [[1, 'shock'], [1, 'strike'], [20, 'plasma'], [26, 'barrage'], [32, 'railgun'], [39, 'thunder']],
     desc: '거대 보행 병기형 AGS. 등에 실린 전자포가 불을 뿜는다.' },
-  { key: 'lindwurm', name: '린드부르므', types: ['air', 'fire'], base: [66, 88, 60, 90], rank: 'A', catch: 45, exp: 145, kind: 'bio', faction: '스카이나이츠',
+  { key: 'lindwurm', name: '린트블룸', types: ['air', 'fire'], base: [66, 88, 60, 90], rank: 'A', catch: 45, exp: 145, kind: 'bio', faction: '스카이나이츠',
     moves: [[1, 'dive'], [1, 'flamer'], [20, 'strafe'], [25, 'incend'], [31, 'bomb'], [38, 'napalm']],
     desc: '용의 이름을 가진 폭격기. 털털한 성격이지만 폭격의 정밀함은 최고 수준.' },
   { key: 'phoenix', name: '피닉스', types: ['air', 'fire'], base: [74, 86, 62, 86], rank: 'S', catch: 25, exp: 175, kind: 'bio', faction: '천공의 별',

@@ -220,6 +220,7 @@
         { t: 'deco', kind: 'sprite', art: 'cherry', x: 4, y: 5, w: 2, h: 1, block: 1, k: 1.6 }, { t: 'deco', kind: 'sprite', art: 'cherry', x: 21, y: 5, w: 2, h: 1, block: 1, k: 1.6 },
         { t: 'deco', kind: 'sprite', art: 'bench', x: 10, y: 13, w: 1, h: 1, block: 1, k: 1.4 }, { t: 'deco', kind: 'sprite', art: 'bench', x: 17, y: 13, w: 1, h: 1, block: 1, k: 1.4 },
         { t: 'deco', kind: 'hatch', x: 20, y: 14, w: 1, h: 1, block: 1, cond: '!resortRed' },
+        { t: 'deco', kind: 'hatch', x: 20, y: 14, w: 1, h: 1, cond: 'resortRed' }, // 열린 뒤에도 입구가 보이게 (붉게 빛남, 밟으면 지하로)
         { t: 'warp', x: 20, y: 14, w: 1, h: 1, to: ['nest', 14, 29, 'up'] },
         { t: 'center', x: 0, y: 0 },
         { t: 'obj', kind: 'healpod', x: 6, y: 9, block: 1 },
