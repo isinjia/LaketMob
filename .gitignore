@@ -6,7 +6,8 @@ tools/sdpipe/unity_ref/proj/
 tools/sdpipe/unity_ref/mesh.log
 
 # 로컬 도구 설정 · 캐시
-.claude/
+.claude/*
+!.claude/skills/
 __pycache__/
 *.pyc
 Thumbs.db
