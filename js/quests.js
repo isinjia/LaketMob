@@ -240,6 +240,29 @@
       { goal: '폐허 해안의 칼리스타에게 보고하기', at: ['coast', 'calista'],
         talk: async o => lines(o, ['이터니티... 삼안 산업의 전략 병기가 등대를 지키고 있었다니.', '해안 경비대 기록에 남겨 둘게. 고마워, 사령관. 역시 아무도 안 다치는 쪽이 최선이지.']) }],
     reward: { money: 5000, items: { kit3: 3 } } });
+  // 엔딩 뒤 라비아타가 램파리온을 꺼내 대결한다. 이기면 램파리온이 합류한다 (지면 다시 말을 걸어 재도전)
+  const LAMP_TRAINER = { name: '라비아타', title: '저항군 리더', portrait: 'labiata', voice: 'labiata', prize: 8000, bgm: 'legend',
+    lose: '후훗... 제 램파리온을 이기시다니. 이제 정말 든든하네요, 사령관님.' };
+  async function lamparionDuel(o) {
+    await lines(o, ['그럼 시작할게요. 램파리온, 나와 주세요!', '봐주지 않을 거예요. 사령관님도 전력으로 와 주세요.']);
+    const res = await startBattle({ kind: 'trainer', foes: [new Mon('lamparion', 50, { trainer: true })], trainer: LAMP_TRAINER, bg: 'base', bgm: 'legend', noRun: true });
+    if (res !== 'win') {
+      if (res === 'lose') await say('후훗, 아직 램파리온을 맡기기엔 조금 이르네요. 준비되면 언제든 다시 말을 걸어 주세요, 사령관님.', o);
+      return false;
+    }
+    Game.flags.beat_labiata_lamparion = 1;
+    await lines(o, ['약속대로 이 아이는 사령관님께 맡길게요.', '램파리온, 이제부터는 사령관님 곁을 지켜 주세요. ...저도 있으니까요. 후훗.']);
+    const m = new Mon('lamparion', 50, { trainer: true }); m.ot = '사령관';
+    const where = Game.addMon(m); Game.markCaught('lamparion');
+    Audio2.voice('lamparion', 'join');
+    Audio2.jingle([659, 784, 988, 1319, 0, 988, 1319], 0.12, 'square', 0.07);
+    await say('램파리온이 사령관의 부대에 합류했다!' + (where === 'box' ? ' (부대가 가득 차서 보관함으로 보냈다)' : ''));
+  }
+  sideQ({ id: 'l_lamparion', legend: true, instant: true, title: '[전설] 최강의 수호자', giver: ['lab', 'labiata'], area: '라비아타 연구소', avail: () => F('cleared'),
+    offer: ['사령관님, 흑막을 쓰러뜨리고 돌아오셨군요. 정말 수고 많으셨어요.', '이제 사령관님께 이 아이를 보여 드려도 될 것 같아요. 제가 가진 가장 강한 아이, 램파리온이에요.', '저와 램파리온을 이기시면... 이 아이를 사령관님께 맡길게요. 한번 해 보시겠어요?'],
+    summary: '라비아타가 가장 강한 아이 램파리온을 걸고 대결을 신청했다.',
+    steps: [{ goal: '라비아타의 램파리온 이기기', at: ['lab', 'labiata'], talk: lamparionDuel }],
+    reward: { money: 5000, items: { kit3: 3 } } });
   sideQ({ id: 'l_blacklilith', legend: true, title: '[전설] 삼안의 경호원', giver: ['lab', 'labiata'], area: '라비아타 연구소', avail: () => F('cleared'),
     offer: ['사령관님, 둥지를 정리하다가 오래된 삼안 산업 기록을 찾았어요.', '"블랙 리리스 — 경호 대상 외 전원 적대". 둥지 가장 깊은 곳에서 그 아이의 반응이 잡혀요.', '리조트의 세크메트 씨가 둥지 구조를 잘 안대요. 먼저 물어보세요.'],
     summary: '라비아타가 둥지 깊은 곳에서 블랙 리리스의 반응을 찾았다.',
@@ -411,7 +434,7 @@
         if (!this.stepReady(q)) continue;
         did = true;
         Audio2.voice(e.o.sprite || (TRAINERS[id] && TRAINERS[id].voice), 'talk', 0.8);
-        if (st.talk) await st.talk(o);
+        if (st.talk && (await st.talk(o)) === false) continue; // 대결에서 졌으면 그 단계에 머문다
         await this.advance(q);
       }
       // 2) 진행 중 (보고 불가): 짧은 안내만 하고 NPC 본래 대화로 넘긴다
@@ -427,6 +450,7 @@
         Audio2.voice(e.o.sprite || (TRAINERS[id] && TRAINERS[id].voice), 'talk', 0.8);
         for (const l of q.offer || []) await say(l, o);
         const c = await ask((q.type === 'main' ? '[메인] ' : q.legend ? '[전설] ' : '[서브] ') + '「' + q.title.replace('[전설] ', '') + '」 퀘스트를 수락할까요?', ['수락한다', '나중에'], o);
+        if (c === 0 && q.instant) { this.start(q); did = true; if ((await q.steps[0].talk(o)) !== false) await this.advance(q); break; }
         if (c === 0) { this.start(q); await say('퀘스트를 수락했다! 목표: ' + q.steps[0].goal); did = true; }
         else break; // 거절하면 나머지 제안은 다음에
       }
