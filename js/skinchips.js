@@ -192,4 +192,9 @@
   // 1번 폐도로에서 LRL이 자주 나온다
   const r1 = ENCOUNTERS.route1 && ENCOUNTERS.route1.list.find(x => x[0] === 'lrl');
   if (r1) r1[1] = 14; else if (ENCOUNTERS.route1) ENCOUNTERS.route1.list.push(['lrl', 14]);
+
+  // 얻을 길이 없던 도감 항목: 야생에서 드물게 나온다
+  for (const [area, k] of [['forest', 'leprechaun'], ['forest', 'gnome'], ['coast', 'rhode'], ['nest', 'harpy']]) {
+    const t = ENCOUNTERS[area]; if (t && SPECIES[k] && !t.list.some(x => x[0] === k)) t.list.push([k, 2]);
+  }
 })();
